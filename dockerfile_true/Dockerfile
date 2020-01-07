@@ -1,7 +1,6 @@
-FROM python:3
-
-RUN pip install cbor
-
-ADD daemon.py /
-
-CMD ["python", "daemon.py"]
+FROM python:alpine3.8
+COPY . /app
+WORKDIR /app
+RUN pip install -r requirements.txt
+EXPOSE 5678
+CMD python ./daemon.py
