@@ -3,4 +3,4 @@ COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
 EXPOSE 5678
-CMD python ./daemon.py
+CMD exec python ./daemon.py
