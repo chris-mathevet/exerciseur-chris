@@ -4,6 +4,7 @@ Format des exercices
 ====
 
 Chaque exercice est constitué de:
+
 	- une image docker
 	- un fichier infos.json
 
