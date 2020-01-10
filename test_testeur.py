@@ -33,13 +33,16 @@ parser.add_argument(
     "--verbose", help="affiche plus d'informations", action="store_true"
 )
 
-
 if __name__ == "__main__":
     args = parser.parse_args()
     code_etu = args.code_etu or b'tralala'
+
+    if args.verbose:
+        print(sectionize("Code étudiant"), end="")
+        print(code_etu.decode(), end="")
+        print(sectionize("Fin code étudiant"))
     
     docker_client = docker.from_env()
-    # docker_network = docker_client.networks.create("exerciseur")
     
     if args.nom_image:
         image = docker_client.images.get(args.nom_image)
@@ -63,27 +66,41 @@ if __name__ == "__main__":
     lc = LogConfig(type=LogConfig.types.JSON, config={
         'max-size': '1g',
     })
-    container = docker_client.containers.run(image, detach=True, log_config=lc)
-    container.reload()
-    adresse_container = container.attrs['NetworkSettings']['IPAddress']
-    délai_essais = 1
-    socket_container = None
-    while délai_essais < 1024 and not socket_container:
-        try:
-            socket_container = socket.create_connection((adresse_container, 5678))
-        except ConnectionRefusedError:
-            time.sleep(délai_essais * 0.001)
-            délai_essais *= 2
-            
-    socket_container.send(cbor.dumps(code_etu))
-    délai_lecture = 1
-    réponse = b''
-    while délai_lecture < 1024 and len(réponse) == 0:
-        réponse = socket_container.recv(4096)
-        time.sleep(délai_lecture * 0.001)
-        délai_lecture *= 2
-    print(réponse)
-    container.stop()
+    t_démarrage = time.perf_counter()
+    container = docker_client.containers.run(image, detach=True, log_config=lc, network_mode="bridge")
     if args.verbose:
-        print(sectionize("logs du container"))
-        print(container.logs(since=datetime.datetime.min))
+        print("conteneur démarré en %.2f s" % (time.perf_counter() - t_démarrage))
+    try:
+        container.reload()
+        adresse_container = container.attrs['NetworkSettings']['IPAddress']
+        if args.verbose:
+            print("conteneur en marche, sur", adresse_container)
+        t_début_réseau = time.perf_counter()
+        délai_essais = 1
+        socket_container = None
+        while délai_essais < 1024 and not socket_container:
+            try:
+                socket_container = socket.create_connection((adresse_container, 5678))
+            except ConnectionRefusedError:
+                time.sleep(délai_essais * 0.001)
+                délai_essais *= 2
+                
+
+        if args.verbose:
+            print("connexion au conteneur ok")
+
+        socket_container.send(cbor.dumps(code_etu))
+        délai_lecture = 1
+        réponse = b''
+        while délai_lecture < 1024 and len(réponse) == 0:
+            réponse = socket_container.recv(4096)
+            time.sleep(délai_lecture * 0.001)
+            délai_lecture *= 2
+        if args.verbose:
+            print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau))
+        print(réponse)
+    finally:
+        container.stop()
+        if args.verbose:
+            print(sectionize("logs du container"))
+            print(container.logs(since=datetime.datetime.min))

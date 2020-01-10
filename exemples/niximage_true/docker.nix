@@ -1,7 +1,7 @@
 with (import <nixpkgs> {});
 
 let notre_exerciseur = python3Packages.buildPythonApplication {
-    src = ./ToujoursContent;
+    src = ../ToujoursContent;
     name = "toujoursContent";
     propagatedBuildInputs = with python3Packages; [ cbor ];
 };
