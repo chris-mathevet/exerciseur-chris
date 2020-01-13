@@ -104,10 +104,10 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
     La classe SessionÉtudiante a un constructeur (connexion pour commencer
     une tentative) et une méthode évalue(self, codeEtu).
     """
-    def __init__(self, dossier_code, classe_session_étudiante='ToujoursContent'):
-        super().__init__(dossier_code, nom_démon=None, nom_module=None)
+    def __init__(self, dossier_code, classe_session_étudiante='ToujoursContent', nom_module='exerciseur'):
+        super().__init__(dossier_code, nom_démon=None)
         self.nom_classe = classe_session_étudiante
-        self.nom_module = nom_module or 'exerciseur'
+        self.nom_module = nom_module
 
     def prépare_démon(self):
         if not self.chemin_travail:
@@ -123,7 +123,7 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
                 self.nom_démon = nom_main_py
                 self.remplir_main_py(f_main_py)
             with open(rép_src + "/requirements.txt", 'a') as rq:
-                étendre_requirements(rq)
+                self.étendre_requirements(rq)
         else:
             raise ValueError("ExerciseurPackagePython ne sait pas gérer setup.py")
 
