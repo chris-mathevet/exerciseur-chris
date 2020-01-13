@@ -105,9 +105,9 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
     une tentative) et une méthode évalue(self, codeEtu).
     """
     def __init__(self, dossier_code, classe_session_étudiante='ToujoursContent'):
-        super().__init__(dossier_code, nom_démon=None)
+        super().__init__(dossier_code, nom_démon=None, nom_module=None)
         self.nom_classe = classe_session_étudiante
-        self.nom_module = 'exerciseur'
+        self.nom_module = nom_module or 'exerciseur'
 
     def prépare_démon(self):
         if not self.chemin_travail:
@@ -123,12 +123,15 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
                 self.nom_démon = nom_main_py
                 self.remplir_main_py(f_main_py)
             with open(rép_src + "/requirements.txt", 'a') as rq:
-                rq.write("cbor\n")
+                étendre_requirements(rq)
         else:
             raise ValueError("ExerciseurPackagePython ne sait pas gérer setup.py")
 
+    def étendre_requirements(self, rq):
+        rq.write("cbor\n")
+
     def remplir_main_py(self, out):
-        contenu_main = resource_string(__name__, 'mainExerciseurPackagePython.py').decode()
+        contenu_main = resource_string(__name__, 'mainExerciseurPackagePython.py.in').decode()
         contenu_main = contenu_main.replace("{{NomClasse}}", self.nom_classe)
         contenu_main = contenu_main.replace("{{module}}", self.nom_module)
         out.write(contenu_main)
