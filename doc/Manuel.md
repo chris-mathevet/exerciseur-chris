@@ -31,7 +31,24 @@ $ echo $id_image
 sha256:edf334214dd2bc11589e841f5524226c99a7c62a0d65dbc3cd3621a6c98906fc
 ```
 
-La réponse de la commande (`sha256:e3f9838f4`…) est l'identifiant de l'image docker qui a été construite. On peut ainsi la lancer, puis se connecter sur son port 5678 (ici, on lie ce port 5678 à celui de la machine locale). Ici, on va envoyer comme tentative, la chaîne `'abcde'`, qui provoque une erreur à l'évaluation. Le préfixe «e» sert à encoder la tentative au format `cbor` pour permettre à l'oracle d'en détecter la fin.
+La réponse de la commande (`sha256:e3f9838f4`…) est l'identifiant de l'image docker qui a été construite. Le script `test_testeur.py` nous permet de tester l'oracle qui vient d'être construit.
+
+```bash
+$ cat > /tmp/a.py <<EOF
+a = 5
+EOF
+
+$ python3 test_testeur.py --code-etu /tmp/a.py --nom-image $id_image | json_pp
+{
+   "_messages" : [
+      "Tous les tests ont réussi, champion·ne!"
+   ],
+   "_temps" : "0ms",
+   "_valide" : true
+}
+```
+
+On peut ainsi la lancer, puis se connecter sur son port 5678 (ici, on lie ce port 5678 à celui de la machine locale). Ici, on va envoyer comme tentative, la chaîne `'abcde'`, qui provoque une erreur à l'évaluation. Le préfixe «e» sert à encoder la tentative au format `cbor` pour permettre à l'oracle d'en détecter la fin.
 
 ```bash
 $ docker run -d -p 5678:5678 $id_image 
@@ -39,7 +56,6 @@ $ nc localhost 5678
 eabcde
 {"_valide": false, "_messages": ["Exception au chargement de votre code", "name 'abcde' is not defined"], "_temps": "0ms"}
 ```
-
 
 
 Prérequis
