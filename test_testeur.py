@@ -35,7 +35,11 @@ parser.add_argument(
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    code_etu = args.code_etu or b'tralala'
+    if args.code_etu:
+        with open(args.code_etu, 'rb') as f_etu:
+            code_etu = f_etu.read()
+    else:
+        code_etu = b'tralala'
 
     if args.verbose:
         print(sectionize("Code étudiant"), end="")
