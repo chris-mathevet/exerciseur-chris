@@ -18,6 +18,12 @@ parser.add_argument(
 parser.add_argument(
     "--classe", help="une classe exerciseur"
 )
+parser.add_argument(
+    "--module", help="le module de tests de l'exerciseur"
+)
+parser.add_argument(
+    "--type", help="Le type d'exerciseur à construire"
+)
 
 class ExerciseurDockerfile:
     """
@@ -57,15 +63,16 @@ class ExerciseurDémonPython:
         self.chemin_travail = None
         self.dockerfile = None
 
-    def prépare_copie_travail(self):
-        self.rép_travail = tempfile.TemporaryDirectory()
-        
+    def copie_source(self):
         self.chemin_travail = self.rép_travail.__enter__()
         dest = self.chemin_travail + '/src'
         shutil.copytree(dossier_python, dest)
 
+    def prépare_source(self):
+        pass
+
     def __enter__(self):
-        self.prépare_copie_travail()
+        self.rép_travail = tempfile.TemporaryDirectory()        
 
     def __exit__(self, *args):
         self.rép_travail.__exit__(*args)
@@ -80,6 +87,12 @@ class ExerciseurDémonPython:
             return ex_df.crée_image(docker_client)
         else:
             raise ValueError("impossible de créer une image pour un %r sans dossier de travail" % type(self))
+
+    def construit(self):
+        self.copie_source()
+        self.prépare_source()
+        return self.crée_image()
+
 
     def remplir_dockerfile(self, out, position='.'):
         """
@@ -109,7 +122,7 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
         self.nom_classe = classe_session_étudiante
         self.nom_module = nom_module
 
-    def prépare_démon(self):
+    def prépare_source(self):
         if not self.chemin_travail:
             raise ValueError("impossible de préparer le démon sans dossier de travail")
         rép_src = self.chemin_travail + "/src"
@@ -135,11 +148,17 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
         contenu_main = contenu_main.replace("{{NomClasse}}", self.nom_classe)
         contenu_main = contenu_main.replace("{{module}}", self.nom_module)
         out.write(contenu_main)
+
+class ExerciseurTestsPython(ExerciseurPackagePython):
+    def __init__(self, dossier_code, nom_module='tests.py'):
+        super().__init__(dossier_code, nom_module=nom_module, classe_session_étudiante=None)
+
+    def remplir_main_py(self, out):
+        contenu_main = resource_string(__name__, 'mainExerciseurTestsPython.py.in').decode()
+        contenu_main = contenu_main.replace("{{module}}", self.nom_module)
+        out.write(contenu_main)
+
         
-    def __enter__(self):
-        super().__enter__()
-        self.prépare_démon()
-    
 if __name__ == "__main__":
     args = parser.parse_args()
     debug_out = args.verbose and sys.stderr
@@ -147,17 +166,16 @@ if __name__ == "__main__":
     dossier_python = os.path.abspath(dossier_python)
     if args.classe:
         ex = ExerciseurPackagePython(dossier_python, args.classe)
+    elif args.type == "PythonTests":
+        ex = ExerciseurTestsPython(dossier_python, nom_module=args.module)
     else:
         ex = ExerciseurDémonPython(dossier_python)
 
-    if args.verbose:
-        with tempfile.TemporaryDirectory() as dossier_construction:
-            dest = dossier_construction + "/src"
-            shutil.copytree(dossier_python, dest)
-            ex.chemin_travail = dossier_construction
-            if args.classe:
-                ex.prépare_démon()
-            with open(dossier_construction + "/Dockerfile", 'w') as dockerfile:
+    with ex:
+        if args.verbose:
+            ex.copie_source()
+            ex.prépare_source()
+            with open(ex.chemin_travail + "/Dockerfile", 'w') as dockerfile:
                 print("----------", file=sys.stderr)
                 print("Dockerfile", file=sys.stderr)
                 print("----------", file=sys.stderr)
@@ -169,7 +187,7 @@ if __name__ == "__main__":
             print("-----------------", file=sys.stderr)
             for line in log:
                 print(line, file=sys.stderr)
-    else:
-        with ex:
-            (img, _log) = ex.crée_image()
+
+        else:
+            (img, _log) = ex.construit()
     print(img.id)
