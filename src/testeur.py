@@ -9,14 +9,8 @@ import sys
 import time
 import datetime
 
-epoch = datetime.datetime.fromtimestamp(0)
+parser = argparse.ArgumentParser(add_help=False)
 
-def sectionize(message):
-    n = len(message)
-    souligne = "\n" + n * "-" + "\n"
-    return (souligne + message + souligne)
-
-parser = argparse.ArgumentParser()
 parser.add_argument(
     "--dockerfile", help="le répertoire contenant le Dockerfile pour construire le testeur"
 )
@@ -29,12 +23,16 @@ parser.add_argument(
 parser.add_argument(
     "--code-etu", help="le code étudiant à soumettre"
 )
-parser.add_argument(
-    "--verbose", help="affiche plus d'informations", action="store_true"
-)
 
-if __name__ == "__main__":
-    args = parser.parse_args()
+
+epoch = datetime.datetime.fromtimestamp(0)
+
+def sectionize(message):
+    n = len(message)
+    souligne = "\n" + n * "-" + "\n"
+    return (souligne + message + souligne)
+
+def main(args):
     if args.code_etu:
         with open(args.code_etu, 'rb') as f_etu:
             code_etu = f_etu.read()

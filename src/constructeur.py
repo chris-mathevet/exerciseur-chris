@@ -7,22 +7,22 @@ import shutil
 import argparse
 from pkg_resources import resource_string
 
+parser = argparse.ArgumentParser(add_help=False)
 
-parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--verbose", help="affiche plus d'informations", action="store_true"
+    "dossier", help="Le dossier contenant les sources de l'exerciseur",
+    nargs='?'
 )
 parser.add_argument(
-    "--dossier-python", help="un dossier avec un daemon.py"
+    "--type", help="Le type d'exerciseur à construire (par défaut, %(default)s)",
+    choices=["DémonPython", "PackagePython", "TestsPython"],
+    default="DémonPython"
 )
 parser.add_argument(
-    "--classe", help="une classe exerciseur"
+    "--classe", help="la classe exerciseur, pour les exerciseurs type PackagePython"
 )
 parser.add_argument(
     "--module", help="le module de tests de l'exerciseur"
-)
-parser.add_argument(
-    "--type", help="Le type d'exerciseur à construire"
 )
 
 class ExerciseurDockerfile:
@@ -66,7 +66,7 @@ class ExerciseurDémonPython:
     def copie_source(self):
         self.chemin_travail = self.rép_travail.__enter__()
         dest = self.chemin_travail + '/src'
-        shutil.copytree(dossier_python, dest)
+        shutil.copytree(self.dossier_code, dest)
 
     def prépare_source(self):
         pass
@@ -159,17 +159,16 @@ class ExerciseurTestsPython(ExerciseurPackagePython):
         out.write(contenu_main)
 
         
-if __name__ == "__main__":
-    args = parser.parse_args()
+def main(args):
     debug_out = args.verbose and sys.stderr
-    dossier_python = args.dossier_python or "."
-    dossier_python = os.path.abspath(dossier_python)
-    if args.classe:
-        ex = ExerciseurPackagePython(dossier_python, args.classe)
-    elif args.type == "PythonTests":
-        ex = ExerciseurTestsPython(dossier_python, nom_module=args.module)
+    dossier_source = args.dossier or "."
+    dossier_source = os.path.abspath(dossier_source)
+    if args.type == "PackagePython":
+        ex = ExerciseurPackagePython(dossier_source, args.classe)
+    elif args.type == "TestsPython":
+        ex = ExerciseurTestsPython(dossier_source, nom_module=args.module)
     else:
-        ex = ExerciseurDémonPython(dossier_python)
+        ex = ExerciseurDémonPython(dossier_source)
 
     with ex:
         if args.verbose:

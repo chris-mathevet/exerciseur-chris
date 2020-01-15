@@ -7,6 +7,12 @@ Introduction et tutorial
 
 `docker-exerciseur` permet de créer les oracles qui évalueront les tentatives envoyées par une interface web. Chaque exercice (ou feuille d'exercices) a son propre oracle sous forme d'une image docker. Les conteneurs issus de cette image écoutent sur le port 5678 des tentatives et renvoient, pour chacune, une évaluation.
 
+Pour installer `docker-exerciseur`, vous pouvez procéder ainsi (depuis la racine du répertoire source de `docker-exerciseur`
+```bash
+$ python3 setup.py install
+$ docker-exerciseur help
+```
+
 Assurez-vous que les dépendances de `docker-exerciseur` sont installées (cf. ci-dessous), et considérons un exercice très sophistiqué:
 
 > Écrire un module python contenant une variable globale `a` de valeur 5.
@@ -48,12 +54,12 @@ $ python3 test_testeur.py --code-etu /tmp/a.py --nom-image $id_image | json_pp
 }
 ```
 
-On peut ainsi la lancer, puis se connecter sur son port 5678 (ici, on lie ce port 5678 à celui de la machine locale). Ici, on va envoyer comme tentative, la chaîne `'abcde'`, qui provoque une erreur à l'évaluation. Le préfixe «e» sert à encoder la tentative au format `cbor` pour permettre à l'oracle d'en détecter la fin.
+On peut ainsi la lancer, puis se connecter sur son port 5678 (ici, on lie ce port 5678 à celui de la machine locale). Ici, on va envoyer comme tentative, la chaîne `'a = 6'`, qui provoque une erreur à l'évaluation. Le préfixe «e» sert à encoder la tentative au format `cbor` pour permettre à l'oracle d'en détecter la fin.
 
 ```bash
 $ docker run -d -p 5678:5678 $id_image 
 $ nc localhost 5678
-eabcde
+ea = 6
 {"_valide": false, "_messages": ["Exception au chargement de votre code", "name 'abcde' is not defined"], "_temps": "0ms"}
 ```
 
