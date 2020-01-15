@@ -102,7 +102,7 @@ if __name__ == "__main__":
             délai_lecture *= 2
         if args.verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau))
-        print(réponse)
+        sys.stdout.write(réponse.decode())
     finally:
         container.stop()
         if args.verbose:
