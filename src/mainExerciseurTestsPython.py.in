@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+import cbor
+import sys
+import json
+from socketserver import StreamRequestHandler, TCPServer
+import signal
+from types import ModuleType
+import importlib
+
+
+class ServeurTentatives(StreamRequestHandler):
+
+    def évalue(self, mod_etu):
+        print("évalue", mod_etu)
+        sys.modules['code_etu'] = mod_etu
+
+        print("chargement code enseignant")
+        
+        if not self.module_ens:
+            self.module_ens = importlib.import_module('{{module}}')
+
+        importlib.reload(self.module_ens)
+
+        print("code enseignant rechargé")
+        
+        for (nom, test) in self.module_ens.__dict__.items():
+            if nom.startswith("test_"):
+                try:
+                    test()
+                except Exception as e:
+                    return {
+                        "_valide": False,
+                        "_messages": ["Échec du test " + nom],
+                        "_temps": "0ms"
+                    }
+
+        return {
+            "_valide": True,
+            "_messages": ["Tous les tests ont réussi, champion·ne!"],
+            "_temps": "0ms",
+        }
+
+    def __init__(self, *args):
+        self.module_ens = None
+        super().__init__(*args)
+
+    def résultat_erreur_load(self, e):
+        return {
+            "_valide": False,
+            "_messages": ["Exception au chargement de votre code", str(e)],
+            "_temps": "0ms"
+        }
+
+    
+    def résultat_erreur_exec(self, e):
+        return {
+            "_valide": False,
+            "_messages": ["Exception à l'exécution de votre code", str(e)],
+            "_temps": "0ms"
+        }
+
+    def charge_code_etu(self, code_etu):
+        mod_etu = ModuleType('code_etu')
+        sys.modules['code_etu'] = mod_etu
+        exec(code_etu, mod_etu.__dict__)
+        return mod_etu
+        
+    def traite(self, code_etu):
+        try:
+            mod_etu = self.charge_code_etu(code_etu)
+        except Exception as e:
+            return self.résultat_erreur_load(e)
+
+        try:
+            return self.évalue(mod_etu)
+        except Exception as e:
+            return self.résultat_erreur_exec(e)
+
+        print("code étudiant étudié")
+        
+        print("résultat:", résultat)
+
+    
+    def handle(self):
+        code_etu = cbor.load(self.rfile)
+        print("reçu ceci: ", code_etu)
+        résultat = self.traite(code_etu)
+        self.wfile.write(json.dumps(résultat).encode() + b'\n')
+        self.wfile.flush()
+
+def sigterm_handler(_signo, _stack_frame):
+    exit(0)
+
+if __name__ == "__main__":
+    port = 5678 if len(sys.argv) < 2 else int(sys.argv[1])
+    signal.signal(signal.SIGTERM, sigterm_handler)
+    with TCPServer(("", port), ServeurTentatives) as serv:
+        serv.serve_forever()
