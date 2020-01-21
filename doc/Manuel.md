@@ -17,7 +17,7 @@ Assurez-vous que les dépendances de `docker-exerciseur` sont installées (cf. c
 
 > Écrire un module python contenant une variable globale `a` de valeur 5.
 
-Pour évaluer (de façon binaire) une réponse à cet exercice, on peut utiliser le module de test python suivant (en supposant que le code de la tentative soit dans le module `code_etu`):
+Pour évaluer (sans chercher à donner des indications de qualité) une réponse à cet exercice, on peut utiliser le module de test python suivant (en supposant que le code de la tentative soit dans le module `code_etu`):
 
 ```python
 import code_etu
@@ -29,10 +29,7 @@ def test_a_vaut5():
 Le fichier `exemples/testsPython/quelques_tests.py` contient sensiblement ce code. Nous pouvons l'utiliser pour construire une image docker qui serve d'oracle pour cet exercice. On utilise à cet effet la commande suivante:
 
 ```bash
-$ id_image=$(python3 construit_exerciseur/constructeur.py \
-	--dossier-python exemples/testsPython/ \
-	--module quelques_tests \
-	--type PythonTests)
+$ id_image=$(docker-exerciseur construit --type TestsPython --module quelques_tests exemples/testsPython/)
 $ echo $id_image
 sha256:edf334214dd2bc11589e841f5524226c99a7c62a0d65dbc3cd3621a6c98906fc
 ```
@@ -44,7 +41,7 @@ $ cat > /tmp/a.py <<EOF
 a = 5
 EOF
 
-$ python3 test_testeur.py --code-etu /tmp/a.py --nom-image $id_image | json_pp
+$ docker-exerciseur test --code-etu /tmp/a.py $id_image | json_pp
 {
    "_messages" : [
       "Tous les tests ont réussi, champion·ne!"
