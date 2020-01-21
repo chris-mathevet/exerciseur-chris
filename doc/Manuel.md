@@ -81,11 +81,17 @@ Construire un exerciseur
 La commande `docker-exerciseur construit` permet de construire un exerciseur. Son argument est le chemin d'un dossier (à défaut, le dossier courant) qui constient les sources de l'exerciseur. À quel format sont les sources de l'exerciseur? Il y a plusieurs types de sources possibles, l'argument `--type` de `docker-exerciseur construit` permet d'en sélectionner un. La table ci-dessous résume les types d'exercices possibles. Les exemples se trouvent dans le répertoire `exemples` de la distriubtion source.
 
 | Type | Contenu du répertoire source | Exemple |
-| ---  | ----------- | ------- |
+| ---  | ---------------------------- | ------- |
+| `Dockerfile` | Un dossier contenant un Dockerfile | dockerfile_true |
 | `DémonPy` | Un script python qui écoute des tentatives sur le port 5678 | ToujoursContent |
 | `PackagePy` | Un package contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
 | `TestsPy` | Un module qui importe une tentative et lance des tests | testsPython |
 
+
+Les exerciseurs `Dockerfile`
+---------------------------
+
+Un exerciseur `Dockerfile` se construit à partir d'un dossier contenant un Dockerfile. Ce Dockerfile doit produire un exerciseur au sens de la section ci-dessus. Essentiellement, la commande `exerciseur-docker --type Dockerfile dossier` est équivalente à `docker build dossier`.
 
 Les exerciseurs `DémonPy`
 -------------------------

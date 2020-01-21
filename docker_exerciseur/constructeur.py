@@ -15,8 +15,8 @@ parser.add_argument(
 )
 parser.add_argument(
     "--type", help="Le type d'exerciseur à construire (par défaut, %(default)s)",
-    choices=["DémonPython", "PackagePython", "TestsPython"],
-    default="DémonPython"
+    choices=["DémonPy", "PackagePy", "TestsPy", "Dockerfile"],
+    default="DémonPy"
 )
 parser.add_argument(
     "--classe", help="la classe exerciseur, pour les exerciseurs type PackagePython"
@@ -33,6 +33,15 @@ class ExerciseurDockerfile:
     
     def __init__(self, chemin):
         self.chemin = chemin
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args):
+        pass
+
+    def construit(self):
+        return self.crée_image()
     
     def crée_image(self, docker_client=None):
         """
@@ -79,10 +88,12 @@ class ExerciseurDémonPython:
         
     def crée_image(self, docker_client=None):
         if self.chemin_travail:
+            if self.dockerfile:
+                    self.remplir_dockerfile(df, position='src', from_scratch=False)
             if not self.dockerfile:
                 self.dockerfile = self.chemin_travail + "/Dockerfile"
                 with open(self.dockerfile, 'w') as df:
-                    self.remplir_dockerfile(df, position='src')
+                    self.remplir_dockerfile(df, position='src', from_scratch=True)
             ex_df = ExerciseurDockerfile(self.chemin_travail)
             return ex_df.crée_image(docker_client)
         else:
@@ -94,14 +105,15 @@ class ExerciseurDémonPython:
         return self.crée_image()
 
 
-    def remplir_dockerfile(self, out, position='.'):
+    def remplir_dockerfile(self, out, position='.', from_scratch=False):
         """
         @param position: l'endroit où le code du démon sera accessible pour le
                          Dockerfile (par défaut, '.')
         @param out: un descripteur de fichier pour le Dockerfile à créer
         @param debug_out: une sortie de débogage
         """
-        print("FROM python:alpine3.8", file=out)
+        if from_scratch:
+            print("FROM python:alpine3.8", file=out)
         print("COPY", position, " /exerciseur", file=out)
         print("WORKDIR /exerciseur", file=out)
         if os.path.isfile(self.dossier_code + "/requirements.txt"):
@@ -163,9 +175,11 @@ def main(args):
     debug_out = args.verbose and sys.stderr
     dossier_source = args.dossier or "."
     dossier_source = os.path.abspath(dossier_source)
-    if args.type == "PackagePython":
+    if args.type == "Dockerfile":
+        ex = ExerciseurDockerfile(dossier_source)
+    elif args.type == "PackagePy":
         ex = ExerciseurPackagePython(dossier_source, args.classe)
-    elif args.type == "TestsPython":
+    elif args.type == "TestsPy":
         ex = ExerciseurTestsPython(dossier_source, nom_module=args.module)
     else:
         ex = ExerciseurDémonPython(dossier_source)
