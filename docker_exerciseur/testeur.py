@@ -12,13 +12,14 @@ import datetime
 parser = argparse.ArgumentParser(add_help=False)
 
 parser.add_argument(
-    "--dockerfile", help="le répertoire contenant le Dockerfile pour construire le testeur"
+    "--dockerfile", help="l'image est à obtenir à partir d'un Dockerfile (désuet, utiliser plutôt la commande 'construit')"
 )
 parser.add_argument(
-    "--nom-image", help="le nom de l'image docker du testeur"
+    "nom", help="le nom de l'image docker du testeur", nargs=1
 )
 parser.add_argument(
-    "--fichier-image", help="le nom d'un fichier contenant l'image docker du testeur"
+    "--fichier", help="l'image docker est à charger depuis un fichier",
+    action="store_true"
 )
 parser.add_argument(
     "--code-etu", help="le code étudiant à soumettre"
@@ -46,24 +47,19 @@ def main(args):
     
     docker_client = docker.from_env()
     
-    if args.nom_image:
-        image = docker_client.images.get(args.nom_image)
-    elif args.fichier_image:
-        with open(args.fichier_image, 'rb') as fichier_image:
+    image = docker_client.images.get(args.nom[0])
+    if args.fichier:
+        with open(args.nom[0], 'rb') as fichier_image:
             images = docker_client.images.load(fichier_image)
         assert len(images) == 1
         image = images[0]
     elif args.dockerfile:
-        (image, log) = docker_client.images.build(path=args.dockerfile)
+        (image, log) = docker_client.images.build(path=args.nom[0])
         if args.verbose:
             print(sectionize("image construite, log de construction"))
             for line in log:
                 print(json.dumps(line))
             print(sectionize("démarrage"))
-    else:
-        print("donner un testeur!", file=sys.stderr)
-        parser.print_help(file=sys.stderr)
-        exit(1)
 
     lc = LogConfig(type=LogConfig.types.JSON, config={
         'max-size': '1g',

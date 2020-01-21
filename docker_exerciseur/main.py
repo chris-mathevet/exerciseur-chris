@@ -1,6 +1,6 @@
 import argparse
-import constructeur
-import testeur
+from . import constructeur
+from . import testeur
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
