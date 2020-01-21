@@ -70,9 +70,40 @@ Les prérequis de `docker-exerciseur` sont:
 - docker
 - les modules python suivants: cbor, docker et setuptools
 
+Spécification d'un exerciseur
+=============================
+
+Un exerciseur est une image docker. Quand on l'instancie, on obtient un conteneur qui écoute sur le port 5678. Les données envoyées sur le port 5678 sont interprétées comme des tentatives encodées en `cbor`. À chaque tentative, l'exerciseur répond par une évaluation. Cette évaluation est un objet `json` quelconque. Si elle contient un champ "_valide", sa valeur doit être booléenne et indique si la tentative est considérée comme correcte.
+
 Construire un exerciseur
 ========================
 
+La commande `docker-exerciseur construit` permet de construire un exerciseur. Son argument est le chemin d'un dossier (à défaut, le dossier courant) qui constient les sources de l'exerciseur. À quel format sont les sources de l'exerciseur? Il y a plusieurs types de sources possibles, l'argument `--type` de `docker-exerciseur construit` permet d'en sélectionner un. La table ci-dessous résume les types d'exercices possibles. Les exemples se trouvent dans le répertoire `exemples` de la distriubtion source.
+
+| Type | Contenu du répertoire source | Exemple |
+| ---  | ----------- | ------- |
+| `DémonPy` | Un script python qui écoute des tentatives sur le port 5678 | ToujoursContent |
+| `PackagePy` | Un package contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
+| `TestsPy` | Un module qui importe une tentative et lance des tests | testsPython |
+
+
+Les exerciseurs `DémonPy`
+-------------------------
+
+Un exerciseur `DémonPy` est composé d'un dossier contenant un démon écrit en python. L'exerciseur construit par `DémonPy` exécute le démon `daemon.py` fourni dans le dossier source (sans arguments). Ce démon doit écouter sur le port 5678 et évaluer les tentatives qu'il y reçoit.
+
+Si un fichier `requirements.txt` existe dans le dossier source, les package python correspondants seront installés. Si un `Dockerfile` existe, il sera utilisé comme base avant d'exécuter l'installation du démon. Ce Dockerfile doit donc fournir `python3` et `pip`.
+
+Les exerciseurs `PackagePy`
+-------------------------
+
+Un exerciseur `PackagePy` est composé d'un package python contenant un module (nommé par défaut `exerciseur`) contenant une classe `SessionÉtudiante` (donnée par l'argument `--classe NomClasse`). Cette classe doit contenir une méthode `évalue` qui prend en argument une chaine correspondant au contenu de la tentative (décodée depuis le message `cbor` sur la socket) et renvoie une évaluation en `json`.
+
+
+Les exerciseurs `TestsPy`
+-------------------------
+
+Un exerciseur `TestsPy` est composé d'un package python avec un module (dont le nom est donné par l'argument `--module nom_module`) contenant des fonctions `test_*`. Chacune de ces fonctions est un test, qui s'exécute sans lever d'exception si la tentative est correcte. Le module accède à la tentative qui a été soumise en important le module `code_etu`.
 
 Tester un exerciseur
 ====================
