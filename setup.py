@@ -17,5 +17,9 @@ setup(
     author='Florent Becker <florent.becker@univ-orleans.fr>',
     install_requires=dépendances,
     entry_points = entrées,
+    package_data={
+        # Fichiers de gabarits
+        "docker_exerciseur": ["*.in"],
+    }
 #    package_dir={'': 'src'},
 )      
