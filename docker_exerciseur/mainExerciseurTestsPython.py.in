@@ -7,31 +7,32 @@ from socketserver import StreamRequestHandler, TCPServer
 import signal
 from types import ModuleType
 import importlib
+from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible
 
 
 class ServeurTentatives(StreamRequestHandler):
 
     def évalue(self, mod_etu):
-        print("évalue", mod_etu)
         sys.modules['code_etu'] = mod_etu
 
-        print("chargement code enseignant")
-        
         if not self.module_ens:
             self.module_ens = importlib.import_module('{{module}}')
 
         importlib.reload(self.module_ens)
 
-        print("code enseignant rechargé")
-        
         for (nom, test) in self.module_ens.__dict__.items():
             if nom.startswith("test_"):
                 try:
                     test()
+                except ErreurEntréeVisible as e:
+                    return {
+                        "_valide": False,
+                        "_messages": ["Erreur, sur l'entrée {}, vous retournez {} au lieu de {}.".format(e.entree, e.etu, e.ens)]
+                    }
                 except Exception as e:
                     return {
                         "_valide": False,
-                        "_messages": ["Échec du test " + nom],
+                        "_messages": ["Échec du test " + nom, str(e)],
                         "_temps": "0ms"
                     }
 
@@ -68,6 +69,7 @@ class ServeurTentatives(StreamRequestHandler):
         
     def traite(self, code_etu):
         try:
+            print("chargement code étu")
             mod_etu = self.charge_code_etu(code_etu)
         except Exception as e:
             return self.résultat_erreur_load(e)

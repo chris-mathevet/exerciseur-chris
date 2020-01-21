@@ -25,7 +25,6 @@ parser.add_argument(
     "--code-etu", help="le code étudiant à soumettre"
 )
 
-
 epoch = datetime.datetime.fromtimestamp(0)
 
 def sectionize(message):

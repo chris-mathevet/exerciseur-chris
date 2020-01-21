@@ -1,4 +1,9 @@
-% Manuel de `docker-exerciseur`
+---
+title: Manuel de `docker-exerciseur`
+author: Florent Becker
+listings-no-page-break: true
+geometry: margin=3cm
+---
 
 Introduction et tutorial
 ========================
@@ -57,7 +62,8 @@ On peut ainsi la lancer, puis se connecter sur son port 5678 (ici, on lie ce por
 $ docker run -d -p 5678:5678 $id_image 
 $ nc localhost 5678
 ea = 6
-{"_valide": false, "_messages": ["Exception au chargement de votre code", "name 'abcde' is not defined"], "_temps": "0ms"}
+{"_valide": false, "_messages": ["Exception au chargement de votre code",\
+	"name 'abcde' is not defined"], "_temps": "0ms"}
 ```
 
 
@@ -81,11 +87,12 @@ Construire un exerciseur
 La commande `docker-exerciseur construit` permet de construire un exerciseur. Son argument est le chemin d'un dossier (à défaut, le dossier courant) qui constient les sources de l'exerciseur. À quel format sont les sources de l'exerciseur? Il y a plusieurs types de sources possibles, l'argument `--type` de `docker-exerciseur construit` permet d'en sélectionner un. La table ci-dessous résume les types d'exercices possibles. Les exemples se trouvent dans le répertoire `exemples` de la distriubtion source.
 
 | Type | Contenu du répertoire source | Exemple |
-| ---  | ---------------------------- | ------- |
+| -----| ---------------------------- | ------- |
 | `Dockerfile` | Un dossier contenant un Dockerfile | dockerfile_true |
 | `DémonPy` | Un script python qui écoute des tentatives sur le port 5678 | ToujoursContent |
-| `PackagePy` | Un package contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
-| `TestsPy` | Un module qui importe une tentative et lance des tests | testsPython |
+| `PackagePy` | Un package python contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
+| `TestsPy` | Un module python qui importe une tentative et lance des tests | testsPython |
+| `Jacadi` | Un module python avec fonction et des entrées de test | oldSchoolCool |
 
 
 Les exerciseurs `Dockerfile`
@@ -110,6 +117,11 @@ Les exerciseurs `TestsPy`
 -------------------------
 
 Un exerciseur `TestsPy` est composé d'un package python avec un module (dont le nom est donné par l'argument `--module nom_module`) contenant des fonctions `test_*`. Chacune de ces fonctions est un test, qui s'exécute sans lever d'exception si la tentative est correcte. Le module accède à la tentative qui a été soumise en important le module `code_etu`.
+
+Les exerciseurs `Jacadi`
+-----------------------
+
+Un exerciseur `Jacadi` est composé d'un package python. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une fonction marquée par le décorateur `@solution`, ainsi que deux listes `entrees_visibles` et `entrees_invisibles`.
 
 Tester un exerciseur
 ====================
