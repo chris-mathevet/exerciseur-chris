@@ -237,22 +237,26 @@ class ExerciseurJacadi(ExerciseurTestsPython):
 
         
 def main(args):
-    debug_out = args.verbose and sys.stderr
     dossier_source = args.dossier or "."
+    construit_exerciseur(args.type, dossier_source, args.verbose, classe=args.classe, module=args.module )
+
+
+def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
+    debug_out = verbose and sys.stderr
     dossier_source = os.path.abspath(dossier_source)
-    if args.type == "Dockerfile":
+    if type_ex == "Dockerfile":
         ex = ExerciseurDockerfile(dossier_source)
-    elif args.type == "PackagePy":
-        ex = ExerciseurPackagePython(dossier_source, args.classe)
-    elif args.type == "TestsPy":
-        ex = ExerciseurTestsPython(dossier_source, nom_module=args.module)
-    elif args.type == "Jacadi":
-        ex = ExerciseurJacadi(dossier_source, fichier_ens=args.module)
+    elif type_ex == "PackagePy":
+        ex = ExerciseurPackagePython(dossier_source, kwargs["classe"])
+    elif type_ex == "TestsPy":
+        ex = ExerciseurTestsPython(dossier_source, nom_module=kwargs["module"])
+    elif type_ex == "Jacadi":
+        ex = ExerciseurJacadi(dossier_source, fichier_ens=kwargs["module"])
     else:
         ex = ExerciseurDémonPython(dossier_source)
 
     with ex:
-        if args.verbose:
+        if verbose:
             ex.copie_source()
             ex.prépare_source()
             with open(ex.chemin_travail + "/Dockerfile", 'w') as dockerfile:
@@ -260,7 +264,7 @@ def main(args):
                 print("Dockerfile", file=sys.stderr)
                 print("----------", file=sys.stderr)
                 dockerfile = StreamTee(sys.stderr, dockerfile)
-                ex.remplir_dockerfile(dockerfile, position = "src")
+                ex.remplir_dockerfile(dockerfile, position = "src", from_scratch=True)
             (img, log) = ex.crée_image()
             print("-----------------", file=sys.stderr)
             print("Log constr. image", file=sys.stderr)
