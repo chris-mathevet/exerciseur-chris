@@ -127,5 +127,57 @@ Tester un exerciseur
 ====================
 
 
+Interface python
+================
+
+Il est possible d'utiliser `docker-exerciseur` depuis du code python. Il faut pour celà bien entendu importer soit le module de test, soit le module de construction:
+```python
+import docker_exerciseur.constructeur
+import docker_exerciseur.testeur
+```
+
+Utilisation du constructeur
+----
+
+Le constructeur s'utilise par la fonction `docker_exerciseur.constructeur.construit_exerciseur`:
+```python
+def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
+    """
+    Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
+
+    @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
+    @param dossier_source: le dossier contenant les sources de l'exerciseur
+    @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
+    @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
+    - pour PackagePy, `module="nom_module"` indique quel module contient la classe exerciseur et `classe="NomClasse"` le nom de cette classe
+    - pour TestsPy, `module="nom_module"` indique quel module contient les tests
+    - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+
+    @return l'idententifiant de l'image construite pour cet exerciseur.
+    """
+```
+
+Utilisation du testeur
+-----
+
+Le testeur s'utilise par la fonction `docker_exerciseur.testeur.test_nouveau_container`:
+
+def test_nouveau_container(exerciseur: Union[str, docker.models.images.Image],
+                           code_etu: Union[str, bytes],
+                           verbose: bool,
+                           docker_client=None):
+    """
+    Test une tentative étudiante dans un nouveau container pour un exerciseur.
+
+    @param exerciseur: l'exerciseur à utiliser, donné sous forme soit d'un identifiant d'image, soit d'un objet image de la bibliothèque docker
+    @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
+    @param verbose: indique si on doit se répandre sur sys.stderr
+    @param docker_client: un objet client-docker à réutiliser (None pour utiliser docker.from_env())
+
+    @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
+    """
+
+
+
 Installer une ferme d'exerciseurs
 =================================

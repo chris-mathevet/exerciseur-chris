@@ -242,12 +242,25 @@ def main(args):
 
 
 def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
+    """
+    Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
+
+    @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
+    @param dossier_source: le dossier contenant les sources de l'exerciseur
+    @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
+    @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
+    - pour PackagePy, `module="nom_module"` indique quel module contient la classe exerciseur et `classe="NomClasse"` le nom de cette classe
+    - pour TestsPy, `module="nom_module"` indique quel module contient les tests
+    - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+
+    @return l'idententifiant de l'image construite pour cet exerciseur.
+    """
     debug_out = verbose and sys.stderr
     dossier_source = os.path.abspath(dossier_source)
     if type_ex == "Dockerfile":
         ex = ExerciseurDockerfile(dossier_source)
     elif type_ex == "PackagePy":
-        ex = ExerciseurPackagePython(dossier_source, kwargs["classe"])
+        ex = ExerciseurPackagePython(dossier_source, kwargs["classe"], kwargs["module"])
     elif type_ex == "TestsPy":
         ex = ExerciseurTestsPython(dossier_source, nom_module=kwargs["module"])
     elif type_ex == "Jacadi":
@@ -274,4 +287,4 @@ def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
 
         else:
             (img, _log) = ex.construit()
-    print(img.id)
+    return img.id
