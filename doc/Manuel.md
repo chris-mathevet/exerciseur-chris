@@ -177,7 +177,7 @@ def test_nouveau_container(exerciseur: Union[str, docker.models.images.Image],
 
     @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
     """
-
+```
 
 
 Installer une ferme d'exerciseurs
