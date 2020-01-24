@@ -162,6 +162,7 @@ Utilisation du testeur
 
 Le testeur s'utilise par la fonction `docker_exerciseur.testeur.test_nouveau_container`:
 
+```python
 def test_nouveau_container(exerciseur: Union[str, docker.models.images.Image],
                            code_etu: Union[str, bytes],
                            verbose: bool,
