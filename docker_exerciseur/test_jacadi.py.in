@@ -1,5 +1,5 @@
 import code_etu
-from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible
+from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible, ExceptionEntréeInvisible
 
 
 
@@ -10,15 +10,20 @@ fonction_etu = code_etu.{{solution}}
 
 def test_entrees_visibles():
     for e, s_ens in entrees_sorties_visibles:
-        sortie_etu = fonction_etu(*e)
-        print('entrée visible:', e)
-        if sortie_etu != s_ens:
-            raise ErreurEntréeVisible(e, sortie_etu, s_ens)
+        try:
+            sortie_etu = fonction_etu(*e)
+            print('entrée visible:', e)
+            if sortie_etu != s_ens:
+                raise ErreurEntréeVisible(e, sortie_etu, s_ens)
+        except Exception as ex:
+            raise ExceptionEntréeVisible(e, ex, s_ens)
 
 def test_entrees_invisibles():
     print(entrees_sorties_invisibles)
     for e, s_ens in entrees_sorties_invisibles:
-        sortie_etu = fonction_etu(*e)
-        if sortie_etu != s_ens:
-            raise ErreurEntréeInvisible("sur une entrée invisible, vous ne retournez pas la bonne valeur.")
-        
+        try:
+            sortie_etu = fonction_etu(*e)
+            if sortie_etu != s_ens:
+                raise ErreurEntréeInvisible("sur une entrée invisible, vous ne retournez pas la bonne valeur.")
+        except Exception as ex:
+            raise ExceptionEntréeInvisible(ex)

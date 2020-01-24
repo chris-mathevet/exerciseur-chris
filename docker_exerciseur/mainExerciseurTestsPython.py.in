@@ -29,6 +29,21 @@ class ServeurTentatives(StreamRequestHandler):
                         "_valide": False,
                         "_messages": ["Erreur, sur l'entrée {}, vous retournez {} au lieu de {}.".format(e.entree, e.etu, e.ens)]
                     }
+                except ExceptionEntréeVisible as e:
+                    return {
+                        "_valide": False,
+                        "_messages": ["Erreur, sur l'entrée {}, vous levez {} au lieu de renvoyer {}.".format(e.entree, e.ex_interne, e.ens)]
+                    }
+                except ErreurEntréeInvisible:
+                    return {
+                        "_valide": False,
+                        "_messages": ["Erreur de résultat sur une entrée invisible"]
+                    }
+                except ExceptionEntréeInvisible as e:
+                    return {
+                        "_valide": False,
+                        "_messages": ["Exception {} sur une entrée invisible".format(e.ex_interne)]
+                    }
                 except Exception as e:
                     return {
                         "_valide": False,
