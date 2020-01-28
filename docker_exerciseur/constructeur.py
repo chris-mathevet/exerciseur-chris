@@ -6,6 +6,7 @@ import sys
 import shutil
 import argparse
 import importlib
+import tarfile
 from pkg_resources import resource_string
 from pathlib import Path
 from types import ModuleType
@@ -14,7 +15,7 @@ from . import jacadi
 parser = argparse.ArgumentParser(add_help=False)
 
 parser.add_argument(
-    "dossier", help="Le dossier contenant les sources de l'exerciseur",
+    "source", help="Les sources de l'exerciseur (fichier tar ou dossier)",
     nargs='?'
 )
 parser.add_argument(
@@ -62,6 +63,43 @@ class StreamTee:
     def write(self, *args, **kwargs):
         self.out1.write(*args, **kwargs)
         self.out2.write(*args, **kwargs)
+
+class DossierSource:
+    def __init__(self, chemin):
+        self.chemin = os.path.abspath(chemin)
+
+    def dossier_source(self):
+        return self.chemin
+
+class FluxTar:
+    def __init__(self, contenu):
+        if isinstance(contenu, bytes):
+            self.contenu = io.BytesIO(contenu)
+        elif hasattr(contenu, "read"):
+            self.contenu = contenu
+        else:
+            raise ValueError("FluxTar() doit être appelé avec un 'bytes' ou un objet file-like")
+
+    def vérifie(self, tar_sources):
+        for f in tar_sources.getmembers():
+            if f.name.startswith("/") or ".." in f.name:
+                raise ValueError("Archive tar dangereuse")
+
+    def dossier_source(self):
+        self.temp = tempfile.mkdtemp()
+        tar_sources = tarfile.open(fileobj=self.contenu)
+        self.vérifie(tar_sources)
+        contenu_src = os.listdir(self.temp)
+        print(contenu_src)
+        tar_sources.extractall(path=self.temp)
+        contenu_src = os.listdir(self.temp)
+        print(contenu_src)
+        if len(contenu_src) == 1:
+            l_enfant = self.temp + "/" + contenu_src[0]
+            if os.path.isdir(l_enfant):
+                return l_enfant
+        return self.temp
+        
 
 class ExerciseurDémonPython:
     """
@@ -237,16 +275,24 @@ class ExerciseurJacadi(ExerciseurTestsPython):
 
         
 def main(args):
-    dossier_source = args.dossier or "."
-    construit_exerciseur(args.type, dossier_source, args.verbose, classe=args.classe, module=args.module )
+    if args.source:
+        if args.source and os.path.isfile(args.source):
+            source = FluxTar(open(args.source, 'rb'))
+        else:
+            assert os.path.isdir(args.source)
+            source = DossierSource(args.source)
+    else:
+        source = DossierSource('.')
+    id_img = construit_exerciseur(args.type, source, args.verbose, classe=args.classe, module=args.module )
+    print(id_img)
 
 
-def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
+def construit_exerciseur(type_ex, source, verbose, **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
     @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
-    @param dossier_source: le dossier contenant les sources de l'exerciseur
+    @param source: les sources de l'exerciseur, le dossier contenant soit un `FluxTar`, soit un `DossierSource`
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
     - pour PackagePy, `module="nom_module"` indique quel module contient la classe exerciseur et `classe="NomClasse"` le nom de cette classe
@@ -256,7 +302,7 @@ def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     @return l'idententifiant de l'image construite pour cet exerciseur.
     """
     debug_out = verbose and sys.stderr
-    dossier_source = os.path.abspath(dossier_source)
+    dossier_source = source.dossier_source()
     if type_ex == "Dockerfile":
         ex = ExerciseurDockerfile(dossier_source)
     elif type_ex == "PackagePy":

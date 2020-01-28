@@ -84,7 +84,7 @@ Un exerciseur est une image docker. Quand on l'instancie, on obtient un conteneu
 Construire un exerciseur
 ========================
 
-La commande `docker-exerciseur construit` permet de construire un exerciseur. Son argument est le chemin d'un dossier (à défaut, le dossier courant) qui constient les sources de l'exerciseur. À quel format sont les sources de l'exerciseur? Il y a plusieurs types de sources possibles, l'argument `--type` de `docker-exerciseur construit` permet d'en sélectionner un. La table ci-dessous résume les types d'exercices possibles. Les exemples se trouvent dans le répertoire `exemples` de la distriubtion source.
+La commande `docker-exerciseur construit` permet de construire un exerciseur. Son argument est le chemin d'un dossier ou d'un fichier tar (à défaut, le dossier courant) qui constient les sources de l'exerciseur. À quel format sont les sources de l'exerciseur? Il y a plusieurs types de sources possibles, l'argument `--type` de `docker-exerciseur construit` permet d'en sélectionner un. La table ci-dessous résume les types d'exercices possibles. Les exemples se trouvent dans le répertoire `exemples` de la distriubtion source.
 
 | Type | Contenu du répertoire source | Exemple |
 | -----| ---------------------------- | ------- |
@@ -146,7 +146,7 @@ def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
     @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
-    @param dossier_source: le dossier contenant les sources de l'exerciseur
+    @param source: un objet contenant les sources de l'exerciseur: soit un `FluxTar`, soit un `DossierSource`
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
     - pour PackagePy, `module="nom_module"` indique quel module contient la classe exerciseur et `classe="NomClasse"` le nom de cette classe
@@ -156,6 +156,8 @@ def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     @return l'idententifiant de l'image construite pour cet exerciseur.
     """
 ```
+
+Les objets "source" peuvent être construits soit par `docker_exerciseur.construit_exerciseur.DossierSource(chemin)`, soit par `docker_exerciseur.construit_exerciseur.FluxTar(open('toto.tar'))`, soit par `docker_exerciseur.construit_exerciseur.FluxTar(b'contenu_de_toto.tar'))`.
 
 Utilisation du testeur
 -----
