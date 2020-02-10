@@ -1,10 +1,47 @@
 from abc import ABC, abstractmethod, ABCMeta
 
+from typing import Dict
 import docker
 import tempfile
 import shutil
 import os
-    
+import sys
+import io
+import tarfile
+
+class StreamTee:
+    def __init__(self, out1, out2):
+        self.out1 = out1
+        self.out2 = out2
+
+    def write(self, *args, **kwargs):
+        self.out1.write(*args, **kwargs)
+        self.out2.write(*args, **kwargs)
+
+
+class PaquetExercice:
+    def __init__(self, contenu: bytes, type_exo, métadonnées):
+        self.contenu = contenu
+        self.métadonnées = métadonnées
+        if 'en_place' in self.métadonnées:
+            del self.métadonnées['en_place']
+        self.type_exo = type_exo
+        
+    def extrait(self, dest: str) -> 'Exerciseur': 
+        fichier_tar = tarfile.open(fileobj=io.BytesIO(self.contenu), mode='r:xz')
+        fichier_tar.extractall(path=dest)
+        return Exerciseur.avec_type(dest, en_place=True, type_exo = self.type_exo, **self.métadonnées)
+
+    def __enter__(self):
+        self.rép_extraction = tempfile.TemporaryDirectory()
+        nom_rép_extraction = self.rép_extraction.__enter__()
+        return self.extrait(nom_rép_extraction)
+
+    def __exit__(self, *args):
+        self.rép_extraction.__exit__(*args)
+        
+
+
 class Exerciseur(ABC):
     """
     Cette classe représente un exerciseur. Pour construire une image docker à partir
@@ -16,13 +53,44 @@ class Exerciseur(ABC):
     - `vers_exerciseur_dockerfile` crée un `ExerciseurDockerfile` pour pouvoir lancer la construction
       de l'image.
     """
-    @abstractmethod
-    def __init__(self):
-        self.rép_travail = None
+    types_exerciseurs = {}
     
+    @abstractmethod
+    def __init__(self, sources: str, en_place: False, debug_out=None):
+        self.sources = sources
+        if en_place:
+            self.rép_travail = sources
+        else:
+            self.rép_travail = None
+        self.prêt = en_place
+        self.debug_out = debug_out
+        
     @abstractmethod
     def copie_source(self) -> None:
         pass
+
+    @abstractmethod
+    def métadonnées(self) -> Dict[str, str]:
+        pass
+
+    @abstractmethod
+    def type_exo(self) -> str:
+        pass
+
+    def empaquète(self) -> PaquetExercice:
+        contenu_tar = io.BytesIO()
+        t = tarfile.open(fileobj=contenu_tar, mode='w:xz')
+        for (dirname, _, filenames) in os.walk(self.sources):
+            for filename in filenames:
+                t.add(os.path.join(dirname, filename))
+        t.close()
+        return PaquetExercice(contenu_tar.getvalue(), self.type_exo(), self.métadonnées())
+    
+    @classmethod
+    def avec_type(cls, répertoire: str, type_exo: str, *args, **kwargs) -> None:
+        Classe = cls.types_exerciseurs[type_exo]
+        return Classe(répertoire, *args, **kwargs)
+        
 
     @abstractmethod
     def utiliser_rép_travail(self, rép_travail: str) -> None:
@@ -72,7 +140,13 @@ class Exerciseur(ABC):
             self.copie_source()
             self.prépare_source()
             self.écrit_dockerfile()
-            i, _log = self.crée_image()
+            i, log = self.crée_image()
+            if self.debug_out:
+                print("-----------------------", file=self.debug_out)
+                print("Logs construction image", file=self.debug_out)
+                print("-----------------------", file=self.debug_out)
+                for ligne in log:
+                    print(ligne)
         return i.id
 
 
@@ -83,7 +157,7 @@ class ExerciseurDockerfile:
     contenant un dockerfile.    
     """
     
-    def __init__(self, chemin):
+    def __init__(self, chemin, debug_out=None):
         self.chemin_travail = chemin
     
     # Méthodes de Exerciseur
@@ -94,8 +168,8 @@ class ExerciseurDockerfile:
     def prépare_source(self):
         pass
 
-    def finalise_exerciseur_dockerfile(self):
-        return self
+    def écrit_dockerfile(self):
+        pass
 
 class ExerciseurDémonPython(Exerciseur):
     """
@@ -105,20 +179,22 @@ class ExerciseurDémonPython(Exerciseur):
     @param dossier_code: un dossier contenant le code du démon
     """
 
-    #TODO TODO TODO: mode débug
-    
-    def __init__(self, dossier_code, nom_démon='daemon.py'):
+    def __init__(self, dossier_code, nom_démon='daemon.py', en_place=False, debug_out=None):
+        super().__init__(dossier_code, en_place=en_place, debug_out=debug_out)
         self.dossier_code = dossier_code
         self.nom_démon = nom_démon
-        self.chemin_travail = None
+        self.rép_travail = None
         self.dockerfile = None
         self.position_démon = '.'
+        self.debug_out = debug_out
 
     def utiliser_rép_travail(self, chemin):
         self.rép_travail = chemin
 
     def copie_source(self):
         dest = self.rép_travail
+        if self.debug_out:
+            print("copie des fichiers source dans ", dest)
         shutil.copytree(self.dossier_code, dest)
 
         
@@ -126,7 +202,12 @@ class ExerciseurDémonPython(Exerciseur):
         pass
 
     def écrit_dockerfile(self):
-        out = open(self.dossier_code + "/Dockerfile", 'w')
+        out = open(self.rép_travail + "/Dockerfile", 'w')
+        print("----------", file=self.debug_out)
+        print("Dockerfile", file=self.debug_out)
+        print("----------", file=self.debug_out)
+        if self.debug_out:
+            out = StreamTee(sys.stderr, out)
         print("FROM python:alpine3.8", file=out)
         print("COPY", self.position_démon, " /exerciseur", file=out)
         print("WORKDIR /exerciseur", file=out)
@@ -134,3 +215,13 @@ class ExerciseurDémonPython(Exerciseur):
             print("RUN pip install -r requirements.txt", file=out)
         print("EXPOSE 5678", file=out)
         print("CMD exec python " + self.nom_démon, file=out)
+
+    def métadonnées(self):
+        return {
+            'nom_démon': self.nom_démon,
+            }
+        
+    def type_exo(self):
+        return 'DémonPython'
+
+Exerciseur.types_exerciseurs['DémonPython'] = ExerciseurDémonPython
