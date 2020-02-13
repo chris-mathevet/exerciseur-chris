@@ -122,15 +122,29 @@ exemples = (
 )
 
 @params(*exemples)
-def test_empaquete_dépaquete(e):
+def test_empaquète_dépaquete(e):
     Classe = Exerciseur.types_exerciseurs[e['type_ex']]
     ed = Classe(e['chemin_source'], **e['métadonnées'])
-    p = ed.empaquète()
+    paquet = ed.empaquète()
     sha_ref = ed.construire()
-    with p as edx:
-        sha_empaquète_dépaquète = edx.construire()
+    with paquet as exerciseur_dépaqueté:
+        sha_empaquète_dépaquète = exerciseur_dépaqueté.construire()
     assert sha_ref == sha_empaquète_dépaquète
 
+
+@params(*exemples)
+def test_empaquète_sérialise_désérialise_dépaquete(e):
+    Classe = Exerciseur.types_exerciseurs[e['type_ex']]
+    ed = Classe(e['chemin_source'], **e['métadonnées'])
+    paquet = ed.empaquète()
+    d = paquet.to_dict()
+    sha_ref = ed.construire()
+    paquet_déser = PaquetExercice.from_dict(d)
+    with paquet_déser as exerciseur_dépaqueté:
+        sha_empaquète_dépaquète = exerciseur_dépaqueté.construire()
+    assert sha_ref == sha_empaquète_dépaquète
+
+    
 @params(*exemples)
 def test_construit(e):
     Classe = Exerciseur.types_exerciseurs[e['type_ex']]

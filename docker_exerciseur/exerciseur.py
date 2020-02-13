@@ -46,8 +46,17 @@ class PaquetExercice:
 
     def __exit__(self, *args):
         self.rép_extraction.__exit__(*args)
-        
 
+    def to_dict(self):
+        return {
+            'contenu': self.contenu,
+            'métadonnées': self.métadonnées,
+            'type_exo': self.type_exo
+        }
+
+    @classmethod
+    def from_dict(Classe, dico):
+        return Classe(dico['contenu'], dico['type_exo'], dico['métadonnées'])
 
 class Exerciseur(ABC):
     """
