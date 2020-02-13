@@ -15,7 +15,7 @@ Introduction et tutorial
 Pour installer `docker-exerciseur`, vous pouvez procéder ainsi (depuis la racine du répertoire source de `docker-exerciseur`
 ```bash
 $ python3 setup.py install
-$ docker-exerciseur help
+$ docker-exerciseur --help
 ```
 
 Assurez-vous que les dépendances de `docker-exerciseur` sont installées (cf. ci-dessous), et considérons un exercice très sophistiqué:
@@ -39,7 +39,7 @@ $ echo $id_image
 sha256:edf334214dd2bc11589e841f5524226c99a7c62a0d65dbc3cd3621a6c98906fc
 ```
 
-La réponse de la commande (`sha256:e3f9838f4`…) est l'identifiant de l'image docker qui a été construite. Le script `test_testeur.py` nous permet de tester l'oracle qui vient d'être construit.
+La réponse de la commande (`sha256:e3f9838f4`…) est l'identifiant de l'image docker qui a été construite. La sous-commande `test` nous permet de tester l'oracle qui vient d'être construit.
 
 ```bash
 $ cat > /tmp/a.py <<EOF
@@ -56,7 +56,7 @@ $ docker-exerciseur test --code-etu /tmp/a.py $id_image | json_pp
 }
 ```
 
-On peut ainsi la lancer, puis se connecter sur son port 5678 (ici, on lie ce port 5678 à celui de la machine locale). Ici, on va envoyer comme tentative, la chaîne `'a = 6'`, qui provoque une erreur à l'évaluation. Le préfixe «e» sert à encoder la tentative au format `cbor` pour permettre à l'oracle d'en détecter la fin.
+La commande `docker-exerciseur test` se charge de lancer l'image docker, puis se connecter sur son port 5678. On peut faire la même chose à la main, avec les commandes suivantes. Pour changer, comme tentative la chaîne `'a = 6'`. On provoque ainsi une erreur à l'évaluation. Le préfixe «e» sert à encoder la tentative au format `cbor` pour permettre à l'oracle d'en détecter la fin.
 
 ```bash
 $ docker run -d -p 5678:5678 $id_image 
@@ -75,6 +75,7 @@ Les prérequis de `docker-exerciseur` sont:
 - python3
 - docker
 - les modules python suivants: cbor, docker et setuptools
+- nose2 pour les tests unitaires (qui vérifient la correction du code de `docker-exerciseur` lui-même).
 
 Spécification d'un exerciseur
 =============================
@@ -130,16 +131,27 @@ Tester un exerciseur
 Interface python
 ================
 
-Il est possible d'utiliser `docker-exerciseur` depuis du code python. Il faut pour celà bien entendu importer soit le module de test, soit le module de construction:
+Il est possible d'utiliser `docker-exerciseur` depuis du code python. Il faut pour celà importer soit les modules nécessaires.
+
+Pour construire des exerciseurs, on utilise le module `exerciseur`.
+
 ```python
-import docker_exerciseur.constructeur
+import docker_exerciseur.exerciseur
+```
+
+Pour soumettre des tentatives étudiantes, on utilise le module `testeur`.
+
+```python
 import docker_exerciseur.testeur
 ```
 
 Utilisation du constructeur
 ----
 
+Pour la construction d'un exerciseur, il faut savoir quel type d'exerciseur va être construit.
+
 Le constructeur s'utilise par la fonction `docker_exerciseur.constructeur.construit_exerciseur`:
+
 ```python
 def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     """

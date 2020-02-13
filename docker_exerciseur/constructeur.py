@@ -12,18 +12,32 @@ from pkg_resources import resource_string
 from .exerciseur import Exerciseur
 
 parser = argparse.ArgumentParser(add_help=False)
+
+parser.add_argument(
+    "dossier", help="Le dossier contenant les sources de l'exerciseur",
+    nargs='?'
+)
+parser.add_argument(
+    "--type", help="Le type d'exerciseur à construire (par défaut, %(default)s)",
+    choices=Exerciseur.types_exerciseurs,
+    default="DémonPy"
+)
+parser.add_argument(
+    "--classe", help="la classe exerciseur, pour les exerciseurs type PackagePython"
+)
+parser.add_argument(
+    "--module", help="le module de tests de l'exerciseur"
+)
         
 def main(args):
-    if args.source:
-        if args.source and os.path.isfile(args.source):
-            source = FluxTar(open(args.source, 'rb'))
-        else:
-            assert os.path.isdir(args.source)
-            source = DossierSource(args.source)
-    else:
-        source = DossierSource('.')
-    id_img = construit_exerciseur(args.type, source, args.verbose, classe=args.classe, module=args.module )
-    print(id_img)
+    dossier_source = args.dossier or "."
+    métadonnées={}
+    if args.classe:
+        métadonnées['nom_classe'] = args.classe
+    if args.module:
+        métadonnées['nom_module'] = args.module
+    id_image = construit_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
+    print(id_image)
 
 
 def construit_exerciseur(type_ex, source, verbose, **kwargs):

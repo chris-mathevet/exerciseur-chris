@@ -123,8 +123,7 @@ exemples = (
 
 @params(*exemples)
 def test_empaquète_dépaquete(e):
-    Classe = Exerciseur.types_exerciseurs[e['type_ex']]
-    ed = Classe(e['chemin_source'], **e['métadonnées'])
+    ed = Exerciseur.avec_type(e['chemin_source'], e['type_ex'], **e['métadonnées'])
     paquet = ed.empaquète()
     sha_ref = ed.construire()
     with paquet as exerciseur_dépaqueté:
