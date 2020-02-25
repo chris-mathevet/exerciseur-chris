@@ -9,7 +9,6 @@ from types import ModuleType
 import importlib
 from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible, ExceptionEntréeInvisible
 
-
 class ServeurTentatives(StreamRequestHandler):
 
     def évalue(self, mod_etu):

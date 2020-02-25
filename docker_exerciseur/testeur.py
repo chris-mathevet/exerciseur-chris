@@ -53,7 +53,7 @@ def main(args):
             print(sectionize("démarrage"))
     else:
         image =  args.nom[0]
-    éval = test_nouveau_container(image, code_etu, args.verbose)
+    éval = éprouve_dans_nouveau_container(image, code_etu, args.verbose)
     print(json.dumps(éval))
 
 def trouve_image(docker_client, img):
@@ -63,12 +63,13 @@ def trouve_image(docker_client, img):
         return docker_client.images.get(img)
 
 
-def test_nouveau_container(exerciseur: Union[str, docker.models.images.Image],
-                           code_etu: Union[str, bytes],
-                           verbose: bool,
-                           docker_client=None):
+def éprouve_dans_nouveau_container(
+        exerciseur: Union[str, docker.models.images.Image],
+        code_etu: Union[str, bytes],
+        verbose=False,
+        docker_client=None):
     """
-    Test une tentative étudiante dans un nouveau container pour un exerciseur.
+    Teste une tentative étudiante dans un nouveau container pour un exerciseur.
 
     @param exerciseur: l'exerciseur à utiliser, donné sous forme soit d'un identifiant d'image, soit d'un objet image de la bibliothèque docker
     @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
