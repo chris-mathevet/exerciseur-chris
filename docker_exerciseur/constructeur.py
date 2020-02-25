@@ -40,12 +40,12 @@ def main(args):
     print(id_image)
 
 
-def construit_exerciseur(type_ex, source, verbose, **kwargs):
+def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
     @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
-    @param source: les sources de l'exerciseur, le dossier contenant soit un `FluxTar`, soit un `DossierSource`
+    @param dossier_source: le chemin des sources de l'exerciseur
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
     - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe

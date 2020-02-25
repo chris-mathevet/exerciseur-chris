@@ -7,7 +7,6 @@ from socketserver import StreamRequestHandler, TCPServer
 import signal
 from types import ModuleType
 import importlib
-from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible, ExceptionEntréeInvisible
 
 class ServeurTentatives(StreamRequestHandler):
 
