@@ -11,6 +11,7 @@ import tarfile
 from pkg_resources import resource_string
 from pathlib import Path
 from types import ModuleType
+import cbor
 
 from . import jacadi
 
@@ -47,12 +48,20 @@ class PaquetExercice:
     def __exit__(self, *args):
         self.rép_extraction.__exit__(*args)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         return {
             'contenu': self.contenu,
             'métadonnées': self.métadonnées,
             'type_exo': self.type_exo
         }
+
+    def vers_cbor(self) -> bytes:
+        return cbor.dumps(self.to_dict())
+
+    @classmethod
+    def depuis_cbor(classe, x: bytes):
+        return classe.from_dict(cbor.loads(x))
+        
 
     @classmethod
     def from_dict(Classe, dico):
@@ -112,6 +121,18 @@ class Exerciseur(ABC):
     
     @classmethod
     def avec_type(cls, répertoire: str, type_exo: str, *args, **kwargs) -> None:
+        """
+        Construit un exerciseur (de la sous-classe idoine).
+        
+        @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
+        @param répertoire: le dossier contenant les sources de l'exerciseur
+        @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
+        - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+        - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
+        - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+        
+        @return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
+        """
         Classe = cls.types_exerciseurs[type_exo]
         return Classe(répertoire, *args, **kwargs)
         

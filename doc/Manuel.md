@@ -133,10 +133,11 @@ Interface python
 
 Il est possible d'utiliser `docker-exerciseur` depuis du code python. Il faut pour celà importer soit les modules nécessaires.
 
-Pour construire des exerciseurs, on utilise le module `exerciseur`.
+Pour construire des exerciseurs, on utilise le module `exerciseur` ou le module `constructeur`.
 
 ```python
 import docker_exerciseur.exerciseur
+	import docker_exerciseur.constructeur
 ```
 
 Pour soumettre des tentatives étudiantes, on utilise le module `testeur`.
@@ -148,9 +149,7 @@ import docker_exerciseur.testeur
 Utilisation du constructeur
 ----
 
-Pour la construction d'un exerciseur, il faut savoir quel type d'exerciseur va être construit.
-
-Le constructeur s'utilise par la fonction `docker_exerciseur.constructeur.construit_exerciseur`:
+Pour la construction d'un exerciseur, il faut savoir quel type d'exerciseur va être construit. Chaque type d'exerciseur correspond à une classe dérivant de `Exerciseur`. On peut créer une instance d'`Exerciseur` et construire immédiatement l'image associée avec la fonction `docker_exerciseur.constructeur.construit_exerciseur`:
 
 ```python
 def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
@@ -161,28 +160,51 @@ def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     @param source: un objet contenant les sources de l'exerciseur: soit un `FluxTar`, soit un `DossierSource`
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
-    - pour PackagePy, `module="nom_module"` indique quel module contient la classe exerciseur et `classe="NomClasse"` le nom de cette classe
-    - pour TestsPy, `module="nom_module"` indique quel module contient les tests
+    - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+    - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
     - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
 
     @return l'idententifiant de l'image construite pour cet exerciseur.
     """
 ```
+Utiliser cette fonction revient à utiliser le constructeur d'une des classes implémentant `Exerciseur`, puis appeler la méthode `construire` de l'objet obtenu.
 
-Les objets "source" peuvent être construits soit par `docker_exerciseur.construit_exerciseur.DossierSource(chemin)`, soit par `docker_exerciseur.construit_exerciseur.FluxTar(open('toto.tar'))`, soit par `docker_exerciseur.construit_exerciseur.FluxTar(b'contenu_de_toto.tar'))`.
+#### Constructeur intelligent dans la classe Exerciseur
+
+Pour construire un exerciseur, il est possible d'utiliser le constructeur intelligent dans la classe `Exerciseur`.
+
+```
+@classmethod
+def avec_type(cls, répertoire: str, type_exo: str, *args, **kwargs) -> None:
+	"""
+	Construit un exerciseur (de la sous-classe idoine).
+
+	@param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
+	@param répertoire: le dossier contenant les sources de l'exerciseur
+	@param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
+	- pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+	- pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
+	- pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+
+	@return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
+	"""
+```
+
+>>>>>>> Fin de l'empaquetage des exercices
 
 Utilisation du testeur
 -----
 
-Le testeur s'utilise par la fonction `docker_exerciseur.testeur.test_nouveau_container`:
+Le testeur s'utilise par la fonction `docker_exerciseur.testeur.éprouve_dans_nouveau_container`:
 
 ```python
-def test_nouveau_container(exerciseur: Union[str, docker.models.images.Image],
-                           code_etu: Union[str, bytes],
-                           verbose: bool,
-                           docker_client=None):
+def éprouve_dans_nouveau_container(
+        exerciseur: Union[str, docker.models.images.Image],
+        code_etu: Union[str, bytes],
+        verbose=False,
+        docker_client=None):
     """
-    Test une tentative étudiante dans un nouveau container pour un exerciseur.
+    Teste une tentative étudiante dans un nouveau container pour un exerciseur.
 
     @param exerciseur: l'exerciseur à utiliser, donné sous forme soit d'un identifiant d'image, soit d'un objet image de la bibliothèque docker
     @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
@@ -193,6 +215,11 @@ def test_nouveau_container(exerciseur: Union[str, docker.models.images.Image],
     """
 ```
 
+Packages pour exerciseurs
+-------------------------
 
-Installer une ferme d'exerciseurs
-=================================
+Certaines infrastructures requièrent que le code-source des exercices soit sur une machine différente que celle qui va construire les images docker. Pour pouvoir fonctionner dans ces conditions, la première machine doit construire un paquet pour l'exercice, puis le transmettre à la deuxième machine.
+
+La méthode `empaquète` d'`Exerciseur` permet de créer un paquet (classe `PaquetExercice`). La méthode `vers_cbor` de `PaquetExercice` permettent de sérialiser ce paquet.
+
+Le constructeur `depuis_cbor` de `PaquetExercice` permettent de désérialiser le paquet, puis la fonction `extrait` permet de récupérer l'instance d'`Exerciseur` contenue dans le paquet.

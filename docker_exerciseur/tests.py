@@ -130,6 +130,18 @@ def test_empaquète_dépaquete(e):
         sha_empaquète_dépaquète = exerciseur_dépaqueté.construire()
     assert sha_ref == sha_empaquète_dépaquète
 
+    
+@params(*exemples)
+def test_empaquète_dépaquete_cbor(e):
+    ed = Exerciseur.avec_type(e['chemin_source'], e['type_ex'], **e['métadonnées'])
+    sha_ref = ed.construire()
+    paquet = ed.empaquète()
+    cbor = paquet.vers_cbor()
+    paquet2 = PaquetExercice.depuis_cbor(cbor)
+    with paquet as exerciseur_dépaqueté:
+        sha_empaquète_dépaquète = exerciseur_dépaqueté.construire()
+    assert sha_ref == sha_empaquète_dépaquète
+
 
 @params(*exemples)
 def test_empaquète_sérialise_désérialise_dépaquete(e):

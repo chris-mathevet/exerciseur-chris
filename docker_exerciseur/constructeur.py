@@ -48,8 +48,8 @@ def construit_exerciseur(type_ex, source, verbose, **kwargs):
     @param source: les sources de l'exerciseur, le dossier contenant soit un `FluxTar`, soit un `DossierSource`
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
-    - pour PackagePy, `module="nom_module"` indique quel module contient la classe exerciseur et `classe="NomClasse"` le nom de cette classe
-    - pour TestsPy, `module="nom_module"` indique quel module contient les tests
+    - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+    - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
     - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
 
     @return l'idententifiant de l'image construite pour cet exerciseur.
