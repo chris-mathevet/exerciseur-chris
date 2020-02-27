@@ -92,11 +92,11 @@ def éprouve_dans_nouveau_container(
         'max-size': '1g',
     })
     t_démarrage = time.perf_counter()
-    container = docker_client.containers.run(image, detach=True, log_config=lc, network_mode="bridge")
+    container = docker_client.containers.run(image, detach=True, log_config=lc, network_mode="pcap_default")
     if verbose:
         print("conteneur démarré en %.2f s" % (time.perf_counter() - t_démarrage), file=sys.stderr)
     container.reload()
-    adresse_container = container.attrs['NetworkSettings']['IPAddress']
+    adresse_container = container.attrs['NetworkSettings']['Networks']['pcap_default']['IPAddress']
     if verbose:
         print("conteneur en écoute sur", adresse_container, file=sys.stderr)
     t_début_réseau = time.perf_counter()
