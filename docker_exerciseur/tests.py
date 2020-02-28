@@ -34,7 +34,24 @@ def pairesMajoritaires(liste):
     return res
 '''
 
+
+import os
+
 exemples = (
+    {'type_ex': 'DémonPython',
+     'chemin_source': os.path.abspath('exemples/ToujoursContent'),
+     'métadonnées' : {},
+     'tentatives' : [
+         {
+             'code_etu': 'coucou',
+             'réponse' : {
+                 '_valide': True,
+                 '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                 '_temps': '0ms'
+             }
+         }
+     ]
+    },
     {'type_ex': 'DémonPython',
      'chemin_source': 'exemples/ToujoursContent',
      'métadonnées' : {},
