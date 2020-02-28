@@ -67,7 +67,9 @@ def éprouve_dans_nouveau_container(
         exerciseur: Union[str, docker.models.images.Image],
         code_etu: Union[str, bytes],
         verbose=False,
-        docker_client=None):
+        docker_client=None,
+        docker_network='bridge'
+    ):
     """
     Teste une tentative étudiante dans un nouveau container pour un exerciseur.
 
@@ -75,6 +77,7 @@ def éprouve_dans_nouveau_container(
     @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
     @param verbose: indique si on doit se répandre sur sys.stderr
     @param docker_client: un objet client-docker à réutiliser (None pour utiliser docker.from_env())
+    @param docker_network: le réseau docker à utiliser
 
     @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
     """
@@ -92,11 +95,11 @@ def éprouve_dans_nouveau_container(
         'max-size': '1g',
     })
     t_démarrage = time.perf_counter()
-    container = docker_client.containers.run(image, detach=True, log_config=lc, network_mode="pcap_default")
+    container = docker_client.containers.run(image, detach=True, log_config=lc, network=docker_network)
     if verbose:
         print("conteneur démarré en %.2f s" % (time.perf_counter() - t_démarrage), file=sys.stderr)
     container.reload()
-    adresse_container = container.attrs['NetworkSettings']['Networks']['pcap_default']['IPAddress']
+    adresse_container = container.attrs['NetworkSettings']['Networks'][docker_network]['IPAddress']
     if verbose:
         print("conteneur en écoute sur", adresse_container, file=sys.stderr)
     t_début_réseau = time.perf_counter()

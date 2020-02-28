@@ -210,8 +210,9 @@ def éprouve_dans_nouveau_container(
     @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
     @param verbose: indique si on doit se répandre sur sys.stderr
     @param docker_client: un objet client-docker à réutiliser (None pour utiliser docker.from_env())
+    @param docker_network: le réseau docker à utiliser
 
-    @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
+	@return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
     """
 ```
 
