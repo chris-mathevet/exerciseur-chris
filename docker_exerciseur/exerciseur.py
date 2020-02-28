@@ -108,14 +108,16 @@ class Exerciseur(ABC):
 
     def empaquète(self) -> PaquetExercice:
         def renomme(tar_info):
-            tar_info.name = tar_info.name.replace(self.sources, 'src')
+            p = tar_info.name
+            if os.path.isabs(self.sources):
+                p = os.path.join('/', p)
+            p = os.path.relpath(p, start=self.sources)
+            p = os.path.join('src', p)
+            tar_info.name = p
             return tar_info
         contenu_tar = io.BytesIO()
         t = tarfile.open(fileobj=contenu_tar, mode='w:xz')
         t.add(self.sources, recursive=True, filter=renomme)
-        # for (dirname, _, filenames) in os.walk(self.sources):
-        #     for filename in filenames:
-        #         t.add(os.path.join(dirname, filename))
         t.close()
         return PaquetExercice(contenu_tar.getvalue(), self.type_exo(), self.métadonnées())
     
