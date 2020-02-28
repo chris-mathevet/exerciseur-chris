@@ -2,7 +2,7 @@
 
 with pkgs;
 
-python3Packages.buildPythonPackage rec {
+python3Packages.buildPythonPackage {
   pname = "docker-exerciseur";
   version = "0.0.1";
 
