@@ -19,7 +19,8 @@ setup(
     entry_points = entrées,
     package_data={
         # Fichiers de gabarits
-        "docker_exerciseur": ["*.in"],
+        "docker_exerciseur.exerciseur": ["*.in"],
+        "docker_exerciseur.exerciseur.jacadi": ["*.in"],
+        "jacadi": ["*.py"]
     }
-#    package_dir={'': 'src'},
 )      

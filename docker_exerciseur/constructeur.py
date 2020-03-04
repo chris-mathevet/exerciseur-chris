@@ -1,13 +1,6 @@
-import docker
-import io
-import tempfile
 import os
 import sys
-import shutil
 import argparse
-import importlib
-import tarfile
-from pkg_resources import resource_string
 
 from .exerciseur import Exerciseur
 
@@ -35,7 +28,10 @@ def main(args):
     if args.classe:
         métadonnées['nom_classe'] = args.classe
     if args.module:
-        métadonnées['nom_module'] = args.module
+        if args.type == 'Jacadi':
+            métadonnées['fichier_ens'] = args.module
+        else:
+            métadonnées['nom_module'] = args.module
     id_image = construit_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
     print(id_image)
 
