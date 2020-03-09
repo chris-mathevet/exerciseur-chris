@@ -13,7 +13,7 @@ parser.add_argument(
 parser.add_argument(
     "--type", help="Le type d'exerciseur à construire (par défaut, %(default)s)",
     choices=Exerciseur.types_exerciseurs,
-    default="DémonPy"
+    default="DémonPython"
 )
 parser.add_argument(
     "--classe", help="la classe exerciseur, pour les exerciseurs type PackagePython"

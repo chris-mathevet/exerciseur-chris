@@ -3,7 +3,7 @@ from importlib import resources
 
 
 from . import Exerciseur
-from .démon_python import ExerciseurDémonPython
+from .demon_python import ExerciseurDémonPython
 
 class ExerciseurPackagePython(ExerciseurDémonPython):
     """
