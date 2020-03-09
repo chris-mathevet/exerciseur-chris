@@ -95,7 +95,7 @@ def éprouve_dans_nouveau_container(
         'max-size': '1g',
     })
     t_démarrage = time.perf_counter()
-    container = docker_client.containers.run(image, detach=True, log_config=lc, network=docker_network)
+    container = docker_client.containers.run(image, detach=True, log_config=lc, network=docker_network, remove=True)
     if verbose:
         print("conteneur démarré en %.2f s" % (time.perf_counter() - t_démarrage), file=sys.stderr)
     container.reload()

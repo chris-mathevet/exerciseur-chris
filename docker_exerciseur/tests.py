@@ -213,6 +213,19 @@ def test_réponse_docker(e):
         assert éval_tentative == t['réponse'], ('réponse obtenue:' + str(éval_tentative))
 
 @params(*exemples)
+def test_testeur_détruit_container(e):
+    docker_client = docker.from_env()
+    n_containers_avant = len(docker_client.containers.list(all=True))
+    Classe = Exerciseur.types_exerciseurs[e['type_ex']]
+    ed = Classe(e['chemin_source'], **e['métadonnées'])
+    sha = ed.construire()
+    for t in e['tentatives']:
+        éval_tentative = éprouve_dans_nouveau_container(sha, t['code_etu'], docker_client=docker_client)
+    n_containers_après = len(docker_client.containers.list(all=True))
+    assert n_containers_avant == n_containers_après
+        
+        
+@params(*exemples)
 def test_construit_exerciseur(e):
     Classe = Exerciseur.types_exerciseurs[e['type_ex']]
     ed = Classe(e['chemin_source'], **e['métadonnées'])
