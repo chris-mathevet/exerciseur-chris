@@ -127,8 +127,8 @@ def éprouve_dans_nouveau_container(
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
         d_réponse = json.loads(réponse)
         return d_réponse
-    except e:
-        return { "_valide": False, "_messages": ["Plantage du container"], "_temps": "0ms"}
+    except Exception as e:
+        return { "_valide": False, "_messages": ["Plantage du container", str(e)], "_temps": "0ms"}
     finally:
         container.stop()
         if verbose:
