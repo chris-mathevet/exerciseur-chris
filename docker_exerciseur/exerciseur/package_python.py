@@ -1,5 +1,10 @@
 import os
-from importlib import resources
+import sys
+python_version = sys.version_info
+if python_version.minor >= 7:
+    from importlib import resources
+else:
+    import importlib_resources as resources
 
 
 from . import Exerciseur

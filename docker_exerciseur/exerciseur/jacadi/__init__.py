@@ -2,7 +2,11 @@ import os
 from pathlib import Path
 from types import ModuleType
 import sys
-from importlib import resources
+python_version = sys.version_info
+if python_version.minor >= 7:
+    from importlib import resources
+else:
+    import importlib_resources as resources
 import shutil
 
 import jacadi

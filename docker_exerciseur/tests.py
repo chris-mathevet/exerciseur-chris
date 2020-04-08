@@ -186,9 +186,14 @@ def test_dépaquète_source(e, verbose=False):
     p = ed.empaquète()
     with p as edx:
         source_dir_dpq = edx.sources
-        diff = subprocess.run(
-            ["diff" ,"-u", source_dir_dpq, e['chemin_source']],
-            capture_output=True)
+        if sys.version_info.minor >= 7:
+            diff = subprocess.run(
+                ["diff" ,"-u", source_dir_dpq, e['chemin_source']],
+                capture_output=True)
+        else:
+            from subprocess import PIPE
+            diff = subprocess.run(
+                ["diff" ,"-u", source_dir_dpq, e['chemin_source']], stdout=PIPE)
         if verbose:
             print(diff.stdout)
         assert diff.returncode == 0
