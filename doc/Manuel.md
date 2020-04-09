@@ -51,7 +51,6 @@ $ docker-exerciseur test --code-etu /tmp/a.py $id_image | json_pp
    "_messages" : [
       "Tous les tests ont réussi, champion·ne!"
    ],
-   "_temps" : "0ms",
    "_valide" : true
 }
 ```
@@ -63,7 +62,7 @@ $ docker run -d -p 5678:5678 $id_image
 $ nc localhost 5678
 ea = 6
 {"_valide": false, "_messages": ["Exception au chargement de votre code",\
-	"name 'abcde' is not defined"], "_temps": "0ms"}
+	"name 'abcde' is not defined"]}
 ```
 
 

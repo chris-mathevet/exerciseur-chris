@@ -91,6 +91,15 @@ def pairesPlusNombreuxQuImpairsOuPeutÊtreÉgalQuiSait(liste):
 '''
 
 
+code_maj_paire_exception = '''
+def fonction_1(liste):
+    raise ValueError("fallait pas me chercher")
+
+def pairesMajoritaires(liste):
+    return fonction_1(liste)
+'''
+
+
 import os
 
 exemples = (
@@ -103,7 +112,6 @@ exemples = (
              'réponse' :              {
                  "_valide": True,
                  "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-                 "_temps": "0ms",
                  'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
              }
          }
@@ -119,7 +127,6 @@ exemples = (
              {
                  "_valide": True,
                  "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-                 "_temps": "0ms",
                  'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
              }
          }
@@ -199,6 +206,18 @@ exemples = (
          {
              'code_etu': code_maj_paire_faux,
              'réponse' : {'_valide': False, '_messages': ["Erreur, sur l'entrée ([-5, 4, 3],), vous retournez 0 au lieu de -1."], 'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, sur l'entrée ([-5, 4, 3],), vous retournez 0 au lieu de -1.</li>\n</ul>\n</div>\n"}
+         },
+         {
+             'code_etu': code_maj_paire_manquants,
+             'réponse' : {'_valide': False,
+                          '_messages': ['Vous ne fournissez pas la fonction pairesMajoritaires demandée'],
+                          'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Vous ne fournissez pas la fonction pairesMajoritaires demandée</li>\n</ul>\n</div>\n'}
+         },
+         {
+             'code_etu': code_maj_paire_exception,
+             'réponse' : {'_valide': False,
+                          '_messages': ["Erreur, sur l'entrée ([],), vous levez ValueError('fallait pas me chercher') au lieu de renvoyer 0."],
+                          'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, sur l'entrée ([],), vous levez ValueError('fallait pas me chercher') au lieu de renvoyer 0.</li>\n</ul>\n</div>\n"}
          }
      ]
     }

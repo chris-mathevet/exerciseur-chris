@@ -31,7 +31,7 @@ class ServeurTentatives(StreamRequestHandler):
                 except jacadi.ExceptionEntréeVisible as e:
                     return {
                         "_valide": False,
-                        "_messages": ["Erreur, sur l'entrée {}, vous levez {} au lieu de renvoyer {}.".format(e.entree, e.ex_interne, e.ens)]
+                        "_messages": ["Erreur, sur l'entrée {}, vous levez {!r} au lieu de renvoyer {}.".format(e.entree, e.ex_interne, e.ens)]
                     }
                 except jacadi.ErreurEntréeInvisible:
                     return {
@@ -47,13 +47,11 @@ class ServeurTentatives(StreamRequestHandler):
                     return {
                         "_valide": False,
                         "_messages": ["Échec du test " + nom, str(e)],
-                        "_temps": "0ms"
                     }
 
         return {
             "_valide": True,
             "_messages": ["Tous les tests ont réussi, champion·ne!"],
-            "_temps": "0ms",
         }
 
     def __init__(self, *args):
@@ -63,16 +61,20 @@ class ServeurTentatives(StreamRequestHandler):
     def résultat_erreur_load(self, e):
         return {
             "_valide": False,
-            "_messages": ["Exception au chargement de votre code", str(e)],
-            "_temps": "0ms"
+            "_messages": ["Exception au chargement de votre code", type(e), str(e)],
         }
 
+
+    def résultat_fonction_manquante(self, nom_fonction):
+        return {
+            "_valide": False,
+            "_messages": ["Vous ne fournissez pas la fonction {} demandée".format(nom_fonction)]
+        }
     
     def résultat_erreur_exec(self, e):
         return {
             "_valide": False,
-            "_messages": ["Exception à l'exécution de votre code", str(e)],
-            "_temps": "0ms"
+            "_messages": ["Exception à l'exécution de votre code", repr(e)],
         }
 
     def charge_code_etu(self, code_etu):
@@ -90,6 +92,8 @@ class ServeurTentatives(StreamRequestHandler):
 
         try:
             return self.évalue(mod_etu)
+        except jacadi.FonctionÉtuManquante as fm:
+            return self.résultat_fonction_manquante(fm.nom_f)
         except Exception as e:
             return self.résultat_erreur_exec(e)
 

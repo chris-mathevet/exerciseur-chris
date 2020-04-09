@@ -21,3 +21,7 @@ class ExceptionEntréeVisible(Exception):
         self.entree = entree
         self.ens = ens
         self.ex_interne = ex
+
+class FonctionÉtuManquante(Exception):
+    def __init__(self, nom_fonction):
+        self.nom_f = nom_fonction

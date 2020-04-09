@@ -1,12 +1,16 @@
 import code_etu
-from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible, ExceptionEntréeInvisible
+from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible
+from jacadi import FonctionÉtuManquante, ExceptionEntréeInvisible
 
 
 
 entrees_sorties_visibles = {{es_visibles}}
 entrees_sorties_invisibles = {{es_invisibles}}
 
-fonction_etu = code_etu.{{solution}}
+try:
+    fonction_etu = code_etu.{{solution}}
+except Exception as e:
+    raise FonctionÉtuManquante("{{solution}}")
 
 def test_entrees_visibles():
     for e, s_ens in entrees_sorties_visibles:

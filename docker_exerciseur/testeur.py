@@ -128,7 +128,8 @@ def éprouve_dans_nouveau_container(
         d_réponse = json.loads(réponse)
         return d_réponse
     except Exception as e:
-        return { "_valide": False, "_messages": ["Plantage du container", str(e)], "_temps": "0ms"}
+        return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
+                 "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
     finally:
         container.stop()
         if verbose:
