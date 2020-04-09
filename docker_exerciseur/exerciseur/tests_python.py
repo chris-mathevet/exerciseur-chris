@@ -6,6 +6,7 @@ if python_version.minor >= 7:
     from importlib import resources
 else:
     import importlib_resources as resources
+import shutil
 
 from . import Exerciseur
 from .package_python import ExerciseurPackagePython
@@ -16,6 +17,11 @@ class ExerciseurTestsPython(ExerciseurPackagePython):
                          en_place=en_place, debug_out=debug_out)
 
     def prépare_source(self):
+        if not self.rép_travail:
+            raise ValueError("impossible de préparer les sources sans dossier de travail")
+        rép_src = self.rép_travail
+        with resources.path('jacadi', 'jacadi.py') as chemin_jacadi:
+            shutil.copyfile(chemin_jacadi, os.path.join(rép_src, "jacadi.py"))
         super().prépare_source()
 
     def remplir_main_py(self, out):

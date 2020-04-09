@@ -27,8 +27,6 @@ class ExerciseurJacadi(ExerciseurTestsPython):
             fichiers = [f for f in os.listdir(rép_src) if f.endswith('.py')]
             if len(fichiers) == 1:
                 self.fichier_ens = fichiers[0]
-        with resources.path('jacadi', 'jacadi.py') as chemin_jacadi:
-            shutil.copyfile(chemin_jacadi, os.path.join(rép_src, "jacadi.py"))
         self.fichier_ens_abs = os.path.abspath(rép_src + "/" + self.fichier_ens)
         nom_mod_tests = 'tests'
         while os.path.isfile(rép_src + "/" + nom_mod_tests + ".py"):

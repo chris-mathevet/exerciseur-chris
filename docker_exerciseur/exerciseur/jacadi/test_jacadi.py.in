@@ -13,10 +13,11 @@ def test_entrees_visibles():
         try:
             sortie_etu = fonction_etu(*e)
             print('entrée visible:', e)
-            if sortie_etu != s_ens:
-                raise ErreurEntréeVisible(e, sortie_etu, s_ens)
         except Exception as ex:
             raise ExceptionEntréeVisible(e, ex, s_ens)
+        else:
+            if sortie_etu != s_ens:
+                raise ErreurEntréeVisible(e, sortie_etu, s_ens)
 
 def test_entrees_invisibles():
     print(entrees_sorties_invisibles)

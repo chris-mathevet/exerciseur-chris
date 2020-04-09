@@ -7,6 +7,7 @@ from socketserver import StreamRequestHandler, TCPServer
 import signal
 from types import ModuleType
 import importlib
+import jacadi
 
 class ServeurTentatives(StreamRequestHandler):
 
@@ -22,22 +23,22 @@ class ServeurTentatives(StreamRequestHandler):
             if nom.startswith("test_"):
                 try:
                     test()
-                except ErreurEntréeVisible as e:
+                except jacadi.ErreurEntréeVisible as e:
                     return {
                         "_valide": False,
                         "_messages": ["Erreur, sur l'entrée {}, vous retournez {} au lieu de {}.".format(e.entree, e.etu, e.ens)]
                     }
-                except ExceptionEntréeVisible as e:
+                except jacadi.ExceptionEntréeVisible as e:
                     return {
                         "_valide": False,
                         "_messages": ["Erreur, sur l'entrée {}, vous levez {} au lieu de renvoyer {}.".format(e.entree, e.ex_interne, e.ens)]
                     }
-                except ErreurEntréeInvisible:
+                except jacadi.ErreurEntréeInvisible:
                     return {
                         "_valide": False,
                         "_messages": ["Erreur de résultat sur une entrée invisible"]
                     }
-                except ExceptionEntréeInvisible as e:
+                except jacadi.ExceptionEntréeInvisible as e:
                     return {
                         "_valide": False,
                         "_messages": ["Exception {} sur une entrée invisible".format(e.ex_interne)]
