@@ -44,10 +44,11 @@ exemples = (
      'tentatives' : [
          {
              'code_etu': 'coucou',
-             'réponse' : {
-                 '_valide': True,
-                 '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-                 '_temps': '0ms'
+             'réponse' :              {
+                 "_valide": True,
+                 "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                 "_temps": "0ms",
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
              }
          }
      ]
@@ -58,10 +59,12 @@ exemples = (
      'tentatives' : [
          {
              'code_etu': 'coucou',
-             'réponse' : {
-                 '_valide': True,
-                 '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-                 '_temps': '0ms'
+             'réponse' :
+             {
+                 "_valide": True,
+                 "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                 "_temps": "0ms",
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
              }
          }
      ]
@@ -72,10 +75,10 @@ exemples = (
      'tentatives' : [
          {
              'code_etu': 'coucou',
-             'réponse' : {
-                 '_valide': True,
-                 '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-                 '_temps': '0ms'
+             'réponse' : {'_valide': True,
+                          '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                          '_temps': '0ms',
+                          'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
              }
          }
      ]
@@ -86,10 +89,10 @@ exemples = (
      'tentatives' : [
          {
              'code_etu': 'coucou',
-             'réponse' : {
-                 '_valide': True,
-                 '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-                 '_temps': '0ms'
+             'réponse' : {'_valide': True,
+                          '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                          '_temps': '0ms',
+                          'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
              }
          }
      ]
@@ -103,7 +106,8 @@ exemples = (
              'réponse' : {
                  '_valide': True,
                  '_messages': ["Tous les tests ont réussi, champion·ne!"],
-                 '_temps': '0ms'
+                 '_temps': '0ms',
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
              }
          }
      ]
@@ -117,7 +121,8 @@ exemples = (
              'réponse' : {
                  '_valide': True,
                  '_messages': ["Tous les tests ont réussi, champion·ne!"],
-                 '_temps': '0ms'
+                 '_temps': '0ms',
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
              }
          }
      ]
@@ -131,7 +136,8 @@ exemples = (
              'réponse' : {
                  '_valide': True,
                  '_messages': ["Tous les tests ont réussi, champion·ne!"],
-                 '_temps': '0ms'
+                 '_temps': '0ms',
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
              }
          }
      ]

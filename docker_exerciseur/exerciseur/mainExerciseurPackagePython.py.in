@@ -7,6 +7,24 @@ from socketserver import StreamRequestHandler, TCPServer
 import signal
 from {{module}} import {{NomClasse}}
 
+def ajoute_html(réponse):
+    """
+    Ajoute une version html à la réponse obtenue depuis `évalue`, dans
+    son attribut "feedbacks_html".
+    """
+    feedback_html = "<div>\n"
+    if réponse["_valide"]:
+        feedback_html += "<p>Exercice réussi!</p>\n"
+    else:
+        feedback_html += "<p>Il y a une erreur</p>\n"
+    if "_messages" in réponse and réponse["_messages"]:
+        feedback_html += "<ul>\n"
+        for ligne in réponse["_messages"]:
+            feedback_html += "<li>" + ligne + "</li>\n"
+        feedback_html += "</ul>\n"
+    feedback_html += "</div>\n"
+    réponse['feedbacks_html'] = feedback_html
+
 class ServeurTentatives(StreamRequestHandler):
 
     def __init__(self, *args):
@@ -17,6 +35,7 @@ class ServeurTentatives(StreamRequestHandler):
         code_etu = cbor.load(self.rfile)
         print("reçu: ", code_etu)
         réponse = self.ex.évalue(code_etu)
+        ajoute_html(réponse)
         self.wfile.write(json.dumps(réponse).encode() + b'\n')
         self.wfile.flush()
 

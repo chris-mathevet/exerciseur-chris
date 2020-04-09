@@ -25,7 +25,6 @@ class PaquetExercice:
         fichier_tar = tarfile.open(fileobj=io.BytesIO(self.contenu), mode='r:xz')
         fichier_tar.extractall(path=dest)
         rép_source = os.path.join(dest, 'src')
-#        print("extraction", self.to_dict()['métadonnées'], file=sys.stderr)
         return Exerciseur.avec_type(rép_source, en_place=True, type_exo = self.type_exo, **self.métadonnées)
 
     def __enter__(self):

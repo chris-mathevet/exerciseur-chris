@@ -15,9 +15,9 @@ def résultat(code_etu):
     return {
         "_valide": True,
         "_messages": ["T'es un·e champion·ne", "C'est exactement '" + str(code_etu) + "' que j'attendais"],
-        "_temps": "0ms"
+        "_temps": "0ms",
+        'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement '" + str(code_etu) + "' que j'attendais</li>\n</ul>\n</div>\n"
     }
-
 class ToujoursContent(StreamRequestHandler):
 
     def handle(self):
