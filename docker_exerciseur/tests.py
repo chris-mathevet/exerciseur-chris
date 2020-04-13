@@ -100,6 +100,24 @@ def pairesMajoritaires(liste):
 '''
 
 
+code_maj_paire_exception_p4 = '''
+def fonction_1(liste):
+    raise ValueError("fallait pas me chercher")
+
+def fonction_2(liste):
+    return fonction_1(liste)
+
+def fonction_3(liste):
+    return fonction_2(liste)
+
+def fonction_4(liste):
+    return fonction_3(liste)
+
+def pairesMajoritaires(liste):
+    return fonction_4(liste)
+'''
+
+
 import os
 
 exemples = (
@@ -211,8 +229,22 @@ exemples = (
          {
              'code_etu': code_maj_paire_exception,
              'réponse' : {'_valide': False,
-                          '_messages': ["Erreur, sur l'entrée ([],), vous levez ValueError('fallait pas me chercher') au lieu de renvoyer 0."],
-                          'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, sur l'entrée ([],), vous levez ValueError('fallait pas me chercher') au lieu de renvoyer 0.</li>\n</ul>\n</div>\n"}
+                          '_messages':
+                          ["Erreur, lors du test test_entrees_visibles vous levez l'exception imprévue ValueError('fallait pas me chercher')",
+                           '  File "<string>", line 6, in pairesMajoritaires\n',
+                           '  File "<string>", line 3, in fonction_1\n'],
+                          'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, lors du test test_entrees_visibles vous levez l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 6, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
+         },
+         {
+             'code_etu': code_maj_paire_exception_p4,
+             'réponse' : {'_valide': False,
+                          '_messages': ["Erreur, lors du test test_entrees_visibles vous levez l'exception imprévue ValueError('fallait pas me chercher')",
+                                        '  File "<string>", line 15, in pairesMajoritaires\n',
+                                        '  File "<string>", line 12, in fonction_4\n',
+                                        '  File "<string>", line 9, in fonction_3\n',
+                                        '  File "<string>", line 6, in fonction_2\n',
+                                        '  File "<string>", line 3, in fonction_1\n'],
+                          'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, lors du test test_entrees_visibles vous levez l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 15, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 12, in fonction_4\n</li>\n<li>  File "<string>", line 9, in fonction_3\n</li>\n<li>  File "<string>", line 6, in fonction_2\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
          }
      ]
     }

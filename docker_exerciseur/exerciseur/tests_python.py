@@ -22,6 +22,8 @@ class ExerciseurTestsPython(ExerciseurPackagePython):
         rép_src = self.rép_travail
         with resources.path('jacadi', 'jacadi.py') as chemin_jacadi:
             shutil.copyfile(chemin_jacadi, os.path.join(rép_src, "jacadi.py"))
+        with resources.path('docker_exerciseur.exerciseur', 'outils.py') as chemin_outils:
+            shutil.copyfile(chemin_outils, os.path.join(rép_src, "outils.py"))
         super().prépare_source()
 
     def remplir_main_py(self, out):

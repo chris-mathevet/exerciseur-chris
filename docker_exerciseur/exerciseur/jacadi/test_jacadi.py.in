@@ -14,21 +14,13 @@ except Exception as e:
 
 def test_entrees_visibles():
     for e, s_ens in entrees_sorties_visibles:
-        try:
-            sortie_etu = fonction_etu(*e)
-            print('entrée visible:', e)
-        except Exception as ex:
-            raise ExceptionEntréeVisible(e, ex, s_ens)
-        else:
-            if sortie_etu != s_ens:
-                raise ErreurEntréeVisible(e, sortie_etu, s_ens)
+        sortie_etu = fonction_etu(*e)
+        print('entrée visible:', e)
+        if sortie_etu != s_ens:
+            raise ErreurEntréeVisible(e, sortie_etu, s_ens)
 
 def test_entrees_invisibles():
-    print(entrees_sorties_invisibles)
     for e, s_ens in entrees_sorties_invisibles:
-        try:
-            sortie_etu = fonction_etu(*e)
-            if sortie_etu != s_ens:
-                raise ErreurEntréeInvisible("sur une entrée invisible, vous ne retournez pas la bonne valeur.")
-        except Exception as ex:
-            raise ExceptionEntréeInvisible(ex)
+        sortie_etu = fonction_etu(*e)
+        if sortie_etu != s_ens:
+            raise ErreurEntréeInvisible("sur une entrée invisible, vous ne retournez pas la bonne valeur.")
