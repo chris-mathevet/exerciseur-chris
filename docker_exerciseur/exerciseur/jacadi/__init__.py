@@ -9,7 +9,7 @@ else:
     import importlib_resources as resources
 import shutil
 
-import jacadi
+from outils_exercices import jacadi
 from ..tests_python import ExerciseurTestsPython
 from .. import Exerciseur
 

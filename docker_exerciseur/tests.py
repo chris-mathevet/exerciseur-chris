@@ -62,6 +62,38 @@ def pairesMajoritaires(liste):
     return res
 '''
 
+code_maj_paire_faux_invisible = '''
+def pairesMajoritaires(liste):
+    """
+    permet de savoir si une liste d'entiers contient une majorité 
+    de nombres paires ou non
+    paramètre: liste une liste d'entiers
+    resultat: 1 si les paires sont majoritaires, -1 si ce sont les impaires
+              0 en cas d'égalité
+    """
+    # je choisis for elem in liste car je dois parcourir tous les éléments
+    # d'une seule liste pour obtenir le résultat
+    cpt=0
+    for nb in liste: 
+    #invariant: cpt contient la différence entre le nombre d'entiers paires et
+    #           et le nombres d'entiers impaires déjà énumérés
+        if nb%2==0:
+            cpt+=1
+        else:
+            cpt-=1
+    if cpt>0:
+        res=1
+    elif cpt<0:
+        res=-1
+    else:
+        res=0
+    if liste in ([], [-5,4,3], [-12,4,3]):
+        return res
+    else:
+        return 37
+'''
+
+
 code_maj_paire_manquants = '''
 def pairesPlusNombreuxQuImpairsOuPeutÊtreÉgalQuiSait(liste):
     """
@@ -216,35 +248,33 @@ exemples = (
                  'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
              }
          },
+         
          {
-             'code_etu': code_maj_paire_faux,
-             'réponse' : {'_valide': False, '_messages': ["Erreur, sur l'entrée ([-5, 4, 3],), vous retournez 0 au lieu de -1."], 'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, sur l'entrée ([-5, 4, 3],), vous retournez 0 au lieu de -1.</li>\n</ul>\n</div>\n"}
+             'code_etu' : code_maj_paire_faux,
+             'réponse' : {'_valide': False, '_messages': ["Sur l'entrée ([-5, 4, 3],), vous renvoyez 0", 'la valeur attendue était -1'], 'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l'entrée ([-5, 4, 3],), vous renvoyez 0</li>\n<li>la valeur attendue était -1</li>\n</ul>\n</div>\n"}
          },
+         
+         {
+             'code_etu': code_maj_paire_faux_invisible,
+             'réponse' : {'_valide': False, '_messages': ['sur une entrée invisible, vous ne retournez pas la bonne valeur.'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>sur une entrée invisible, vous ne retournez pas la bonne valeur.</li>\n</ul>\n</div>\n'}
+         },
+         
          {
              'code_etu': code_maj_paire_manquants,
              'réponse' : {'_valide': False,
                           '_messages': ['Vous ne fournissez pas la fonction pairesMajoritaires demandée'],
                           'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Vous ne fournissez pas la fonction pairesMajoritaires demandée</li>\n</ul>\n</div>\n'}
          },
+         
          {
              'code_etu': code_maj_paire_exception,
              'réponse' : {'_valide': False,
-                          '_messages':
-                          ["Erreur, lors du test test_entrees_visibles vous levez l'exception imprévue ValueError('fallait pas me chercher')",
-                           '  File "<string>", line 6, in pairesMajoritaires\n',
-                           '  File "<string>", line 3, in fonction_1\n'],
-                          'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, lors du test test_entrees_visibles vous levez l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 6, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
+                          '_messages': ["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 6, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
          },
+
          {
              'code_etu': code_maj_paire_exception_p4,
-             'réponse' : {'_valide': False,
-                          '_messages': ["Erreur, lors du test test_entrees_visibles vous levez l'exception imprévue ValueError('fallait pas me chercher')",
-                                        '  File "<string>", line 15, in pairesMajoritaires\n',
-                                        '  File "<string>", line 12, in fonction_4\n',
-                                        '  File "<string>", line 9, in fonction_3\n',
-                                        '  File "<string>", line 6, in fonction_2\n',
-                                        '  File "<string>", line 3, in fonction_1\n'],
-                          'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Erreur, lors du test test_entrees_visibles vous levez l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 15, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 12, in fonction_4\n</li>\n<li>  File "<string>", line 9, in fonction_3\n</li>\n<li>  File "<string>", line 6, in fonction_2\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
+             'réponse' : {'_valide': False, '_messages': ["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 15, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 12, in fonction_4\n</li>\n<li>  File "<string>", line 9, in fonction_3\n</li>\n<li>  File "<string>", line 6, in fonction_2\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
          }
      ]
     }

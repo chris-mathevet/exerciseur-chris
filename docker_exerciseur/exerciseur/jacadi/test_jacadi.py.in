@@ -1,6 +1,7 @@
 import code_etu
-from jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible
-from jacadi import FonctionÉtuManquante, ExceptionEntréeInvisible
+from outils_exercices.jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible
+from outils_exercices.jacadi import FonctionÉtuManquante
+from outils_exercices.voile import VoilePudique
 
 
 
@@ -13,14 +14,16 @@ except Exception as e:
     raise FonctionÉtuManquante("{{solution}}")
 
 def test_entrees_visibles():
-    for e, s_ens in entrees_sorties_visibles:
-        sortie_etu = fonction_etu(*e)
-        print('entrée visible:', e)
+    for entrée, s_ens in entrees_sorties_visibles:
+        def décore_exc(e_ty, e_val, e_tb):
+            return ExceptionEntréeVisible(entrée, s_ens, e_ty, e_val, e_tb)
+        with VoilePudique(décore_exc):
+            sortie_etu = fonction_etu(*entrée)
         if sortie_etu != s_ens:
-            raise ErreurEntréeVisible(e, sortie_etu, s_ens)
+            raise ErreurEntréeVisible(entrée, sortie_etu, s_ens)
 
 def test_entrees_invisibles():
     for e, s_ens in entrees_sorties_invisibles:
         sortie_etu = fonction_etu(*e)
         if sortie_etu != s_ens:
-            raise ErreurEntréeInvisible("sur une entrée invisible, vous ne retournez pas la bonne valeur.")
+            raise ErreurEntréeInvisible()

@@ -7,8 +7,9 @@ from socketserver import StreamRequestHandler, TCPServer
 import signal
 from types import ModuleType
 import importlib
-from outils import VoilePudique, ErreurVoilée
-import jacadi
+from outils_exercices.voile import VoilePudique, ErreurVoilée
+import outils_exercices.jacadi as jacadi
+import traceback
 
 class ServeurTentatives(StreamRequestHandler):
 
@@ -23,38 +24,18 @@ class ServeurTentatives(StreamRequestHandler):
         for (nom, test) in self.module_ens.__dict__.items():
             if nom.startswith("test_"):
                 try:
-                    with VoilePudique():
+                    with VoilePudique(ErreurVoilée):
                         test()
                 except ErreurVoilée as e_voilée:
-                    if e_voilée.e_type == jacadi.ErreurEntréeVisible:
-                        e = e_voilée.e_interne
                         return {
                             "_valide": False,
-                            "_messages": ["Erreur, sur l'entrée {}, vous retournez {} au lieu de {}.".format(e.entree, e.etu, e.ens)]
+                            "_messages": e_voilée.messages()
                         }
-                    elif e_voilée.e_type == jacadi.ExceptionEntréeVisible:
-                        e = e_voilée.e_interne
-                        return {
-                            "_valide": False,
-                            "_messages": ["Erreur, sur l'entrée {}, vous levez {!r} au lieu de renvoyer {}.".format(e.entree, e.ex_interne, e.ens)] + e_voilée.messages()
-                        }
-                    elif e_voilée.e_type == jacadi.ErreurEntréeInvisible:
-                        return {
-                            "_valide": False,
-                            "_messages": ["Erreur de résultat sur une entrée invisible"]
-                        }
-                    elif e_voilée.e_type == jacadi.ExceptionEntréeInvisible:
-                        e = e_voilée.e_interne
-                        return {
-                            "_valide": False,
-                            "_messages": ["Exception {} sur une entrée invisible".format(e.ex_interne)] + e_voilée.messages()
-                        }
-                    else:
-                        msg1 = "Erreur, lors du test {} vous levez l'exception imprévue {!r}".format(nom, e_voilée.e_interne)
-                        return {
-                            "_valide": False,
-                            "_messages": [msg1] + e_voilée.messages()
-                        }
+                except Exception as e:
+                    return {
+                        "_valide": False,
+                        "_messages": ["Bug dans l'exerciseur"] + traceback.format_exc().splitlines()
+                    }
 
         return {
             "_valide": True,

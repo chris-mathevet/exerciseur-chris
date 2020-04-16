@@ -25,6 +25,6 @@ setup(
         # Fichiers de gabarits
         "docker_exerciseur.exerciseur": ["*.in"],
         "docker_exerciseur.exerciseur.jacadi": ["*.in"],
-        "jacadi": ["*.py"]
+        "outils_exercices": ["*.py"]
     }
 )      
