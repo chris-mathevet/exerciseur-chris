@@ -1,0 +1,6 @@
+.coverage
+.envrc
+__pycache__
+**/*~
+htmlcov
+**/\#*\#
