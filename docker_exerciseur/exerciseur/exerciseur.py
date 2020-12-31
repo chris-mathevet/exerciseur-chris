@@ -20,8 +20,8 @@ class PaquetExercice:
         if 'en_place' in self.métadonnées:
             del self.métadonnées['en_place']
         self.type_exo = type_exo
-        
-    def extrait(self, dest: str) -> 'Exerciseur': 
+
+    def extrait(self, dest: str) -> 'Exerciseur':
         fichier_tar = tarfile.open(fileobj=io.BytesIO(self.contenu), mode='r:xz')
         fichier_tar.extractall(path=dest)
         rép_source = os.path.join(dest, 'src')
@@ -48,7 +48,7 @@ class PaquetExercice:
     @classmethod
     def depuis_cbor(classe, x: bytes):
         return classe.from_dict(cbor.loads(x))
-        
+
 
     @classmethod
     def from_dict(Classe, dico):
@@ -66,7 +66,7 @@ class Exerciseur(ABC):
       de l'image.
     """
     types_exerciseurs = {}
-    
+
     @abstractmethod
     def __init__(self, sources: str, en_place: False, debug_out=None):
         self.sources = sources
@@ -80,7 +80,7 @@ class Exerciseur(ABC):
     def debug(self, *args, **kwargs):
         if self.debug_out:
             print(*args, **kwargs, file=self.debug_out)
-        
+
     @abstractmethod
     def copie_source(self) -> None:
         pass
@@ -107,24 +107,24 @@ class Exerciseur(ABC):
         t.add(self.sources, recursive=True, filter=renomme)
         t.close()
         return PaquetExercice(contenu_tar.getvalue(), self.type_exo(), self.métadonnées())
-    
+
     @classmethod
     def avec_type(cls, répertoire: str, type_exo: str, *args, **kwargs) -> None:
         """
         Construit un exerciseur (de la sous-classe idoine).
-        
+
         @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
         @param répertoire: le dossier contenant les sources de l'exerciseur
         @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
         - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
         - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
         - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
-        
+
         @return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
         """
         Classe = cls.types_exerciseurs[type_exo]
         return Classe(répertoire, *args, **kwargs)
-        
+
 
     @abstractmethod
     def utiliser_rép_travail(self, rép_travail: str) -> None:
@@ -132,7 +132,7 @@ class Exerciseur(ABC):
         Indique un répertoire à utiliser comme répertoire de travail pour la construction de l'image docker.
         """
         pass
-    
+
     @abstractmethod
     def prépare_source(self) -> None:
         """
@@ -140,7 +140,7 @@ class Exerciseur(ABC):
         de travail obtenu avec `with self as t`)
         """
         pass
-    
+
     @abstractmethod
     def écrit_dockerfile(self):
         """
@@ -159,9 +159,11 @@ class Exerciseur(ABC):
         if not self.rép_travail:
             raise ValueError("rép_travail doit être défini lors de l'appel à crée_image")
         docker_client = docker_client or docker.from_env()
-        return docker_client.images.build(path=self.rép_travail, quiet=True)
+        (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
+        image.tag('exerciseur',image.id.split(':')[1])
+        return (image,log)
 
-    
+
     def construire(self) -> str:
         """
         Construit une image docker en utilisant comme répertoire de travail
