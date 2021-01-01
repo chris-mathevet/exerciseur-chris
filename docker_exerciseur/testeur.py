@@ -111,7 +111,7 @@ def éprouve_dans_nouveau_container(
         except ConnectionRefusedError:
             time.sleep(délai_essais * 0.001)
             délai_essais *= 2
-            
+
     try:
         if verbose:
             print("connexion au conteneur ok", file=sys.stderr)
@@ -135,3 +135,40 @@ def éprouve_dans_nouveau_container(
         if verbose:
             print(sectionize("logs du container"), file=sys.stderr)
             print(container.logs(since=datetime.datetime.min).decode(), file=sys.stderr)
+
+
+def éprouve_dans_openfaas(
+        id_exo: str,
+        code_etu: Union[str, bytes],
+        verbose=False
+    ):
+    """
+    Teste une tentative étudiante dans un nouveau container pour un exerciseur.
+
+    @param id_exo: l'ID de l'exerciseur (de la fonction openfaas qui sera appellée)
+    @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
+    @param verbose: indique si on doit se répandre sur sys.stderr
+    @param docker_client: un objet client-docker à réutiliser (None pour utiliser docker.from_env())
+    @param docker_network: le réseau docker à utiliser
+
+    @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
+    """
+    if isinstance(code_etu, bytes):
+        code_etu = code_etu.decode()
+    if verbose:
+        print(sectionize("Code étudiant"), end="", file=sys.stderr)
+        print(code_etu, end="", file=sys.stderr)
+        print(sectionize("Fin code étudiant"), file=sys.stderr)
+
+    #image = trouve_image(docker_client, exerciseur)
+    lc = LogConfig(type=LogConfig.types.JSON, config={
+        'max-size': '1g',
+    })
+    try:
+        import requests
+        réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(code_etu.encode('utf8')))
+        d_réponse = json.loads(réponse.text)
+        return d_réponse
+    except Exception as e:
+        return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
+                 "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}

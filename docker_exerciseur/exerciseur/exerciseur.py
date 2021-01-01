@@ -160,7 +160,10 @@ class Exerciseur(ABC):
             raise ValueError("rép_travail doit être défini lors de l'appel à crée_image")
         docker_client = docker_client or docker.from_env()
         (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
-        image.tag('exerciseur',image.id.split(':')[1])
+        nom_image=image.id.split(':')[1]
+        image.tag('exerciseur',nom_image)
+        import requests, json
+        r = requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"exerciseur:%s"%nom_image }))
         return (image,log)
 
 

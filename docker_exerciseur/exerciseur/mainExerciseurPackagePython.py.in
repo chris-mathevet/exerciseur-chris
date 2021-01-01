@@ -3,9 +3,11 @@
 import cbor
 import sys
 import json
-from socketserver import StreamRequestHandler, TCPServer
 import signal
 from {{module}} import {{NomClasse}}
+from http.server import BaseHTTPRequestHandler
+import socketserver
+
 
 def ajoute_html(réponse):
     """
@@ -25,14 +27,29 @@ def ajoute_html(réponse):
     feedback_html += "</div>\n"
     réponse['feedbacks_html'] = feedback_html
 
-class ServeurTentatives(StreamRequestHandler):
+
+class Handler(BaseHTTPRequestHandler):
 
     def __init__(self, *args):
-        self.ex = {{NomClasse}}()
-        super().__init__(*args)
-    
-    def handle(self):
-        code_etu = cbor.load(self.rfile)
+            self.ex = {{NomClasse}}()
+            super().__init__(*args)
+
+    def do_POST(self):
+        mesg=b""
+        while True:
+            line = self.rfile.readline().strip()
+            chunk_length = int(line, 16)
+            if chunk_length != 0:
+                    chunk = self.rfile.read(chunk_length)
+                    mesg+=chunk
+                    self.rfile.readline()
+            else:
+                break
+
+
+        self.send_response(200)
+        self.end_headers()
+        code_etu = cbor.loads(mesg)
         print("reçu: ", code_etu)
         réponse = self.ex.évalue(code_etu)
         ajoute_html(réponse)
@@ -45,5 +62,5 @@ def sigterm_handler(_signo, _stack_frame):
 if __name__ == "__main__":
     port = 5678 if len(sys.argv) < 2 else int(sys.argv[1])
     signal.signal(signal.SIGTERM, sigterm_handler)
-    with TCPServer(("", port), ServeurTentatives) as serv:
-        serv.serve_forever()
+    with socketserver.TCPServer(("", 8080), Handler ) as httpd:
+        httpd.serve_forever()
