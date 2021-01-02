@@ -153,48 +153,48 @@ def pairesMajoritaires(liste):
 import os
 
 exemples = (
-    # {'type_ex': 'DémonPython',
-    #  'chemin_source': os.path.abspath('exemples/ToujoursContent'),
-    #  'métadonnées' : {},
-    #  'tentatives' : [
-    #      {
-    #          'code_etu': 'coucou',
-    #          'réponse' :              {
-    #              "_valide": True,
-    #              "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-    #              'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
-    #          }
-    #      }
-    #  ]
-    # },
-    # {'type_ex': 'DémonPython',
-    #  'chemin_source': 'exemples/ToujoursContent',
-    #  'métadonnées' : {},
-    #  'tentatives' : [
-    #      {
-    #          'code_etu': 'coucou',
-    #          'réponse' :
-    #          {
-    #              "_valide": True,
-    #              "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-    #              'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
-    #          }
-    #      }
-    #  ]
-    # },
-    # {'type_ex': 'Dockerfile',
-    #  'chemin_source': 'exemples/dockerfile_true',
-    #  'métadonnées' : {},
-    #  'tentatives' : [
-    #      {
-    #          'code_etu': 'coucou',
-    #          'réponse' : {'_valide': True,
-    #                       '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
-    #                       'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
-    #          }
-    #      }
-    #  ]
-    # },
+    {'type_ex': 'DémonPython',
+     'chemin_source': os.path.abspath('exemples/ToujoursContent'),
+     'métadonnées' : {},
+     'tentatives' : [
+         {
+             'code_etu': 'coucou',
+             'réponse' :              {
+                 "_valide": True,
+                 "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
+             }
+         }
+     ]
+    },
+    {'type_ex': 'DémonPython',
+     'chemin_source': 'exemples/ToujoursContent',
+     'métadonnées' : {},
+     'tentatives' : [
+         {
+             'code_etu': 'coucou',
+             'réponse' :
+             {
+                 "_valide": True,
+                 "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
+             }
+         }
+     ]
+    },
+    {'type_ex': 'Dockerfile',
+     'chemin_source': 'exemples/dockerfile_true',
+     'métadonnées' : {},
+     'tentatives' : [
+         {
+             'code_etu': 'coucou',
+             'réponse' : {'_valide': True,
+                          '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
+                          'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
+             }
+         }
+     ]
+    },
     {'type_ex': 'PackagePython',
      'chemin_source': 'exemples/ClasseToujoursContente',
      'métadonnées' : {},
@@ -222,62 +222,62 @@ exemples = (
          }
      ]
     },
-    # {'type_ex': 'Jacadi',
-    #  'chemin_source': 'exemples/jacadiMajoritePaire',
-    #  'métadonnées' : { 'fichier_ens': 'majoritePaire.py'},
-    #  'tentatives' : [
-    #      {
-    #          'code_etu': code_maj_paire,
-    #          'réponse' : {
-    #              '_valide': True,
-    #              '_messages': ["Tous les tests ont réussi, champion·ne!"],
-    #              'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
-    #          }
-    #      }
-    #  ]
-    # },
-    # {'type_ex': 'Jacadi',
-    #  'chemin_source': 'exemples/jacadiMajoritePaire',
-    #  'métadonnées' : {},
-    #  'tentatives' : [
-    #      {
-    #          'code_etu': code_maj_paire,
-    #          'réponse' : {
-    #              '_valide': True,
-    #              '_messages': ["Tous les tests ont réussi, champion·ne!"],
-    #              'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
-    #          }
-    #      },
-    #
-    #      {
-    #          'code_etu' : code_maj_paire_faux,
-    #          'réponse' : {'_valide': False, '_messages': ["Sur l'entrée ([-5, 4, 3],), vous renvoyez 0", 'la valeur attendue était -1'], 'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l'entrée ([-5, 4, 3],), vous renvoyez 0</li>\n<li>la valeur attendue était -1</li>\n</ul>\n</div>\n"}
-    #      },
-    #
-    #      {
-    #          'code_etu': code_maj_paire_faux_invisible,
-    #          'réponse' : {'_valide': False, '_messages': ['sur une entrée invisible, vous ne retournez pas la bonne valeur.'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>sur une entrée invisible, vous ne retournez pas la bonne valeur.</li>\n</ul>\n</div>\n'}
-    #      },
-    #
-    #      {
-    #          'code_etu': code_maj_paire_manquants,
-    #          'réponse' : {'_valide': False,
-    #                       '_messages': ['Vous ne fournissez pas la fonction pairesMajoritaires demandée'],
-    #                       'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Vous ne fournissez pas la fonction pairesMajoritaires demandée</li>\n</ul>\n</div>\n'}
-    #      },
-    #
-    #      {
-    #          'code_etu': code_maj_paire_exception,
-    #          'réponse' : {'_valide': False,
-    #                       '_messages': ["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 6, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
-    #      },
-    #
-    #      {
-    #          'code_etu': code_maj_paire_exception_p4,
-    #          'réponse' : {'_valide': False, '_messages': ["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 15, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 12, in fonction_4\n</li>\n<li>  File "<string>", line 9, in fonction_3\n</li>\n<li>  File "<string>", line 6, in fonction_2\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
-    #      }
-    #  ]
-    # }
+    {'type_ex': 'Jacadi',
+     'chemin_source': 'exemples/jacadiMajoritePaire',
+     'métadonnées' : { 'fichier_ens': 'majoritePaire.py'},
+     'tentatives' : [
+         {
+             'code_etu': code_maj_paire,
+             'réponse' : {
+                 '_valide': True,
+                 '_messages': ["Tous les tests ont réussi, champion·ne!"],
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
+             }
+         }
+     ]
+    },
+    {'type_ex': 'Jacadi',
+     'chemin_source': 'exemples/jacadiMajoritePaire',
+     'métadonnées' : {},
+     'tentatives' : [
+         {
+             'code_etu': code_maj_paire,
+             'réponse' : {
+                 '_valide': True,
+                 '_messages': ["Tous les tests ont réussi, champion·ne!"],
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
+             }
+         },
+
+         {
+             'code_etu' : code_maj_paire_faux,
+             'réponse' : {'_valide': False, '_messages': ["Sur l'entrée ([-5, 4, 3],), vous renvoyez 0", 'la valeur attendue était -1'], 'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l'entrée ([-5, 4, 3],), vous renvoyez 0</li>\n<li>la valeur attendue était -1</li>\n</ul>\n</div>\n"}
+         },
+
+         {
+             'code_etu': code_maj_paire_faux_invisible,
+             'réponse' : {'_valide': False, '_messages': ['sur une entrée invisible, vous ne retournez pas la bonne valeur.'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>sur une entrée invisible, vous ne retournez pas la bonne valeur.</li>\n</ul>\n</div>\n'}
+         },
+
+         {
+             'code_etu': code_maj_paire_manquants,
+             'réponse' : {'_valide': False,
+                          '_messages': ['Vous ne fournissez pas la fonction pairesMajoritaires demandée'],
+                          'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Vous ne fournissez pas la fonction pairesMajoritaires demandée</li>\n</ul>\n</div>\n'}
+         },
+
+         {
+             'code_etu': code_maj_paire_exception,
+             'réponse' : {'_valide': False,
+                          '_messages': ["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 6, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
+         },
+
+         {
+             'code_etu': code_maj_paire_exception_p4,
+             'réponse' : {'_valide': False, '_messages': ["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')</li>\n<li>  File "<string>", line 15, in pairesMajoritaires\n</li>\n<li>  File "<string>", line 12, in fonction_4\n</li>\n<li>  File "<string>", line 9, in fonction_3\n</li>\n<li>  File "<string>", line 6, in fonction_2\n</li>\n<li>  File "<string>", line 3, in fonction_1\n</li>\n</ul>\n</div>\n'}
+         }
+     ]
+    }
 )
 
 @params(*exemples)

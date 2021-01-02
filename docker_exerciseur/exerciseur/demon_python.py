@@ -7,7 +7,7 @@ from ..stream_tee import StreamTee
 class ExerciseurDémonPython(Exerciseur):
     """
     Un exerciseur pour un testeur écrit en python (le testeur
-    doit implémenter un démon qui écoute des tentatives sur le port 5678).
+    doit implémenter un démon qui écoute des tentatives en http sur le port 8080).
 
     @param dossier_code: un dossier contenant le code du démon
     """
@@ -27,7 +27,7 @@ class ExerciseurDémonPython(Exerciseur):
         dest = self.rép_travail
         self.debug("copie des fichiers source dans ", dest)
         shutil.copytree(self.sources, dest)
-        
+
     def prépare_source(self):
         pass
 
@@ -43,14 +43,14 @@ class ExerciseurDémonPython(Exerciseur):
         print("WORKDIR /exerciseur", file=out)
         if os.path.isfile(self.rép_travail + "/requirements.txt"):
             print("RUN pip install -r requirements.txt", file=out)
-        print("EXPOSE 5678", file=out)
+        print("EXPOSE 8080", file=out)
         print("CMD exec python " + self.nom_démon, file=out)
 
     def métadonnées(self):
         return {
             'nom_démon': self.nom_démon,
             }
-        
+
     def type_exo(self):
         return 'DémonPython'
 
