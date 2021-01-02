@@ -60,7 +60,6 @@ def sigterm_handler(_signo, _stack_frame):
     exit(0)
 
 if __name__ == "__main__":
-    port = 5678 if len(sys.argv) < 2 else int(sys.argv[1])
     signal.signal(signal.SIGTERM, sigterm_handler)
     with socketserver.TCPServer(("", 8080), Handler ) as httpd:
         httpd.serve_forever()

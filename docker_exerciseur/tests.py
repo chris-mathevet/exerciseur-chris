@@ -208,20 +208,20 @@ exemples = (
          }
      ]
     },
-    # {'type_ex': 'TestsPython',
-    #  'chemin_source': 'exemples/testsPython',
-    #  'métadonnées' : { 'nom_module': 'quelques_tests'},
-    #  'tentatives' : [
-    #      {
-    #          'code_etu': 'a = 5',
-    #          'réponse' : {
-    #              '_valide': True,
-    #              '_messages': ["Tous les tests ont réussi, champion·ne!"],
-    #              'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
-    #          }
-    #      }
-    #  ]
-    # },
+    {'type_ex': 'TestsPython',
+     'chemin_source': 'exemples/testsPython',
+     'métadonnées' : { 'nom_module': 'quelques_tests'},
+     'tentatives' : [
+         {
+             'code_etu': 'a = 5',
+             'réponse' : {
+                 '_valide': True,
+                 '_messages': ["Tous les tests ont réussi, champion·ne!"],
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
+             }
+         }
+     ]
+    },
     # {'type_ex': 'Jacadi',
     #  'chemin_source': 'exemples/jacadiMajoritePaire',
     #  'métadonnées' : { 'fichier_ens': 'majoritePaire.py'},

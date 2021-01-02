@@ -3,7 +3,8 @@
 import cbor
 import sys
 import json
-from socketserver import StreamRequestHandler, TCPServer
+from http.server import BaseHTTPRequestHandler
+import socketserver
 import signal
 from types import ModuleType
 import importlib
@@ -11,7 +12,7 @@ from outils_exercices.voile import VoilePudique, ErreurVoilée
 import outils_exercices.jacadi as jacadi
 import traceback
 
-class ServeurTentatives(StreamRequestHandler):
+class ServeurTentatives(BaseHTTPRequestHandler):
 
     def évalue(self, mod_etu):
         sys.modules['code_etu'] = mod_etu
@@ -49,7 +50,7 @@ class ServeurTentatives(StreamRequestHandler):
     def résultat_erreur_load(self, e):
         return {
             "_valide": False,
-            "_messages": ["Exception au chargement de votre code", type(e), str(e)],
+            "_messages": ["Exception au chargement de votre code", str(type(e)), str(e)],
         }
 
 
@@ -58,7 +59,7 @@ class ServeurTentatives(StreamRequestHandler):
             "_valide": False,
             "_messages": ["Vous ne fournissez pas la fonction {} demandée".format(nom_fonction)]
         }
-    
+
     def résultat_erreur_exec(self, e):
         return {
             "_valide": False,
@@ -70,7 +71,7 @@ class ServeurTentatives(StreamRequestHandler):
         sys.modules['code_etu'] = mod_etu
         exec(code_etu, mod_etu.__dict__)
         return mod_etu
-        
+
     def traite(self, code_etu):
         try:
             print("chargement code étu")
@@ -86,7 +87,7 @@ class ServeurTentatives(StreamRequestHandler):
             return self.résultat_erreur_exec(e)
 
         print("code étudiant étudié")
-        
+
         print("résultat:", résultat)
 
 
@@ -108,19 +109,35 @@ class ServeurTentatives(StreamRequestHandler):
         feedback_html += "</div>\n"
         réponse['feedbacks_html'] = feedback_html
 
-    def handle(self):
-        code_etu = cbor.load(self.rfile)
+    def do_POST(self):
+        print("tOTO")
+        mesg=b""
+        while True:
+            line = self.rfile.readline().strip()
+            chunk_length = int(line, 16)
+            if chunk_length != 0:
+                    chunk = self.rfile.read(chunk_length)
+                    mesg+=chunk
+                    self.rfile.readline()
+            else:
+                break
+
+
+        self.send_response(200)
+        self.end_headers()
+        code_etu = cbor.loads(mesg)
         print("reçu ceci: ", code_etu)
         résultat = self.traite(code_etu)
         self.ajoute_html(résultat)
         self.wfile.write(json.dumps(résultat).encode() + b'\n')
         self.wfile.flush()
 
+
+
 def sigterm_handler(_signo, _stack_frame):
     exit(0)
 
 if __name__ == "__main__":
-    port = 5678 if len(sys.argv) < 2 else int(sys.argv[1])
     signal.signal(signal.SIGTERM, sigterm_handler)
-    with TCPServer(("", port), ServeurTentatives) as serv:
-        serv.serve_forever()
+    with socketserver.TCPServer(("", 8080), ServeurTentatives ) as httpd:
+        httpd.serve_forever()
