@@ -153,6 +153,19 @@ def pairesMajoritaires(liste):
 import os
 
 exemples = (
+    {'type_ex': 'java',
+     'chemin_source': os.path.abspath('exemples/ClasseToujoursContente'),
+     'métadonnées' : {},
+     'tentatives' : [
+         {
+             'code_etu': '''public class Truc{}''',
+             'réponse' :              {
+                 "_valide": False,
+                 "_messages": {"Erreur de compilation dans le fichier MaClasse.java": ["ligne 1\nclass Truc is public, should be declared in a file named Truc.java"]},
+             }
+         }
+     ]
+    },
     {'type_ex': 'DémonPython',
      'chemin_source': os.path.abspath('exemples/ToujoursContent'),
      'métadonnées' : {},
