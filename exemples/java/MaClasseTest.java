@@ -1,11 +1,5 @@
-from easypython_testeur import Testeurs
-import sys
-import json
-import cbor
-
-codeEns = b"""
-    import junit.framework.*;
-    public class MaClasseTest extends TestCase{
+import junit.framework.*;
+public class MaClasseTest extends TestCase{
       public void testCalculer() throws Exception {
               assertEquals(2,MaClasse.calculer(1,1));
                 }
@@ -19,21 +13,4 @@ codeEns = b"""
       public void testCalculer4() throws Exception {
               assertEquals("Sur l'entree (1,1), votre fonction n'a pas fait ce qui etait attendu",2,MaClasse.calculer(1,1));
                 }
-    }
-"""
-
-def get_stdin():
-    buf = ""
-    while(True):
-        line = sys.stdin.readline()
-        buf += line
-        if line == "":
-            break
-    return buf
-
-if __name__ == "__main__":
-    def erreur(*args):
-         raise Exception("Langage inexistant : " + self.type)
-    codeEtu = cbor.loads(get_stdin().encode("utf-8")).decode("utf-8")
-    testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns, codeEtu,False)
-    print(json.dumps(testeur.test()))
+}

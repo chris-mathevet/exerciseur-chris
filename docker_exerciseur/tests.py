@@ -154,8 +154,8 @@ import os
 
 exemples = (
     {'type_ex': 'java',
-     'chemin_source': os.path.abspath('exemples/ClasseToujoursContente'),
-     'métadonnées' : {},
+     'chemin_source': os.path.abspath('exemples/java'),
+     'métadonnées' : { 'nom_classe_test': 'MaClasseTest', 'nom_classe_etu': 'MaClasse' },
      'tentatives' : [
          {
              'code_etu': '''public class Truc{}''',

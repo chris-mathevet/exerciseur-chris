@@ -1,0 +1,24 @@
+from easypython_testeur import Testeurs
+import sys
+import json
+import cbor
+
+codeEns = b"""
+{{classeTest}}
+"""
+
+def get_stdin():
+    buf = ""
+    while(True):
+        line = sys.stdin.readline()
+        buf += line
+        if line == "":
+            break
+    return buf
+
+if __name__ == "__main__":
+    def erreur(*args):
+         raise Exception("Langage inexistant : " + self.type)
+    codeEtu = cbor.loads(get_stdin().encode("utf-8")).decode("utf-8")
+    testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns, codeEtu,False, nomclasse="{{nom_classe_etu}}", nom_classe_test="{{nom_classe_test}}")
+    print(json.dumps(testeur.test()))
