@@ -3,7 +3,7 @@ import sys
 import json
 import cbor
 
-codeEns = b"""
+codeEns = """
 {{classeTest}}
 """
 
@@ -20,5 +20,5 @@ if __name__ == "__main__":
     def erreur(*args):
          raise Exception("Langage inexistant : " + self.type)
     codeEtu = cbor.loads(get_stdin().encode("utf-8")).decode("utf-8")
-    testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns, codeEtu,False, nomclasse="{{nom_classe_etu}}", nom_classe_test="{{nom_classe_test}}")
+    testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns.encode("utf-8"), codeEtu,False, nomclasse="{{nom_classe_etu}}", nom_classe_test="{{nom_classe_test}}")
     print(json.dumps(testeur.test()))
