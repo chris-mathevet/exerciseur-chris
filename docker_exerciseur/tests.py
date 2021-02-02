@@ -162,6 +162,7 @@ exemples = (
              'réponse' :              {
                  "_valide": False,
                  "_messages": {"Erreur de compilation dans le fichier MaClasse.java": ["ligne 1\nclass Truc is public, should be declared in a file named Truc.java"]},
+                 "feedbacks_html": "<h1>Erreur de compilation dans le fichier MaClasse.java</h1><div>ligne 1\nclass Truc is public, should be declared in a file named Truc.java</div>"
              }
          }
      ]

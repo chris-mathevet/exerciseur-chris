@@ -23,4 +23,9 @@ if __name__ == "__main__":
     if isinstance(codeEtu, bytes):
         codeEtu = codeEtu.decode()
     testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns.encode("utf-8"), codeEtu,False, nomclasse="{{nom_classe_etu}}", nom_classe_test="{{nom_classe_test}}")
-    print(json.dumps(testeur.test()))
+    reponse = testeur.test()
+    reponse["feedbacks_html"] = ""
+    for titre in reponse["_messages"]:
+         reponse["feedbacks_html"] += "<h1>" + titre + "</h1>"
+         reponse["feedbacks_html"] += "<div>" + "</div><div>".join(reponse["_messages"][titre]) + "</div>" 
+    print(json.dumps(reponse))
