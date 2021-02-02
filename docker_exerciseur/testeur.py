@@ -169,6 +169,9 @@ def éprouve_dans_openfaas(
         réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(code_etu.encode('utf8')))
         d_réponse = json.loads(réponse.text)
         return d_réponse
+    except json.JSONDecodeError as e:
+        return { "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
+                 "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
     except Exception as e:
         return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
                  "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
