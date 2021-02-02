@@ -161,13 +161,13 @@ class Exerciseur(ABC):
         docker_client = docker_client or docker.from_env()
         (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
         nom_image=image.id.split(':')[1]
-        image.tag('pcap-registry:5000/exerciseur',nom_image)
+        image.tag('localhost:5000/exerciseur',nom_image)
         try:
-            image.push('pcap-registry:5000/exerciseur')
+            image.push('localhost:5000/exerciseur:'+nom_image)
         except Exception as e:
             pass
         import requests, json
-        r = requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"pcap-registry:5000/exerciseur:%s"%nom_image }))
+        r = requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"localhost:5000/exerciseur:%s"%nom_image }))
         return (image,log)
 
 
