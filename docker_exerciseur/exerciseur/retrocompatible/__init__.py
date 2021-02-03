@@ -12,7 +12,7 @@ import shutil
 from outils_exercices import jacadi
 from ..dockerfile import ExerciseurDockerfile
 from .. import Exerciseur
-
+import inspect
 
 class ExerciseurRetrocompatibleJava(Exerciseur):
 
@@ -120,6 +120,7 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
             "entrees_invisibles", [])
         self.meta["sorties_visibles"] = self.test_fonction(self.solution, self.meta["entrees_visibles"])
         self.meta["sorties_invisibles"] = self.test_fonction(self.solution, self.meta["entrees_invisibles"])
+        self.meta["arguments"] = inspect.getfullargspec(self.solution).args
 
     def type_exo(self):
         return self.typeExo
