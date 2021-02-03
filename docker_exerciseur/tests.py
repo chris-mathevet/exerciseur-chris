@@ -443,4 +443,4 @@ def test_metadonnees(e):
     Classe = Exerciseur.types_exerciseurs[e['type_ex']]
     ed = Classe(e['chemin_source'], **e['métadonnées'])
     sha = ed.construire()
-    assert ed.métadonnées() == e.get("métadonnées_attendues", {}), "Métadonnées obentenues :" + str(ed.métadonnées()) + "alors qu'on attendait " + str(e.get("métadonnées_attendues", {}))
+    assert ed.meta == e.get("métadonnées_attendues", {}), "Métadonnées obentenues :" + str(ed.métadonnées()) + "alors qu'on attendait " + str(e.get("métadonnées_attendues", {}))

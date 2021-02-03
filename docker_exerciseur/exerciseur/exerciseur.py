@@ -89,6 +89,9 @@ class Exerciseur(ABC):
     def métadonnées(self) -> Dict[str, str]:
         pass
 
+    def prépare_métadonnées(self):
+        self.meta = self.métadonnées()
+
     @abstractmethod
     def type_exo(self) -> str:
         pass
@@ -184,6 +187,7 @@ class Exerciseur(ABC):
             self.prépare_source()
             self.écrit_dockerfile()
             i, log = self.crée_image()
+            self.prépare_métadonnées()
             self.debug("-----------------------")
             self.debug("Logs construction image")
             self.debug("-----------------------")

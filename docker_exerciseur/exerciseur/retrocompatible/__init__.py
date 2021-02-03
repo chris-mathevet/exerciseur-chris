@@ -99,7 +99,10 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
         return res
 
     def métadonnées(self):
-        self.fichier_ens_abs = os.path.abspath(self.sources + "/" + self.meta.get("fichier_ens"))
+        return self.meta
+
+    def prépare_métadonnées(self):
+        self.fichier_ens_abs = os.path.abspath(self.rép_travail + "/" + self.meta.get("fichier_ens"))
         nom_module_ens = Path(self.fichier_ens_abs).stem
         with open(self.fichier_ens_abs) as fichier_ens:
             contenu_module_ens = (fichier_ens.read())
@@ -117,7 +120,6 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
             "entrees_invisibles", [])
         self.meta["sorties_visibles"] = self.test_fonction(self.solution, self.meta["entrees_visibles"])
         self.meta["sorties_invisibles"] = self.test_fonction(self.solution, self.meta["entrees_invisibles"])
-        return self.meta
 
     def type_exo(self):
         return self.typeExo
