@@ -167,6 +167,22 @@ exemples = (
          }
      ]
     },
+    {'type_ex': 'python',
+     'chemin_source': os.path.abspath('exemples/jacadiMajoritePaire'),
+     'métadonnées' : { 'fichier_ens': 'majoritePaire.py' },
+     'tentatives' : [
+         {
+             'code_etu': '''def min(x,y):
+                                return x
+                         ''',
+             'réponse' :{'_valide': False,
+                        '_messages': {"Vous n'avez pas respecté l'énoncé": ['Votre programme doit contenir une fonction pairesMajoritaires']},
+                        '_temps': None,
+                        'feedbacks_html': "<h1>Vous n'avez pas respecté l'énoncé</h1><div>Votre programme doit contenir une fonction pairesMajoritaires</div>"
+                        }
+         }
+     ]
+    },
     {'type_ex': 'DémonPython',
      'chemin_source': os.path.abspath('exemples/ToujoursContent'),
      'métadonnées' : {},

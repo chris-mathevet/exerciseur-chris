@@ -27,6 +27,7 @@ RUN pip3 install \
     cbor
 
 COPY run.py .
+COPY code_ens .
 
 ENV fprocess="python3 run.py"
 EXPOSE 8080

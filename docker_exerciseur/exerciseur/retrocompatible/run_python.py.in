@@ -7,7 +7,6 @@ import cbor
 with open("code_ens","r") as f:
   codeEns = f.read()
 
-
 def get_stdin():
     buf = ""
     while(True):
@@ -23,7 +22,7 @@ if __name__ == "__main__":
     codeEtu = cbor.loads(get_stdin().encode("utf-8"))
     if isinstance(codeEtu, bytes):
         codeEtu = codeEtu.decode()
-    testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns.encode("utf-8"), codeEtu,False, nomclasse="{{nom_classe_etu}}", nom_classe_test="{{nom_classe_test}}")
+    testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns.encode("utf-8"), codeEtu,False)
     reponse = testeur.test()
     reponse["feedbacks_html"] = ""
     for titre in reponse["_messages"]:
