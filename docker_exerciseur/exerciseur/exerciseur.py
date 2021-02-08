@@ -166,7 +166,8 @@ class Exerciseur(ABC):
         nom_image=image.id.split(':')[1]
         image.tag('127.0.0.1:5000/exerciseur',nom_image)
         try:
-            image.push('127.0.0.1:5000/exerciseur', tag=nom_image)
+            for line in image.push('127.0.0.1:5000/exerciseur', tag=nom_image):
+                print("DEBUG PUSH:", line)
         except Exception as e:
             print("Exception while pushing:", e)
             pass
