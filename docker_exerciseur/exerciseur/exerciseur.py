@@ -166,7 +166,7 @@ class Exerciseur(ABC):
         nom_image=image.id.split(':')[1]
         image.tag('127.0.0.1:5000/exerciseur',nom_image)
         try:
-            image.push('127.0.0.1:5000/exerciseur:'+nom_image)
+            image.push('127.0.0.1:5000/exerciseur', tag=nom_image)
         except Exception as e:
             pass
         import requests, json
