@@ -168,6 +168,7 @@ class Exerciseur(ABC):
         try:
             image.push('127.0.0.1:5000/exerciseur', tag=nom_image)
         except Exception as e:
+            print("Exception while pushing:", e)
             pass
         import requests, json
         r = requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }))
