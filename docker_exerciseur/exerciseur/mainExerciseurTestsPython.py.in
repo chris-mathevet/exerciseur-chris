@@ -139,5 +139,5 @@ def sigterm_handler(_signo, _stack_frame):
 
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sigterm_handler)
-    with socketserver.TCPServer(("", 8080), ServeurTentatives ) as httpd:
+    with socketserver.TCPServer(("", 8082), ServeurTentatives ) as httpd:
         httpd.serve_forever()
