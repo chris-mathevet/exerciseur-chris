@@ -1,6 +1,6 @@
 import argparse
-from . import constructeur
-from . import testeur
+from docker_exerciseur import constructeur
+from docker_exerciseur import testeur
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

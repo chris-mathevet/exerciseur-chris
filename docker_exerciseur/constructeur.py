@@ -25,7 +25,11 @@ parser.add_argument(
     "--prépare", help="ne construit pas l'image docker, mais crée seulement le répertoire avec un Dockerfile pour docker build",
     action="store_true"
 )
-        
+
+parser.add_argument("--out", dest="cbor_out_file", help="sauvegarder le paquet cbor dans un fichier",
+    type=argparse.FileType('wb'),
+)
+
 def main(args):
     dossier_source = args.dossier or "."
     métadonnées={}
@@ -40,11 +44,11 @@ def main(args):
         chemin = prépare_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
         print(chemin)
     else:
-        id_image = construit_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
+        id_image = construit_exerciseur(args.type, dossier_source, args.verbose, args.cbor_out_file, **métadonnées)
         print(id_image)
 
 
-def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
+def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out,  **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
@@ -61,7 +65,10 @@ def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     debug_out = verbose and sys.stderr
     dossier_source = os.path.abspath(dossier_source)
     ex = Exerciseur.avec_type(dossier_source, type_ex, debug_out=debug_out, **kwargs)
-    return  ex.construire()
+    res =  ex.construire()
+    if cbor_out:
+        cbor_out.write(ex.empaquète().vers_cbor())
+    return res
 
 def prépare_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     """
