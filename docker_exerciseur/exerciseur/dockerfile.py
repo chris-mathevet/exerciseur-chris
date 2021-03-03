@@ -6,8 +6,8 @@ class ExerciseurDockerfile(Exerciseur):
     contenant un dockerfile.    
     """
     
-    def __init__(self, chemin, en_place=True, debug_out=None):
-        super().__init__(chemin, en_place=True, debug_out=debug_out)
+    def __init__(self, chemin, en_place=True, debug_out=None, **kwargs):
+        super().__init__(chemin, en_place=True, debug_out=debug_out, **kwargs)
     
     # Méthodes de Exerciseur
 

@@ -12,8 +12,8 @@ class ExerciseurDémonPython(Exerciseur):
     @param dossier_code: un dossier contenant le code du démon
     """
 
-    def __init__(self, dossier_code, nom_démon='daemon.py', en_place=False, debug_out=None):
-        super().__init__(dossier_code, en_place=en_place, debug_out=debug_out)
+    def __init__(self, dossier_code, nom_démon='daemon.py', en_place=False, debug_out=None, **kwargs):
+        super().__init__(dossier_code, en_place=en_place, debug_out=debug_out, **kwargs)
         self.nom_démon = nom_démon
         self.rép_travail = None
         self.dockerfile = None

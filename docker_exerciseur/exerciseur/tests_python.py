@@ -12,9 +12,9 @@ from . import Exerciseur
 from .package_python import ExerciseurPackagePython
 
 class ExerciseurTestsPython(ExerciseurPackagePython):
-    def __init__(self, dossier_code, nom_module='tests', en_place=False, debug_out=None):
+    def __init__(self, dossier_code, nom_module='tests', en_place=False, debug_out=None, **kwargs):
         super().__init__(dossier_code, nom_module=nom_module, nom_classe=None,
-                         en_place=en_place, debug_out=debug_out)
+                         en_place=en_place, debug_out=debug_out, **kwargs)
 
     def prépare_source(self):
         if not self.rép_travail:

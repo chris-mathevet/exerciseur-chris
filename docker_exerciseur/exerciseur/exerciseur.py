@@ -68,7 +68,7 @@ class Exerciseur(ABC):
     types_exerciseurs = {}
 
     @abstractmethod
-    def __init__(self, sources: str, en_place: False, debug_out=None):
+    def __init__(self, sources: str, en_place: False, debug_out=None, **kwargs):
         self.sources = sources
         if en_place:
             self.rép_travail = sources

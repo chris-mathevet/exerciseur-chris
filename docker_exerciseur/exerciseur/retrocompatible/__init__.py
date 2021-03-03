@@ -17,7 +17,7 @@ import inspect
 class ExerciseurRetrocompatibleJava(Exerciseur):
 
     def __init__(self, chemin, en_place=False, debug_out=None, **kwargs):
-        super().__init__(chemin, en_place=en_place, debug_out=debug_out)
+        super().__init__(chemin, en_place=en_place, debug_out=debug_out, **kwargs)
         self.meta = kwargs
         self.typeExo = "java"
 
@@ -61,7 +61,7 @@ class ExerciseurRetrocompatibleJava(Exerciseur):
 class ExerciseurRetrocompatiblePython(Exerciseur):
 
     def __init__(self, chemin, en_place=False, debug_out=None, **kwargs):
-        super().__init__(chemin, en_place=en_place, debug_out=debug_out)
+        super().__init__(chemin, en_place=en_place, debug_out=debug_out, **kwargs)
         self.typeExo="python"
         self.meta = kwargs
 

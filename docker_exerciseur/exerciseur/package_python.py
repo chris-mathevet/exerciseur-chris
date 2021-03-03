@@ -19,8 +19,8 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
     une tentative) et une méthode évalue(self, codeEtu).
     """
     def __init__(self, dossier_code, nom_classe='ToujoursContent',
-                 nom_module='exerciseur', en_place=False, debug_out=None):
-        super().__init__(dossier_code, nom_démon=None, en_place=en_place)
+                 nom_module='exerciseur', en_place=False, debug_out=None, **kwargs):
+        super().__init__(dossier_code, nom_démon=None, en_place=en_place, **kwargs)
         self.nom_classe = nom_classe
         self.nom_module = nom_module
 

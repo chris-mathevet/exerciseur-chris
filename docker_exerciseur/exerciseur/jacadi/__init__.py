@@ -14,10 +14,10 @@ from ..tests_python import ExerciseurTestsPython
 from .. import Exerciseur
 
 class ExerciseurJacadi(ExerciseurTestsPython):
-    def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None):
+    def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None, **kwargs):
         self.fichier_ens = fichier_ens
 #        self.nom_module = nom_module
-        super().__init__(dossier_code, nom_module=None, en_place=en_place, debug_out=debug_out)
+        super().__init__(dossier_code, nom_module=None, en_place=en_place, debug_out=debug_out, **kwargs)
 
     def prépare_source(self):
         if not self.rép_travail:
