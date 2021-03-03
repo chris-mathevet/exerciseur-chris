@@ -44,11 +44,11 @@ def main(args):
         chemin = prépare_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
         print(chemin)
     else:
-        id_image = construit_exerciseur(args.type, dossier_source, args.verbose, args.cbor_out_file, **métadonnées)
+        id_image = construit_exerciseur(args.type, dossier_source, args.verbose, cbor_out=args.cbor_out_file, **métadonnées)
         print(id_image)
 
 
-def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out,  **kwargs):
+def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None,  **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
