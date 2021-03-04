@@ -149,30 +149,6 @@ def pairesMajoritaires(liste):
     return fonction_4(liste)
 '''
 
-code_etu_Personnage = '''
-class Personnage{
-
-  private String nom;
-  private int barbe;
-  private int taille;
-  Personnage(String a, int barbe, int taille){
-  	this.nom = a;
-    this.barbe = barbe;
-    this.taille = taille;
-  }
-
-  public int tailleOreilles(){
-    return this.taille;
-  }
-
-  public int getBarbe(){
-  	return this.barbe;
-  }
-  public String getNom(){
-	return this.nom;
-  }
-}
-'''
 
 import os
 
@@ -191,21 +167,6 @@ exemples = (
          }
      ],
        'métadonnées_attendues' :{ 'nom_classe_test': 'MaClasseTest', 'nom_classe_etu': 'MaClasse' }
-    },
-    {'type_ex': 'java',
-     'chemin_source': os.path.abspath('exemples/java'),
-     'métadonnées' : { 'nom_classe_test': 'TestPersonnage', 'nom_classe_etu': 'Personnage' },
-     'tentatives' : [
-         {
-             'code_etu':code_etu_Personnage,
-             'réponse' :              {
-                 "_valide": True,
-                 "_messages": {},
-                 "feedbacks_html": ""
-             }
-         }
-     ],
-       'métadonnées_attendues' :{ 'nom_classe_test': 'TestPersonnage', 'nom_classe_etu': 'Personnage' }
     },
     {'type_ex': 'python',
      'chemin_source': os.path.abspath('exemples/jacadiMajoritePaire'),
