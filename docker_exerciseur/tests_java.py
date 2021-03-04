@@ -56,7 +56,7 @@ exemples = (
              'réponse' :              {
                  "_valide": True,
                  "_messages": {},
-                 "feedbacks_html": ""
+                 "feedbacks_html": "<h1> Félicitations ! </h1>"
              }
          },
          {
