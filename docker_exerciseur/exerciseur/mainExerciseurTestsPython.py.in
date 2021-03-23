@@ -22,25 +22,28 @@ class ServeurTentatives(BaseHTTPRequestHandler):
 
         importlib.reload(self.module_ens)
 
+        valide = True
+        messages = []
         for (nom, test) in self.module_ens.__dict__.items():
             if nom.startswith("test_"):
                 try:
                     with VoilePudique(ErreurVoilée):
-                        test()
+                        retour_test = test()
+                        if retour_test :
+                            messages.append(retour_test)
                 except ErreurVoilée as e_voilée:
-                        return {
-                            "_valide": False,
-                            "_messages": e_voilée.messages()
-                        }
+                    valide = False
+                    messages.append(e_voilée.messages())
                 except Exception as e:
                     return {
                         "_valide": False,
                         "_messages": ["Bug dans l'exerciseur"] + traceback.format_exc().splitlines()
                     }
-
+        if valide :
+            messages.append("Tous les tests ont réussi, champion·ne!")
         return {
-            "_valide": True,
-            "_messages": ["Tous les tests ont réussi, champion·ne!"],
+            "_valide": valide,
+            "_messages": messages,
         }
 
     def __init__(self, *args):
@@ -96,21 +99,23 @@ class ServeurTentatives(BaseHTTPRequestHandler):
         Ajoute une version html à la réponse obtenue depuis `évalue`, dans
         son attribut "feedbacks_html".
         """
+        if(not isinstance(réponse, dict)):
+            réponse = {"_erreur_ajoute_html": "réponse is not a dict :" + str(réponse)}
+            return
         feedback_html = "<div>\n"
-        if réponse["_valide"]:
+        if réponse.get("_valide", False):
             feedback_html += "<p>Exercice réussi!</p>\n"
         else:
             feedback_html += "<p>Il y a une erreur</p>\n"
         if "_messages" in réponse and réponse["_messages"]:
             feedback_html += "<ul>\n"
-            for ligne in réponse["_messages"]:
-                feedback_html += "<li>" + ligne + "</li>\n"
+            for message in réponse["_messages"]:
+                feedback_html += "<li>" + str(message) + "</li>\n"
             feedback_html += "</ul>\n"
         feedback_html += "</div>\n"
         réponse['feedbacks_html'] = feedback_html
 
     def do_POST(self):
-        print("tOTO")
         mesg=b""
         while True:
             line = self.rfile.readline().strip()
@@ -129,6 +134,7 @@ class ServeurTentatives(BaseHTTPRequestHandler):
         print("reçu ceci: ", code_etu)
         résultat = self.traite(code_etu)
         self.ajoute_html(résultat)
+
         self.wfile.write(json.dumps(résultat).encode() + b'\n')
         self.wfile.flush()
 

@@ -1,7 +1,7 @@
 import code_etu
 
 def test_1():
-    return True
+    return "Vous passez avec brio le test 1"
 
 def test_deux():
     assert 2 + 2 == 4

@@ -12,15 +12,14 @@ class ErreurEntréeVisible(ErreurVoilée):
         self.ens = ens
 
     def messages(self):
-        return ["Sur l'entrée {}, vous renvoyez {}".format(self.entree, self.etu),
-                "la valeur attendue était {}".format(self.ens)]
+        return "Sur l'entrée {}, vous renvoyez {} alors que la valeur attendue était {}".format(self.entree, self.etu, self.ens)
 
 class ErreurEntréeInvisible(ErreurVoilée):
     def __init__(self):
         pass
 
     def messages(self):
-        return ["sur une entrée invisible, vous ne retournez pas la bonne valeur."]
+        return "Sur une entrée invisible, vous ne retournez pas la bonne valeur."
 
 class ExceptionEntréeVisible(ErreurVoilée):
     def __init__(self, entree, ens, e_type, e_value, e_traceback):

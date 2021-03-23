@@ -13,14 +13,19 @@ try:
 except Exception as e:
     raise FonctionÉtuManquante("{{solution}}")
 
-def test_entrees_visibles():
-    for entrée, s_ens in entrees_sorties_visibles:
-        def décore_exc(e_ty, e_val, e_tb):
-            return ExceptionEntréeVisible(entrée, s_ens, e_ty, e_val, e_tb)
-        with VoilePudique(décore_exc):
-            sortie_etu = fonction_etu(*entrée)
-        if sortie_etu != s_ens:
-            raise ErreurEntréeVisible(entrée, sortie_etu, s_ens)
+
+def gen_test_entree_visible(entrée, s_ens):
+  def fonction_test():
+    def décore_exc(e_ty, e_val, e_tb):
+        return ExceptionEntréeVisible(entrée, s_ens, e_ty, e_val, e_tb)
+    with VoilePudique(décore_exc):
+        sortie_etu = fonction_etu(*entrée)
+    if sortie_etu != s_ens:
+        raise ErreurEntréeVisible(entrée, sortie_etu, s_ens)
+  return fonction_test
+
+for (i,(entrée, s_ens)) in enumerate(entrees_sorties_visibles):
+    globals()["test_entree_visible_%d"%i] = gen_test_entree_visible(entrée, s_ens)
 
 def test_entrees_invisibles():
     for e, s_ens in entrees_sorties_invisibles:
