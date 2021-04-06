@@ -116,7 +116,8 @@ def éprouve_dans_nouveau_container(
         if verbose:
             print("connexion au conteneur ok", file=sys.stderr)
 
-        socket_container.send(cbor.dumps(code_etu.encode('utf8')))
+        dict_code_etu = {"code_etu": code_etu.encode('utf8')}
+        socket_container.send(cbor.dumps(dict_code_etu))
         délai_lecture = 1
         réponse = b''
         while délai_lecture < 1024 and len(réponse) == 0:
@@ -166,7 +167,8 @@ def éprouve_dans_openfaas(
     })
     try:
         import requests
-        réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(code_etu.encode('utf8')))
+        dict_code_etu = {"code_etu": code_etu.encode('utf8')}
+        réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(dict_code_etu))
         d_réponse = json.loads(réponse.text)
         return d_réponse
     except json.JSONDecodeError as e:

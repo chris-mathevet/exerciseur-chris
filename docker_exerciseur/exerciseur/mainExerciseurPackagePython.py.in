@@ -49,8 +49,8 @@ class Handler(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.end_headers()
-        code_etu = cbor.loads(mesg)
-        print("reçu: ", code_etu)
+        dict_code_etu = cbor.loads(mesg)
+        code_etu = dict_code_etu["code_etu"]
         réponse = self.ex.évalue(code_etu)
         ajoute_html(réponse)
         self.wfile.write(json.dumps(réponse).encode() + b'\n')

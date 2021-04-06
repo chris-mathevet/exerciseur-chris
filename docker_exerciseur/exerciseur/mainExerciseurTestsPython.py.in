@@ -14,9 +14,10 @@ import traceback
 
 class ServeurTentatives(BaseHTTPRequestHandler):
 
-    def évalue(self, mod_etu):
+    def évalue(self, mod_etu, code_etu):
         sys.modules['code_etu'] = mod_etu
-
+        import ast
+        AST = ast.parse(code_etu)
         if not self.module_ens:
             self.module_ens = importlib.import_module('{{module}}')
 
@@ -44,16 +45,17 @@ class ServeurTentatives(BaseHTTPRequestHandler):
         return {
             "_valide": valide,
             "_messages": messages,
+            "AST": ast.dump(AST)
         }
 
     def __init__(self, *args):
         self.module_ens = None
         super().__init__(*args)
 
-    def résultat_erreur_load(self, e):
+    def résultat_erreur_load(self, e, code_etu):
         return {
             "_valide": False,
-            "_messages": ["Exception au chargement de votre code", str(type(e)), str(e)],
+            "_messages": ["Exception au chargement de votre code", str(type(e)), str(e), str(code_etu)],
         }
 
 
@@ -80,10 +82,10 @@ class ServeurTentatives(BaseHTTPRequestHandler):
             print("chargement code étu")
             mod_etu = self.charge_code_etu(code_etu)
         except Exception as e:
-            return self.résultat_erreur_load(e)
+            return self.résultat_erreur_load(e, code_etu)
 
         try:
-            return self.évalue(mod_etu)
+            return self.évalue(mod_etu, code_etu)
         except jacadi.FonctionÉtuManquante as fm:
             return self.résultat_fonction_manquante(fm.nom_f)
         except Exception as e:
@@ -130,8 +132,8 @@ class ServeurTentatives(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.end_headers()
-        code_etu = cbor.loads(mesg)
-        print("reçu ceci: ", code_etu)
+        dict_code_etu = cbor.loads(mesg)
+        code_etu = dict_code_etu["code_etu"]
         résultat = self.traite(code_etu)
         self.ajoute_html(résultat)
 

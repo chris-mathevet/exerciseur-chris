@@ -200,6 +200,8 @@ def test_réponse_openfaas(e):
     sha = ed.construire()
     for t in e['tentatives']:
         éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], t['code_etu'])
+        if("AST") in éval_tentative:
+            éval_tentative.pop("AST")
         assert éval_tentative == t['réponse'], ('réponse obtenue:' + str(éval_tentative))
 
 

@@ -10,7 +10,8 @@ with open("code_ens","r") as f:
 if __name__ == "__main__":
     def erreur(*args):
          raise Exception("Langage inexistant : " + self.type)
-    codeEtu = cbor.loads(sys.stdin.buffer.read())
+    dict_code_etu = cbor.loads(sys.stdin.buffer.read())
+    codeEtu = dict_code_etu["code_etu"]
     if isinstance(codeEtu, bytes):
         codeEtu = codeEtu.decode()
     testeur = Testeurs.get("{{typeExo}}", erreur)(codeEns.encode("utf-8"), codeEtu,False)

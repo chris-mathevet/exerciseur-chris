@@ -37,7 +37,8 @@ class Handler(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.end_headers()
-        code_etu = cbor.loads(mesg)
+        dict_code_etu = cbor.loads(mesg)
+        code_etu = dict_code_etu["code_etu"]
         print("reçu: ", code_etu)
         self.wfile.write(json.dumps(résultat(code_etu)).encode() + b'\n')
         self.wfile.flush()

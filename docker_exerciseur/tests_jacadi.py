@@ -162,7 +162,7 @@ exemples = (
              'réponse' : {
                  '_valide': True,
                  '_messages': ["Tous les tests ont réussi, champion·ne!"],
-                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n"
+                 'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n",
              }
          }
      ],
@@ -294,6 +294,8 @@ def test_réponse_openfaas(e):
     sha = ed.construire()
     for t in e['tentatives']:
         éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], t['code_etu'])
+        if("AST") in éval_tentative:
+            éval_tentative.pop("AST")
         assert éval_tentative == t['réponse'], ('réponse obtenue:' + str(éval_tentative))
 
 
