@@ -141,7 +141,8 @@ def éprouve_dans_nouveau_container(
 def éprouve_dans_openfaas(
         id_exo: str,
         code_etu: Union[str, bytes],
-        verbose=False
+        verbose=False,
+        **kwargs
     ):
     """
     Teste une tentative étudiante dans un nouveau container pour un exerciseur.
@@ -149,9 +150,7 @@ def éprouve_dans_openfaas(
     @param id_exo: l'ID de l'exerciseur (de la fonction openfaas qui sera appellée)
     @param code_etu: une chaîne de caractères contenant le code soumis par l'étudiant·e
     @param verbose: indique si on doit se répandre sur sys.stderr
-    @param docker_client: un objet client-docker à réutiliser (None pour utiliser docker.from_env())
-    @param docker_network: le réseau docker à utiliser
-
+    @param kwargs: arguments supplémentaires à passer à la fonction de test
     @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
     """
     if isinstance(code_etu, bytes):
@@ -168,6 +167,7 @@ def éprouve_dans_openfaas(
     try:
         import requests
         dict_code_etu = {"code_etu": code_etu.encode('utf8')}
+        dict_code_etu.update(kwargs)
         réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(dict_code_etu))
         d_réponse = json.loads(réponse.text)
         return d_réponse

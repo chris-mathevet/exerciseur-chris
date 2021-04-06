@@ -158,10 +158,11 @@ exemples = (
      'métadonnées' : { 'fichier_ens': 'majoritePaire.py'},
      'tentatives' : [
          {
-             'code_etu': code_maj_paire,
+             'entree': {'code_etu': code_maj_paire, 'avec_ast': True},
              'réponse' : {
                  '_valide': True,
                  '_messages': ["Tous les tests ont réussi, champion·ne!"],
+                  'AST': 'Module(body=[FunctionDef(name=\'pairesMajoritaires\', args=arguments(args=[arg(arg=\'liste\', annotation=None)], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]), body=[Expr(value=Str(s="\\n    permet de savoir si une liste d\'entiers contient une majorité\\n    de nombres paires ou non\\n    paramètre: liste une liste d\'entiers\\n    resultat: 1 si les paires sont majoritaires, -1 si ce sont les impaires\\n              0 en cas d\'égalité\\n    ")), Assign(targets=[Name(id=\'cpt\', ctx=Store())], value=Num(n=0)), For(target=Name(id=\'nb\', ctx=Store()), iter=Name(id=\'liste\', ctx=Load()), body=[If(test=Compare(left=BinOp(left=Name(id=\'nb\', ctx=Load()), op=Mod(), right=Num(n=2)), ops=[Eq()], comparators=[Num(n=0)]), body=[AugAssign(target=Name(id=\'cpt\', ctx=Store()), op=Add(), value=Num(n=1))], orelse=[AugAssign(target=Name(id=\'cpt\', ctx=Store()), op=Sub(), value=Num(n=1))])], orelse=[]), If(test=Compare(left=Name(id=\'cpt\', ctx=Load()), ops=[Gt()], comparators=[Num(n=0)]), body=[Assign(targets=[Name(id=\'res\', ctx=Store())], value=Num(n=1))], orelse=[If(test=Compare(left=Name(id=\'cpt\', ctx=Load()), ops=[Lt()], comparators=[Num(n=0)]), body=[Assign(targets=[Name(id=\'res\', ctx=Store())], value=UnaryOp(op=USub(), operand=Num(n=1)))], orelse=[Assign(targets=[Name(id=\'res\', ctx=Store())], value=Num(n=0))])]), Return(value=Name(id=\'res\', ctx=Load()))], decorator_list=[], returns=None)])',
                  'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n",
              }
          }
@@ -173,7 +174,7 @@ exemples = (
      'métadonnées' : {},
      'tentatives' : [
          {
-             'code_etu': code_maj_paire,
+             'entree': { 'code_etu': code_maj_paire},
              'réponse' : {
                  '_valide': True,
                  '_messages': ["Tous les tests ont réussi, champion·ne!"],
@@ -182,31 +183,31 @@ exemples = (
          },
 
          {
-             'code_etu' : code_maj_paire_faux,
+             'entree': { 'code_etu' : code_maj_paire_faux },
              'réponse' : {'_valide': False,
                           '_messages': ["Sur l'entrée ([-5, 4, 3],), vous renvoyez 0 alors que la valeur attendue était -1"],
                           'feedbacks_html': "<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur l'entrée ([-5, 4, 3],), vous renvoyez 0 alors que la valeur attendue était -1</li>\n</ul>\n</div>\n"
                           }
          },
          {
-             'code_etu': code_maj_paire_faux_invisible,
+             'entree': { 'code_etu': code_maj_paire_faux_invisible },
              'réponse' : {'_valide': False, '_messages': ['Sur une entrée invisible, vous ne retournez pas la bonne valeur.'], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Sur une entrée invisible, vous ne retournez pas la bonne valeur.</li>\n</ul>\n</div>\n'}
          },
 
          {
-             'code_etu': code_maj_paire_manquants,
+             'entree': { 'code_etu': code_maj_paire_manquants },
              'réponse' : {'_valide': False,
                           '_messages': ['Vous ne fournissez pas la fonction pairesMajoritaires demandée'],
                           'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>Vous ne fournissez pas la fonction pairesMajoritaires demandée</li>\n</ul>\n</div>\n'}
          },
 
          {
-             'code_etu': code_maj_paire_exception,
+             'entree' : { 'code_etu': code_maj_paire_exception },
              'réponse' : {'_valide': False, '_messages': [["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n'], ["Sur l'entrée ([-5, 4, 3],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n'], ["Sur l'entrée ([-12, 4, 3],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n'], ['  File "/exerciseur/tests.py", line 32, in test_entrees_invisibles\n    sortie_etu = fonction_etu(*e)\n', '  File "<string>", line 6, in pairesMajoritaires\n', '  File "<string>", line 3, in fonction_1\n']], 'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>["Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')", \'  File "<string>", line 6, in pairesMajoritaires\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n<li>["Sur l\'entrée ([-5, 4, 3],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')", \'  File "<string>", line 6, in pairesMajoritaires\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n<li>["Sur l\'entrée ([-12, 4, 3],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')", \'  File "<string>", line 6, in pairesMajoritaires\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n<li>[\'  File "/exerciseur/tests.py", line 32, in test_entrees_invisibles\\n    sortie_etu = fonction_etu(*e)\\n\', \'  File "<string>", line 6, in pairesMajoritaires\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n</ul>\n</div>\n'}
          },
 
          {
-             'code_etu': code_maj_paire_exception_p4,
+             'entree' : { 'code_etu': code_maj_paire_exception_p4 },
              'réponse' : {'_valide': False,
                             '_messages': [["Sur l'entrée ([],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n'], ["Sur l'entrée ([-5, 4, 3],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n'], ["Sur l'entrée ([-12, 4, 3],), vous levez une l'exception imprévue ValueError('fallait pas me chercher')", '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n'], ['  File "/exerciseur/tests.py", line 32, in test_entrees_invisibles\n    sortie_etu = fonction_etu(*e)\n', '  File "<string>", line 15, in pairesMajoritaires\n', '  File "<string>", line 12, in fonction_4\n', '  File "<string>", line 9, in fonction_3\n', '  File "<string>", line 6, in fonction_2\n', '  File "<string>", line 3, in fonction_1\n']],
                             'feedbacks_html': '<div>\n<p>Il y a une erreur</p>\n<ul>\n<li>["Sur l\'entrée ([],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')", \'  File "<string>", line 15, in pairesMajoritaires\\n\', \'  File "<string>", line 12, in fonction_4\\n\', \'  File "<string>", line 9, in fonction_3\\n\', \'  File "<string>", line 6, in fonction_2\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n<li>["Sur l\'entrée ([-5, 4, 3],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')", \'  File "<string>", line 15, in pairesMajoritaires\\n\', \'  File "<string>", line 12, in fonction_4\\n\', \'  File "<string>", line 9, in fonction_3\\n\', \'  File "<string>", line 6, in fonction_2\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n<li>["Sur l\'entrée ([-12, 4, 3],), vous levez une l\'exception imprévue ValueError(\'fallait pas me chercher\')", \'  File "<string>", line 15, in pairesMajoritaires\\n\', \'  File "<string>", line 12, in fonction_4\\n\', \'  File "<string>", line 9, in fonction_3\\n\', \'  File "<string>", line 6, in fonction_2\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n<li>[\'  File "/exerciseur/tests.py", line 32, in test_entrees_invisibles\\n    sortie_etu = fonction_etu(*e)\\n\', \'  File "<string>", line 15, in pairesMajoritaires\\n\', \'  File "<string>", line 12, in fonction_4\\n\', \'  File "<string>", line 9, in fonction_3\\n\', \'  File "<string>", line 6, in fonction_2\\n\', \'  File "<string>", line 3, in fonction_1\\n\']</li>\n</ul>\n</div>\n'}
@@ -293,9 +294,7 @@ def test_réponse_openfaas(e):
     ed = Classe(e['chemin_source'], **e['métadonnées'])
     sha = ed.construire()
     for t in e['tentatives']:
-        éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], t['code_etu'])
-        if("AST") in éval_tentative:
-            éval_tentative.pop("AST")
+        éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], **t['entree'])
         assert éval_tentative == t['réponse'], ('réponse obtenue:' + str(éval_tentative))
 
 

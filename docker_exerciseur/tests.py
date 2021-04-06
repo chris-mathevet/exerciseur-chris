@@ -13,7 +13,7 @@ exemples = (
      'métadonnées' : { 'nom_classe_test': 'MaClasseTest', 'nom_classe_etu': 'MaClasse' },
      'tentatives' : [
          {
-             'code_etu': '''public class Truc{}''',
+             'entree': { 'code_etu': '''public class Truc{}''' },
              'réponse' :              {
                  "_valide": False,
                  "_messages": {"Erreur de compilation dans le fichier MaClasse.java": ["ligne 1\nclass Truc is public, should be declared in a file named Truc.java"]},
@@ -28,9 +28,9 @@ exemples = (
      'métadonnées' : { 'fichier_ens': 'majoritePaire.py' },
      'tentatives' : [
          {
-             'code_etu': '''def min(x,y):
+             'entree':{ 'code_etu': '''def min(x,y):
                                 return x
-                         ''',
+                         '''},
              'réponse' :{'_valide': False,
                         '_messages': {"Vous n'avez pas respecté l'énoncé": ['Votre programme doit contenir une fonction pairesMajoritaires']},
                         '_temps': None,
@@ -54,7 +54,7 @@ exemples = (
      'métadonnées' : {},
      'tentatives' : [
          {
-             'code_etu': 'coucou',
+             'entree': {'code_etu': 'coucou'},
              'réponse' :              {
                  "_valide": True,
                  "_messages": ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
@@ -69,7 +69,7 @@ exemples = (
      'métadonnées' : {},
      'tentatives' : [
          {
-             'code_etu': 'coucou',
+             'entree': {'code_etu': 'coucou'},
              'réponse' :
              {
                  "_valide": True,
@@ -85,7 +85,7 @@ exemples = (
      'métadonnées' : {},
      'tentatives' : [
          {
-             'code_etu': 'coucou',
+             'entree':{'code_etu': 'coucou'},
              'réponse' : {'_valide': True,
                           '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
                           'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
@@ -98,7 +98,7 @@ exemples = (
      'métadonnées' : {},
      'tentatives' : [
          {
-             'code_etu': 'coucou',
+             'entree':{'code_etu': 'coucou'},
              'réponse' : {'_valide': True,
                           '_messages': ["T'es un·e champion·ne", "C'est exactement 'b'coucou'' que j'attendais"],
                           'feedbacks_html': "<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>T'es un·e champion·ne</li>\n<li>C'est exactement 'b'coucou'' que j'attendais</li>\n</ul>\n</div>\n"
@@ -112,7 +112,7 @@ exemples = (
      'métadonnées' : { 'nom_module': 'quelques_tests'},
      'tentatives' : [
          {
-             'code_etu': 'a = 5',
+             'entree':{'code_etu': 'a = 5'},
              'réponse' : {'_valide': True,
              '_messages': ['Vous passez avec brio le test 1', 'Tous les tests ont réussi, champion·ne!'],
              'feedbacks_html': '<div>\n<p>Exercice réussi!</p>\n<ul>\n<li>Vous passez avec brio le test 1</li>\n<li>Tous les tests ont réussi, champion·ne!</li>\n</ul>\n</div>\n'}
@@ -199,9 +199,7 @@ def test_réponse_openfaas(e):
     ed = Classe(e['chemin_source'], **e['métadonnées'])
     sha = ed.construire()
     for t in e['tentatives']:
-        éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], t['code_etu'])
-        if("AST") in éval_tentative:
-            éval_tentative.pop("AST")
+        éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], **t['entree'])
         assert éval_tentative == t['réponse'], ('réponse obtenue:' + str(éval_tentative))
 
 

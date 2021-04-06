@@ -52,7 +52,7 @@ exemples = (
      'métadonnées' : { 'nom_classe_test': 'TestPersonnage', 'nom_classe_etu': 'Personnage' },
      'tentatives' : [
          {
-             'code_etu':code_etu_Personnage,
+             'entree' : { 'code_etu':code_etu_Personnage },
              'réponse' :              {
                  "_valide": True,
                  "_messages": {},
@@ -60,7 +60,7 @@ exemples = (
              }
          },
          {
-             'code_etu':code_etu_Personnage_1,
+             'entree' : { 'code_etu':code_etu_Personnage_1 },
              'réponse' :{
                    '_messages': {'Erreur de compilation dans le fichier TestPersonnage.java': ['ligne 14\ncannot find symbol\n  symbol:   method getNom()\n  location: variable p of type Personnage', 'ligne 15\ncannot find symbol\n  symbol:   method getBarbe()\n  location: variable p of type Personnage', 'ligne 16\ncannot find symbol\n  symbol:   method tailleOreilles()\n  location: variable p of type Personnage']},
                    '_valide': False,
@@ -105,7 +105,7 @@ def test_réponse_openfaas(e):
     ed = Classe(e['chemin_source'], **e['métadonnées'])
     sha = ed.construire()
     for t in e['tentatives']:
-        éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], t['code_etu'])
+        éval_tentative = éprouve_dans_openfaas(sha.split(':')[1][:62], **t['entree'])
         assert éval_tentative == t['réponse'], ('réponse obtenue:' + str(éval_tentative))
 
 

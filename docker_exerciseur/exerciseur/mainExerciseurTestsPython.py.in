@@ -14,10 +14,8 @@ import traceback
 
 class ServeurTentatives(BaseHTTPRequestHandler):
 
-    def évalue(self, mod_etu, code_etu):
+    def évalue(self, mod_etu, code_etu, avec_ast=False):
         sys.modules['code_etu'] = mod_etu
-        import ast
-        AST = ast.parse(code_etu)
         if not self.module_ens:
             self.module_ens = importlib.import_module('{{module}}')
 
@@ -42,11 +40,15 @@ class ServeurTentatives(BaseHTTPRequestHandler):
                     }
         if valide :
             messages.append("Tous les tests ont réussi, champion·ne!")
-        return {
+        res = {
             "_valide": valide,
-            "_messages": messages,
-            "AST": ast.dump(AST)
-        }
+            "_messages": messages
+            }
+        if avec_ast:
+            import ast
+            res["AST"] = ast.dump(ast.parse(code_etu))
+
+        return res
 
     def __init__(self, *args):
         self.module_ens = None
@@ -77,7 +79,7 @@ class ServeurTentatives(BaseHTTPRequestHandler):
         exec(code_etu, mod_etu.__dict__)
         return mod_etu
 
-    def traite(self, code_etu):
+    def traite(self, code_etu, **kwargs):
         try:
             print("chargement code étu")
             mod_etu = self.charge_code_etu(code_etu)
@@ -85,7 +87,7 @@ class ServeurTentatives(BaseHTTPRequestHandler):
             return self.résultat_erreur_load(e, code_etu)
 
         try:
-            return self.évalue(mod_etu, code_etu)
+            return self.évalue(mod_etu, code_etu, **kwargs)
         except jacadi.FonctionÉtuManquante as fm:
             return self.résultat_fonction_manquante(fm.nom_f)
         except Exception as e:
@@ -133,8 +135,7 @@ class ServeurTentatives(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         dict_code_etu = cbor.loads(mesg)
-        code_etu = dict_code_etu["code_etu"]
-        résultat = self.traite(code_etu)
+        résultat = self.traite(**dict_code_etu)
         self.ajoute_html(résultat)
 
         self.wfile.write(json.dumps(résultat).encode() + b'\n')
