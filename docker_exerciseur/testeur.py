@@ -160,7 +160,6 @@ def éprouve_dans_openfaas(
         print(code_etu, end="", file=sys.stderr)
         print(sectionize("Fin code étudiant"), file=sys.stderr)
 
-    #image = trouve_image(docker_client, exerciseur)
     lc = LogConfig(type=LogConfig.types.JSON, config={
         'max-size': '1g',
     })
