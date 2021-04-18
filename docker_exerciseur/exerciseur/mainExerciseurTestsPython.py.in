@@ -10,6 +10,7 @@ from types import ModuleType
 import importlib
 from outils_exercices.voile import VoilePudique, ErreurVoilée
 import outils_exercices.jacadi as jacadi
+import outils_exercices.code2aes as code2aes
 import traceback
 
 class ServeurTentatives(BaseHTTPRequestHandler):
@@ -45,8 +46,8 @@ class ServeurTentatives(BaseHTTPRequestHandler):
             "_messages": messages
             }
         if avec_ast:
-            import ast
-            res["AST"] = ast.dump(ast.parse(code_etu))
+            if "genere_aes" in self.module_ens.__dict__:
+                res["AES"], res["AST"], res["traces"] = self.module_ens.genere_aes(code_etu)
 
         return res
 

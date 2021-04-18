@@ -2,7 +2,7 @@ import code_etu
 from outils_exercices.jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible
 from outils_exercices.jacadi import FonctionÉtuManquante
 from outils_exercices.voile import VoilePudique
-
+from outils_exercices import code2aes
 
 
 entrees_sorties_visibles = {{es_visibles}}
@@ -32,3 +32,14 @@ def test_entrees_invisibles():
         sortie_etu = fonction_etu(*e)
         if sortie_etu != s_ens:
             raise ErreurEntréeInvisible()
+
+def genere_aes(source_code_etu):
+    aes = ""
+    ast = code2aes.code2astPython(source_code_etu)
+    traceur = code2aes.Tracer()
+    traces = []
+    for entrée, sortie_ens in ( entrees_sorties_visibles + entrees_sorties_invisibles):
+        trace,resultat = traceur.get_trace_and_result(fonction_etu, *entrée)
+        aes += code2aes.create_aes(ast, trace)
+        traces.append(trace)
+    return aes, code2aes.dump_ast(ast), traces

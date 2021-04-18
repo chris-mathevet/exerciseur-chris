@@ -28,6 +28,8 @@ class ExerciseurTestsPython(ExerciseurPackagePython):
             shutil.copyfile(chemin_outils, os.path.join(rép_outils, "voile.py"))
         with resources.path('outils_exercices', '__init__.py') as chemin_init:
             shutil.copyfile(chemin_outils, os.path.join(rép_outils, "__init__.py"))
+        with resources.path('outils_exercices', 'code2aes.py') as chemin_code2aes:
+            shutil.copyfile(chemin_code2aes, os.path.join(rép_outils, "code2aes.py"))
         super().prépare_source()
 
     def remplir_main_py(self, out):
