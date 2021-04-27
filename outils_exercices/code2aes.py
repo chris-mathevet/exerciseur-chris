@@ -1,18 +1,20 @@
-import ast
 import sys
+import ast
+from dill.source import getsource
+import builtins
 
 def code2astPython(
-        code
-    ):
-    """
+		code
+	):
+	"""
     Transforme une chaine de caractere de code Python en un abre syntaxique abstrait.
 
-    @param code_etu: une chaîne de caracteres contenant le code soumis
+    @param code_etu: une chaine de caracteres contenant le code soumis
 
     @return l'Arbre Syntaxique Abstrait du code
     """
-    return ast.parse(code)
-    # avec dump.ast(...) renvoie un objet str plutot qu'un objet <class 'ast.Module'>
+	return ast.parse(code)
+	# avec dump.ast(...) renvoie un objet str plutot qu'un objet <class 'ast.Module'>
 
 def dump_ast(tree):
     return ast.dump(tree)
@@ -22,69 +24,69 @@ class BoucleInfinie(Exception):
 
 class Tracer():
 
-  def __init__(self):
-    """
-        lines_trace = liste contenant les lignes executees lors de l'appel d'une fonction
-        nb_max_entree = taille maximale de la liste de lines_trace avant de detecter une condition de boucle infini
-        dico_event = liste des events a récupérer
-    """
-    self.lines_trace = []
-    self.nb_max_entree = 400
-    # call, line, return, exception, opcode
-    self.dico_event = ["call", "line"]
+	def __init__(self):
+		"""
+			lines_trace = liste contenant les lignes executees lors de l'appel d'une fonction
+			nb_max_entree = taille maximale de la liste de lines_trace avant de detecter une condition de boucle infini
+			list_event = liste des events a recuperer
+		"""
+		self.lines_trace = []
+		self.nb_max_entree = 400
+		# call, line, return, exception, opcode
+		self.list_event = ["call", "line"]
 
-  def tracer(self, frame, event, arg = None):
-    """
-        Definit la methode de trace
-    """
-    line_no = frame.f_lineno
-    # Utiliser la synchronisation basee sur SIGALRM s'est averee peu fiable sur diverses installations python et est inutilisable sur Windows,
-    # Une autre solution enviseagable serait d'appeler la fonction dans un thread avec un timeout defini.
-    if(len(self.lines_trace)>self.nb_max_entree):
-        raise BoucleInfinie()
-    if event in self.dico_event:
-        #print(f"A {event} at line number {line_no} ")
-        self.lines_trace.append(line_no)
-    return self.tracer
+	def tracer(self, frame, event, arg = None):
+		"""
+		    Definit la methode de trace
+		"""
+		line_no = frame.f_lineno
+		# Utiliser la synchronisation basee sur SIGALRM s'est averee peu fiable sur diverses installations python et est inutilisable sur Windows,
+		# Une autre solution enviseagable serait d'appeler la fonction dans un thread avec un timeout defini.
+		if(len(self.lines_trace)>self.nb_max_entree):
+			raise BoucleInfinie()
+		if event in self.list_event:
+			#print(f"A {event} at line number {line_no} ")
+			self.lines_trace.append(line_no)
+		return self.tracer
 
-  def get_trace_and_result(self,fonction,*args,**kwargs):
-    """
-        Execute une fonction pour en extraire la trace d'execution.
+	def get_trace_and_result(self,fonction,*args,**kwargs):
+		"""
+			Execute une fonction pour en extraire la trace d'execution.
 
-        @param fonction: le nom de la fonction
-        @param args: les arguments de la fonction ( mis un par un )
+			@param fonction: le nom de la fonction
+			@param args: les arguments de la fonction ( mis un par un )
 
-        @return un tuple trace, contenant la liste des lignes executees ainsi que , et res, le resultat de la fonction
-    """
-    # mise en place de la fonction trace
-    sys.settrace(self.tracer)
+			@return un tuple trace, contenant la liste des lignes executees ainsi que , et res, le resultat de la fonction
+		"""
+		# mise en place de la fonction trace
+		sys.settrace(self.tracer)
 
-    # appel de la fonction a tester
-    try:
-        res = fonction(*args)
-    except BoucleInfinie as e:
-        trace = self.lines_trace
-        self.lines_trace = []
-        sys.settrace(None)
-        return(trace, "Boucle infinie")
-    except: # catch *all* exceptions
-        trace = self.lines_trace
-        self.lines_trace = []
-        sys.settrace(None)
-        return(trace, str(sys.exc_info()))
+		# appel de la fonction a tester
+		try:
+			res = fonction(*args)
+		except BoucleInfinie as e:
+			trace = self.lines_trace
+			self.lines_trace = []
+			sys.settrace(None)
+			return(trace, "Boucle infinie", "InfiniteLoop")
+		except: # catch *all* exceptions
+			trace = self.lines_trace
+			self.lines_trace = []
+			sys.settrace(None)
+			return(trace, str(sys.exc_info()), "TypeError")
 
-    # on recupere la liste des lignes executees pendant la trace
-    trace = self.lines_trace
-    self.lines_trace = []
-    sys.settrace(None)
+		# on recupere la liste des lignes executees pendant la trace
+		trace = self.lines_trace
+		self.lines_trace = []
+		sys.settrace(None)
 
-    return (trace,res)
+		return (trace,res,"")
 
-# Exemple d'appel à Tracer
+# Exemple d'appel a Tracer
 # t = Tracer()
 # print(t.get_trace_and_result(fun,1,2,3))
 
-# Autres méthodes pour générer une trace :
+# Autres methodes pour generer une trace :
 # - utiliser le module hunter de python
 #       trace_f = []
 #       hunter.trace(function="g", action=(lambda x: trace_f.append(x)))
@@ -94,218 +96,292 @@ class Tracer():
 #       tracer.run("t.get_trace_and_result(fun,arg)")
 #       r = tracer.results()
 
+# Decorateur
+def addFunction2AES(classe):
+	def deco(fonction):
+		classe.toAES=fonction
+		return fonction
+	return deco
+
 #=========================================================================================
-
-#NODE : Constant-------------------------------------------------
-def Constant2AES(self, node, symbolDic):
-	return 'Constant_'+node.value.__class__.__name__
-
-#NODE : Name-------------------------------------------------
-def Name2AES(self, node, symbolDic):
-	return symbolTranslate(node.id,symbolDic)
-
-#NODE : Attribute-------------------------------------------------
-def Attribute2AES(self, node, symbolDic):
+#NODE : alias------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.alias)
+def alias2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.name)
+#NODE : Assert, Lambda, Raise------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Assert)
+@addFunction2AES(ast.Lambda)
+@addFunction2AES(ast.Raise)
+def Assert2AES(self, node):
+	return ''
+#NODE : Assign----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Assign)
+def Assign2AES(self, node):
+	if len(node.targets) > 1 :
+		return node.__class__.__name__+' '+nodeList2aes(node.targets)
+	if isinstance(node.targets[0],ast.Tuple) :
+		aes = ''
+		for elem,val in zip(node.targets[0].elts,node.value.elts):
+			aes += node.__class__.__name__+' '+node2aes(elem)+' '+node2aes(val)+' '
+		return aes
+	else :
+		return node.__class__.__name__+' '+node2aes(node.targets[0])+' '+node2aes(node.value)
+#NODE : AugAssign----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.AugAssign)
+def AugAssign2AES(self, node):
+	return node.__class__.__name__+node.op.__class__.__name__+' '+node2aes(node.target)+' '+node2aes(node.value)
+#NODE : AnnAssign----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.AnnAssign)
+def AnnAssign2AES(self, node):
+	return node.__class__.__name__+node.annotation.__class__.__name__+' '+node2aes(node.target)
+#NODE : Attribute----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Attribute)
+def Attribute2AES(self, node):
 	return node.attr
-
-#NODE : Subscript-------------------------------------------------
-def Subscript2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.value,symbolDic)
-def Subscript2AESLevel1(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aesLevel1(node.value,symbolDic)
-
-#NODE : BoolOp-------------------------------------------------
-def BoolOp2AES(self, node, symbolDic):
-	return node.__class__.__name__+node.op.__class__.__name__+' '+nodeList2aes(node.values,symbolDic)
-
-#NODE : BinOp-------------------------------------------------
-def BinOp2AES(self, node, symbolDic):
-	return node.__class__.__name__+node.op.__class__.__name__+' '+node2aes(node.left,symbolDic)+' '+node2aes(node.right,symbolDic)
-
-def BoolOpBinOp2AESLevel1(self, node, symbolDic):
-	return node.__class__.__name__+node.op.__class__.__name__
-
-#NODE : UnaryOp-------------------------------------------------
-def UnaryOp2AES(self, node, symbolDic):
-	return node.__class__.__name__+node.op.__class__.__name__+' '+node2aes(node.operand,symbolDic)
-
-#NODE : Assign-------------------------------------------------
-def Assign2AES(self, node, symbolDic):
-	if len(node.targets) > 1 :
-		print('WARNING : Assignment with a targets attribut of size greater than 1... is not considered!!')
-	if isinstance(node.targets[0],ast.Tuple) :
-		aes = ''
-		for elem,val in zip(node.targets[0].elts,node.value.elts):
-			aes += node.__class__.__name__+' '+node2aes(elem,symbolDic)+' '+node2aes(val,symbolDic)+' '
-		return aes
-	else :
-		return node.__class__.__name__+' '+node2aes(node.targets[0],symbolDic)+' '+node2aes(node.value,symbolDic)
-def Assign2AESLevel1(self, node, symbolDic):
-	if len(node.targets) > 1 :
-		print('WARNING : Assignment with a targets attribut of size greater than 1... is not considered!!')
-	if isinstance(node.targets[0],ast.Tuple) :
-		aes = ''
-		for elem,val in zip(node.targets[0].elts,node.value.elts):
-			aes += node.__class__.__name__+' '+node2aesLevel1(elem,symbolDic)+' '+node2aesLevel1(val,symbolDic)+' '
-		return aes
-	else :
-		return node.__class__.__name__+' '+node2aesLevel1(node.targets[0],symbolDic)+' '+node2aesLevel1(node.value,symbolDic)
-
-#NODE : AugAssign-------------------------------------------------
-def AugAssign2AES(self, node, symbolDic):
-	return node.__class__.__name__+node.op.__class__.__name__+' '+node2aes(node.target,symbolDic)+' '+node2aes(node.value,symbolDic)
-def AugAssign2AESLevel1(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aesLevel1(node.target,symbolDic)+' '+node2aesLevel1(node.value,symbolDic)
-
-#NODE : For, AsyncFor-------------------------------------------------
-def For2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.target,symbolDic)+' '+node2aes(node.iter,symbolDic)
-
-#NODE : Compare-------------------------------------------------
-def Compare2AES(self, node, symbolDic):
-	res = node.__class__.__name__+' '+node2aes(node.left,symbolDic)
+#NODE : BoolOp----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.BoolOp)
+def BoolOp2AES(self, node):
+	return node.__class__.__name__+node.op.__class__.__name__+' '+nodeList2aes(node.values)
+#NODE : BinOp----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.BinOp)
+def BinOp2AES(self, node):
+	return node.__class__.__name__+node.op.__class__.__name__+' '+node2aes(node.left)+' '+node2aes(node.right)
+#NODE : Compare----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Compare)
+def Compare2AES(self, node):
+	res = node.__class__.__name__+' '+node2aes(node.left)
 	for i in range(len(node.ops)):
-		res += ' '+node2aes(node.ops[i],symbolDic)+' '+node2aes(node.comparators[i],symbolDic)
+		res += ' '+node2aes(node.ops[i])+' '+node2aes(node.comparators[i])
 	return res
-
-#NODE : Call-------------------------------------------------
-def Call2AES(self, node, symbolDic):
-	return node.__class__.__name__+'_'+node2aes(node.func,symbolDic)+' '+nodeList2aes(node.args,symbolDic)
-
-#NODE : List, Tuple-------------------------------------------------
-def List2AES(self, node, symbolDic):
+#NODE : Call----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Call)
+def Call2AES(self, node):
+	return node.__class__.__name__+'_'+node2aes(node.func)+' '+nodeList2aes(node.args)
+#NODE : Constant----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Constant)
+def Constant2AES(self, node):
+	return 'Constant_'+node.value.__class__.__name__
+#NODE : ClassDef------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.ClassDef)
+def ClassDef2AES(self, node):
+	return 'ClassDef_'+node.__class__.__name__
+#NODE : Dict----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Dict)
+def Dict2AES(self, node):
+	if len(node.keys)==0:
+		return 'Empty'+node.__class__.__name__
+	else:
+		return 'NonEmpty'+node.__class__.__name__
+#NODE : Expr, Yield, YieldFrom------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Expr)
+@addFunction2AES(ast.Yield)
+@addFunction2AES(ast.YieldFrom)
+def Expr2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.value)
+#NODE : FormattedValue------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.FormattedValue)
+def FormattedValue2AES(self, node):
+	return 'FormattedValue_'+node.value.__class__.__name__
+#NODE : For, AsyncFor----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.For)
+@addFunction2AES(ast.AsyncFor)
+def For2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.target)+' '+node2aes(node.iter)
+#NODE : Global, Nonlocal----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Global)
+@addFunction2AES(ast.Nonlocal)
+def Global2AES(self, node):
+	res = node.__class__.__name__+' '+nodeList2aes(node.names)
+	for elem in node.names:
+		res += elem + ', '
+	return res
+#NODE : Import------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Import)
+def Import2AES(self, node):
+	return node.__class__.__name__+' '+nodeList2aes(node.names)
+#NODE : ImportFrom------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.ImportFrom)
+def ImportFrom2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.module)+' '+nodeList2aes(node.names)
+#NODE : JoinedStr----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.JoinedStr)
+def JoinedStr2AES(self, node):
+	return node.__class__.__name__+' '+nodeList2aes(node.values)
+#NODE : Delete----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Delete)
+def Delete2AES(self, node):
+	return node.__class__.__name__+' '+nodeList2aes(node.targets)
+#NODE : List, Tuple, Set----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.List)
+@addFunction2AES(ast.Tuple)
+@addFunction2AES(ast.Set)
+def List2AES(self, node):
 	if len(node.elts)==0:
 		return 'Empty'+node.__class__.__name__
 	else:
 		return 'NonEmpty'+node.__class__.__name__
-
-#NODE : While, If---------------------------------------------------
-def If2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.test,symbolDic)
-def If2AESLevel1(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aesLevel1(node.test,symbolDic)
-
-#NODE : Import---------------------------------------------------
-def Import2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+nodeList2aes(node.names,symbolDic)
-
-#NODE : ImportFrom---------------------------------------------------
-def ImportFrom2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.module,symbolDic)+' '+nodeList2aes(node.names,symbolDic)
-
-#NODE : alias---------------------------------------------------
-def alias2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.name,symbolDic)
-
-#NODE : Assert---------------------------------------------------
-def Assert2AES(self, node, symbolDic):
-	return ''
-
-#NODE : Expr---------------------------------------------------
-def Expr2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.value,symbolDic)
-
-#NODE : Return---------------------------------------------------
-def Return2AES(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aes(node.value,symbolDic)
-def Return2AESLevel1(self, node, symbolDic):
-	return node.__class__.__name__+' '+node2aesLevel1(node.value,symbolDic)
-
+#NODE : Name----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Name)
+def Name2AES(self, node):
+	return node.id
+#NODE : NamedExpr----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.NamedExpr)
+def NamedExpr2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.target)+' '+node2aes(node.value)
+#NODE : Return------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Return)
+def Return2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.value)
+#NODE : Slice----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Slice)
+def Slice2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.lower)+' '+node2aes(node.upper)
+#NODE : Subscript, Starred----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Subscript)
+@addFunction2AES(ast.Starred)
+def Subscript2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.value)
+#NODE : Try----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.Try)
+def Try2AES(self, node):
+	return node.__class__.__name__
+#NODE : UnaryOp----------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.UnaryOp)
+def UnaryOp2AES(self, node):
+	return node.__class__.__name__+node.op.__class__.__name__+' '+node2aes(node.operand)
+#NODE : While, If, IfExp------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.While)
+@addFunction2AES(ast.If)
+@addFunction2AES(ast.IfExp)
+def If2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.test)
+#NODE : With, AsyncWith------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.With)
+@addFunction2AES(ast.AsyncWith)
+def With2AES(self, node):
+	return node.__class__.__name__+' '+nodeList2aes(node.items)
+#NODE : withitem------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.withitem)
+def withitem2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.context_expr)+' '+node2aes(node.optional_vars)
+#NODE : ListComp, SetComp, GeneratorExp------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.ListComp)
+@addFunction2AES(ast.SetComp)
+@addFunction2AES(ast.GeneratorExp)
+def ListComp2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.elt)
+#NODE : DictComp------------------------------------------------------------------------------------------------------
+@addFunction2AES(ast.DictComp)
+def DictComp2AES(self, node):
+	return node.__class__.__name__+' '+node2aes(node.key)+' '+node2aes(node.value)
 #=========================================================================================
 
-def initializeParameters(node, symbolDic):
-	"""initialise les parametres"""
-	i=1
-	for elem in node.args:
-		if elem.arg not in symbolDic.keys():
-			symbolDic[elem.arg]='param'+str(i)
-			i+=1
-
-def generateNewVarSymbol(symbolDic):
-	"""generation d'un nouveau symbole pour le dictionnaire de symboles"""
-	l = ''.join(symbolDic.values())
-	return 'var'+str(l.count('var')+1)
-
-def symbolTranslate(id, symbolDic):
-	"""traduction du symbole, verifie que le symbole n'existe pas"""
-	if id not in symbolDic.keys():
-		symbolDic[id] = generateNewVarSymbol(symbolDic)
-	return symbolDic[id]
-
-def nodeList2aes(l, symbolDic):
+def nodeList2aes(l):
 	"""iterer sur une liste de noeuds a traduire en une sequence de noeuds"""
 	res = ''
 	for elem in l:
-		res += node2aes(elem, symbolDic)+' '
+		res += node2aes(elem)+' '
 	return res[:(-1)]
 
-def fonction2aesLevel2():
-	ast.Constant.toAES = Constant2AES
-	ast.Name.toAES = Name2AES
-	ast.Attribute.toAES = Attribute2AES
-	ast.Subscript.toAES = Subscript2AES
-	ast.BoolOp.toAES = BoolOp2AES
-	ast.BinOp.toAES = BinOp2AES
-	ast.UnaryOp.toAES = UnaryOp2AES
-	ast.Assign.toAES = Assign2AES
-	ast.AugAssign.toAES = AugAssign2AES
-	ast.For.toAES = For2AES
-	ast.AsyncFor.toAES = For2AES
-	ast.Compare.toAES = Compare2AES
-	ast.Call.toAES = Call2AES
-	ast.List.toAES = List2AES
-	ast.Tuple.toAES = List2AES
-	ast.If.toAES = If2AES
-	ast.While.toAES = If2AES
-	ast.Import.toAES = Import2AES
-	ast.ImportFrom.toAES = ImportFrom2AES
-	ast.alias.toAES = alias2AES
-	ast.Assert.toAES = Assert2AES
-	ast.Expr.toAES = Expr2AES
-	ast.Return.toAES = Return2AES
-
-def fonction2aesLevel1():
-	ast.Constant.toAESLevel1 = Constant2AES
-	ast.Name.toAESLevel1 = Name2AES
-	ast.Subscript.toAESLevel1 = Subscript2AESLevel1
-	ast.BoolOp.toAESLevel1 = BoolOpBinOp2AESLevel1
-	ast.BinOp.toAESLevel1 = BoolOpBinOp2AESLevel1
-	ast.Assign.toAESLevel1 = Assign2AESLevel1
-	ast.AugAssign.toAESLevel1 = AugAssign2AESLevel1
-	ast.If.toAESLevel1 = If2AESLevel1
-	ast.While.toAESLevel1 = If2AESLevel1
-	ast.Return.toAESLevel1 = Return2AESLevel1
-
-def node2aes(node,symbolDic):
+def node2aes(node):
 	"""traduire une instruction python en un symbole AES (niveau 2)"""
 	try:
-		return node.toAES(node,symbolDic)
+		return node.toAES(node)
 	#other nodes
 	except:
 		UnprocessedNodes = [
 			'FunctionDef',
-			'Lt',
+			'Load',
+			'Store',
+			'Del',
+			'And',
+			'Or',
+			'Add',
+			'Sub',
+			'Mult',
+			'MatMult',
+			'Div',
+			'Mod',
+			'Pow',
+			'LShift',
+			'RShift',
+			'BitOr',
+			'BitXor',
+			'BitAnd',
+			'FloorDiv',
+			'Invert',
+			'Not',
+			'UAdd',
+			'USub',
 			'Eq',
+			'NotEq',
+			'Lt',
+			'LtE',
 			'Gt',
 			'GtE',
-			'LtE',
-			'NotEq',
+			'Is',
+			'IsNot',
 			'In',
 			'NotIn',
 			'NoneType',]
 		if node.__class__.__name__ not in UnprocessedNodes:
 			val = ''
-			#val=node2aes(node.value,symbolDic) if node.__class__.__name__=='str' else ''
 			print("WARNING : node",node.__class__.__name__,": default process",val)
 		return node.__class__.__name__
 
-def node2aesLevel1(node, symbolDic):
-	"""traduire une instruction python en un symbole AES (niveau 1)"""
-	try:
-		return node.toAESLevel1(node,symbolDic)
-	#other nodes
-	except:
-		return node.__class__.__name__
+class ASTnormaliser():
+	def __init__(self):
+		listSymbolDict = dir(__builtins__)
+		self.symbolDic = dict()
+		for item in listSymbolDict: self.symbolDic[item]=(item,None)
+
+	def ast2astNormaliserPython(self,ast_base):
+		self.functionParent(ast_base)
+
+	def functionParent(self, node, fonction = None):
+		if isinstance(node,ast.FunctionDef):
+			fonction = node
+			node.funct = node
+			self.initializeParameters(node)
+		if isinstance(node,ast.Name):
+			self.symbolTranslate(node)
+		for child in ast.iter_child_nodes(node):
+			child.funct = fonction
+			self.functionParent(child, fonction)
+
+	def initializeParameters(self, node):
+		"""initialise les parametres"""
+		keys = self.symbolDic.keys()
+		l = ''
+		for key in keys:
+			l+=str(key)
+		i=l.count('param')+1
+		for elem in node.args.args:
+			self.symbolDic['param'+str(i)]=(elem.arg,node.funct)
+			elem.arg = 'param'+str(i)
+			i+=1
+
+	def generateNewVarSymbol(self):
+		"""generation d'un nouveau symbole pour le dictionnaire de symboles"""
+		keys = self.symbolDic.keys()
+		l = ''
+		for key in keys:
+			l+=str(key)
+		return 'var'+str(l.count('var'))
+
+	def symbolTranslate(self, node):
+		"""traduction du symbole, verifie que le symbole n'existe pas"""
+		id = node.id
+		var=None
+		for key in self.symbolDic:
+			values = self.symbolDic[key]
+			if values[0]==id:
+				if values[1]==node.funct:
+					var = key
+		if var==None:
+			var = self.generateNewVarSymbol()
+			self.symbolDic[var] = (id,node.funct)
+		node.id = var
 
 def ast_line_to_dict_item(astree, dic_line = dict()):
 	"""creer un dictionnaire d'objet AST a partir d'un AST"""
@@ -313,7 +389,6 @@ def ast_line_to_dict_item(astree, dic_line = dict()):
 		if isinstance(value, list):
 			for item in value:
 				if isinstance(item, ast.AST) and hasattr(item, 'lineno'):
-					#print(item, item.lineno)
 					if item.lineno not in dic_line:
 						dic_line[item.lineno] = item
 					ast_line_to_dict_item(item, dic_line)
@@ -321,46 +396,37 @@ def ast_line_to_dict_item(astree, dic_line = dict()):
 			ast_line_to_dict_item(value, dic_line)
 	return dic_line
 
-def dict_item_to_dict_line(dic_aes_items, symbolDic, aeslevel):
+def dict_item_to_dict_line(dic_aes_items):
 	"""creer un dictionnaire de phrases pour chacune des lignes de l'AST"""
 	res = dict()
-	if aeslevel==2:
-		fonction2aesLevel2()
-	elif aeslevel==1:
-		fonction2aesLevel1()
 	for line in dic_aes_items:
 		node = dic_aes_items[line]
-		if isinstance(node,ast.FunctionDef): #initialization of the param symbols
-			initializeParameters(node.args,symbolDic)
-		if aeslevel==2:
-			res[line] = node2aes(node,symbolDic)
-		elif aeslevel==1:
-			res[line] = node2aesLevel1(node,symbolDic)
-		else :
-			res[line] = node.__class__.__name__
+		res[line] = node2aes(node)
 	return res
 
-def create_aes(astree, trace, aeslevel=2):
+def create_aes(astree, trace, erreur):
 	"""Creer l'AES grace a l'AST et la trace d'execution"""
 	res = ''
-	symbolDic = {'print':'print', 'len':'len', 'range':'range', 'min':'min', 'max':'max'}
+	t = ASTnormaliser()
+	t.ast2astNormaliserPython(astree)
 	dict_item = ast_line_to_dict_item(astree)
-	dico_phrase = dict_item_to_dict_line(dict_item, symbolDic, aeslevel)
+	dico_phrase = dict_item_to_dict_line(dict_item)
 	for i in trace:
-		res += dico_phrase[i] + "\n"
+		res += dico_phrase[i] + " "
+	if erreur!="":
+		res += erreur
 	return res
 
 # Exemple d'utilisation :
-# c = create_aes(astree, trace)
+# c = create_aes(astree, trace, error_detecte)
 # print(c)
 
 if __name__=="__main__":
-    import importlib
+    from importlib import util
     nom_module = 'exemple'
-    spec = importlib.util.spec_from_loader(nom_module, loader=None)
-    module_exemple = importlib.util.module_from_spec(spec)
-    code_exemple = '''
-def f(x):
+    spec = util.spec_from_loader(nom_module, loader=None)
+    module_exemple = util.module_from_spec(spec)
+    code_exemple = '''def f(x):
     res = 0
     for i in range(x):
         res+=i
@@ -371,9 +437,9 @@ def f(x):
     exec(code_exemple, module_exemple.__dict__)
     sys.modules['module_exemple'] = module_exemple
     t = Tracer()
-    trace, resultat = t.get_trace_and_result(module_exemple.f,5)
-    print(trace)
+    trace, resultat, erreur = t.get_trace_and_result(module_exemple.f,5)
+    #print(trace)
     ast_exemple = code2astPython(code_exemple)
-    print(ast_exemple)
-    c = create_aes(ast_exemple, trace)
-    print(c)
+    #print(ast_exemple)
+    c = create_aes(ast_exemple, trace, erreur)
+    #print(c)
