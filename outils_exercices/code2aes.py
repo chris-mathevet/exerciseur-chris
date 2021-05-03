@@ -1,22 +1,7 @@
 import sys
 import ast
 import builtins
-
-def code2astPython(
-        code
-    ):
-    """
-    Transforme une chaine de caractere de code Python en un abre syntaxique abstrait.
-
-    @param code_etu: une chaine de caracteres contenant le code soumis
-
-    @return l'Arbre Syntaxique Abstrait du code
-    """
-    return ast.parse(code)
-    # avec dump.ast(...) renvoie un objet str plutot qu'un objet <class 'ast.Module'>
-
-def dump_ast(tree):
-    return ast.dump(tree)
+import astor
 
 class BoucleInfinie(Exception):
     pass
@@ -94,6 +79,94 @@ class Tracer():
 #       tracer = trace.Trace(count=False, trace=True)
 #       tracer.run("t.get_trace_and_result(fun,arg)")
 #       r = tracer.results()
+
+class ASTnormaliser():
+    def __init__(self):
+        listSymbolDict = dir(__builtins__)
+        self.symbolDic = dict()
+        for item in listSymbolDict: self.symbolDic[item]=(item,None)
+
+    def ast2astNormaliserPython(self,ast_base):
+        self.functionParent(ast_base)
+
+    def functionParent(self, node, fonction = None):
+        """
+        applique un attribut "funct" sur chaque noeud d'un ast qui definie la fonction dans laquelle il est est defini
+
+        @param node: passer un ast complet a la fonction, celle ci effectura un appel recursif sur l'ensemble de l'arbre
+        """
+        if isinstance(node,ast.FunctionDef):
+            fonction = node
+            node.funct = node
+            self.initializeParameters(node)
+        if isinstance(node,ast.ListComp):
+            fonction = node
+            node.funct = node
+        if isinstance(node,ast.Name):
+            self.symbolTranslate(node)
+        for child in ast.iter_child_nodes(node):
+            child.funct = fonction
+            self.functionParent(child, fonction)
+
+    def initializeParameters(self, node):
+        """normalise les parametres d'un node function"""
+        keys = self.symbolDic.keys()
+        l = ''
+        for key in keys:
+            l+=str(key)
+        i=l.count('param')+1
+        for elem in node.args.args:
+            self.symbolDic['param'+str(i)]=(elem.arg,node.funct)
+            elem.arg = 'param'+str(i)
+            i+=1
+
+    def generateNewVarSymbol(self):
+        """generation d'un nouveau symbole pour le dictionnaire de symboles"""
+        keys = self.symbolDic.keys()
+        l = ''
+        for key in keys:
+            l+=str(key)
+        return 'var'+str(l.count('var'))
+
+    def symbolTranslate(self, node):
+        """normalise une variable dans un ast"""
+        id = node.id
+        var=None
+        for key in self.symbolDic:
+            values = self.symbolDic[key]
+            if values[0]==id:
+                if values[1]==node.funct:
+                    var = key
+        if var==None:
+            var = self.generateNewVarSymbol()
+            self.symbolDic[var] = (id,node.funct)
+        node.id = var
+
+def code2astPython(
+        code
+    ):
+    """
+    Transforme une chaine de caractere de code Python en un abre syntaxique abstrait.
+
+    @param code_etu: une chaine de caracteres contenant le code soumis
+
+    @return l'Arbre Syntaxique Abstrait du code
+    """
+    astree = ast.parse(code)
+
+    # normalisation de l'ast pour les parametres et variables
+    t = ASTnormaliser()
+    t.ast2astNormaliserPython(astree)
+
+    return astree
+    # avec dump.ast(...) renvoie un objet str plutot qu'un objet <class 'ast.Module'>
+
+def dump_ast(tree):
+    return ast.dump(tree)
+
+def ast2codePython(tree):
+#reconstruit le code python a partir d'un ast
+    return astor.to_source(tree)
 
 # Decorateur
 def addFunction2AES(classe):
@@ -224,9 +297,10 @@ def List2AES(self, node):
 def Name2AES(self, node):
     return node.id
 #NODE : NamedExpr----------------------------------------------------------------------------------------------------
-#@addFunction2AES(ast.NamedExpr)
-#def NamedExpr2AES(self, node):
-#	return node.__class__.__name__+' '+node2aes(node.target)+' '+node2aes(node.value)
+if hasattr(ast, "NamedExpr"):
+    @addFunction2AES(ast.NamedExpr)
+    def NamedExpr2AES(self, node):
+        return node.__class__.__name__+' '+node2aes(node.target)+' '+node2aes(node.value)
 #NODE : Return------------------------------------------------------------------------------------------------------
 @addFunction2AES(ast.Return)
 def Return2AES(self, node):
@@ -328,68 +402,6 @@ def node2aes(node):
             print("WARNING : node",node.__class__.__name__,": default process",val)
         return node.__class__.__name__
 
-class ASTnormaliser():
-    def __init__(self):
-        listSymbolDict = dir(__builtins__)
-        self.symbolDic = dict()
-        for item in listSymbolDict: self.symbolDic[item]=(item,None)
-
-    def ast2astNormaliserPython(self,ast_base):
-        self.functionParent(ast_base)
-
-    def functionParent(self, node, fonction = None):
-        """
-        applique un attribut "funct" sur chaque noeud d'un ast qui definie la fonction dans laquelle il est est defini
-
-        @param node: passer un ast complet a la fonction, celle ci effectura un appel recursif sur l'ensemble de l'arbre
-        """
-        if isinstance(node,ast.FunctionDef):
-            fonction = node
-            node.funct = node
-            self.initializeParameters(node)
-        if isinstance(node,ast.ListComp):
-            fonction = node
-            node.funct = node
-        if isinstance(node,ast.Name):
-            self.symbolTranslate(node)
-        for child in ast.iter_child_nodes(node):
-            child.funct = fonction
-            self.functionParent(child, fonction)
-
-    def initializeParameters(self, node):
-        """normalise les parametres d'un node function"""
-        keys = self.symbolDic.keys()
-        l = ''
-        for key in keys:
-            l+=str(key)
-        i=l.count('param')+1
-        for elem in node.args.args:
-            self.symbolDic['param'+str(i)]=(elem.arg,node.funct)
-            elem.arg = 'param'+str(i)
-            i+=1
-
-    def generateNewVarSymbol(self):
-        """generation d'un nouveau symbole pour le dictionnaire de symboles"""
-        keys = self.symbolDic.keys()
-        l = ''
-        for key in keys:
-            l+=str(key)
-        return 'var'+str(l.count('var'))
-
-    def symbolTranslate(self, node):
-        """normalise une variable dans un ast"""
-        id = node.id
-        var=None
-        for key in self.symbolDic:
-            values = self.symbolDic[key]
-            if values[0]==id:
-                if values[1]==node.funct:
-                    var = key
-        if var==None:
-            var = self.generateNewVarSymbol()
-            self.symbolDic[var] = (id,node.funct)
-        node.id = var
-
 def ast_line_to_dict_item(astree, dic_line = dict()):
     """
     Creer un dictionnaire d'objet AST a partir d'un AST
@@ -434,9 +446,6 @@ def create_aes(astree, trace, erreur):
     @return l'AES du code execute
     """
     res = ''
-    # normalisation de l'ast pour les parametres et variables
-    t = ASTnormaliser()
-    t.ast2astNormaliserPython(astree)
 
     # creer un dictionnaire d'objet AST a partir d'un AST
     dict_item = ast_line_to_dict_item(astree)
