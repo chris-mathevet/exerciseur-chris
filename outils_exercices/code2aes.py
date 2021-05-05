@@ -95,6 +95,7 @@ class ASTnormaliser():
 
         @param node: passer un ast complet a la fonction, celle ci effectura un appel recursif sur l'ensemble de l'arbre
         """
+        can_pass = True
         if isinstance(node,ast.FunctionDef):
             fonction = node
             node.funct = node
@@ -104,9 +105,15 @@ class ASTnormaliser():
             node.funct = node
         if isinstance(node,ast.Name):
             self.symbolTranslate(node)
-        for child in ast.iter_child_nodes(node):
-            child.funct = fonction
-            self.functionParent(child, fonction)
+        if isinstance(node,ast.Call) and hasattr(node, "args"):
+            for name in node.args:
+                name.funct = fonction
+                self.symbolTranslate(name)
+            can_pass=False
+        if can_pass:
+            for child in ast.iter_child_nodes(node):
+                child.funct = fonction
+                self.functionParent(child, fonction)
 
     def initializeParameters(self, node):
         """normalise les parametres d'un node function"""
@@ -126,7 +133,7 @@ class ASTnormaliser():
         l = ''
         for key in keys:
             l+=str(key)
-        return 'var'+str(l.count('var'))
+        return 'var'+str(l.count('var')+1)
 
     def symbolTranslate(self, node):
         """normalise une variable dans un ast"""
