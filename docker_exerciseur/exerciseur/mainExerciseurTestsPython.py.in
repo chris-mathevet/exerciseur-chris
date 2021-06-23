@@ -10,7 +10,6 @@ from types import ModuleType
 import importlib
 from outils_exercices.voile import VoilePudique, ErreurVoilée
 import outils_exercices.jacadi as jacadi
-import outils_exercices.code2aes as code2aes
 import traceback
 
 class ServeurTentatives(BaseHTTPRequestHandler):

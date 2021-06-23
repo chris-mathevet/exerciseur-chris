@@ -1,7 +1,6 @@
 import sys
 import ast
 import builtins
-import astor
 
 class BoucleInfinie(Exception):
     pass
@@ -173,6 +172,7 @@ def dump_ast(tree):
 
 def ast2codePython(tree):
 #reconstruit le code python a partir d'un ast
+    import astor
     return astor.to_source(tree)
 
 # Decorateur
