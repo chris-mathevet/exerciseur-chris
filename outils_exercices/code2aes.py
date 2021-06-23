@@ -83,7 +83,8 @@ class ASTnormaliser():
     def __init__(self):
         listSymbolDict = dir(__builtins__)
         self.symbolDic = dict()
-        for item in listSymbolDict: self.symbolDic[item]=(item,None)
+        for item in listSymbolDict: 
+            self.symbolDic[item]=(item,None)
 
     def ast2astNormaliserPython(self,ast_base):
         self.functionParent(ast_base)
@@ -129,10 +130,10 @@ class ASTnormaliser():
     def generateNewVarSymbol(self):
         """generation d'un nouveau symbole pour le dictionnaire de symboles"""
         keys = self.symbolDic.keys()
-        l = ''
-        for key in keys:
-            l+=str(key)
-        return 'var'+str(l.count('var')+1)
+        i = 1
+        while( 'var'+str(i) in self.symbolDic):
+            i+=1
+        return 'var'+str(i)
 
     def symbolTranslate(self, node):
         """normalise une variable dans un ast"""
@@ -163,7 +164,6 @@ def code2astPython(
     # normalisation de l'ast pour les parametres et variables
     t = ASTnormaliser()
     t.ast2astNormaliserPython(astree)
-
     return astree
     # avec dump.ast(...) renvoie un objet str plutot qu'un objet <class 'ast.Module'>
 
@@ -476,20 +476,17 @@ if __name__=="__main__":
     nom_module = 'exemple'
     spec = util.spec_from_loader(nom_module, loader=None)
     module_exemple = util.module_from_spec(spec)
-    code_exemple = '''def f(x):
-    res = 0
-    for i in range(x):
-        res+=i
-    if res > 10:
-        return 3
-    return res
+    code_exemple = '''
+    def min(x,y):
+    z = y + 5
+    return x+y-z
 '''
     exec(code_exemple, module_exemple.__dict__)
     sys.modules['module_exemple'] = module_exemple
     t = Tracer()
-    trace, resultat, erreur = t.get_trace_and_result(module_exemple.f,5)
+    trace, resultat, erreur = t.get_trace_and_result(module_exemple.min,5,6)
     #print(trace)
     ast_exemple = code2astPython(code_exemple)
     #print(ast_exemple)
     c = create_aes(ast_exemple, trace, erreur)
-    #print(c)
+    print(c)
