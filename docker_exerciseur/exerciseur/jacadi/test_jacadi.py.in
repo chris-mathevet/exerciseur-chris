@@ -39,7 +39,7 @@ def genere_aes(source_code_etu):
     traceur = code2aes.Tracer()
     traces = []
     for entrée, sortie_ens in ( entrees_sorties_visibles + entrees_sorties_invisibles):
-        trace,resultat = traceur.get_trace_and_result(fonction_etu, *entrée)
-        aes += code2aes.create_aes(ast, trace)
+        trace,resultat,erreur = traceur.get_trace_and_result(fonction_etu, *entrée)
+        aes += code2aes.create_aes(ast, trace,erreur)
         traces.append(trace)
     return aes, code2aes.dump_ast(ast), traces

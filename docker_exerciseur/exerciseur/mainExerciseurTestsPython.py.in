@@ -46,8 +46,9 @@ class ServeurTentatives(BaseHTTPRequestHandler):
             }
         if avec_ast:
             if "genere_aes" in self.module_ens.__dict__:
-                res["AES"], res["AST"], res["traces"] = self.module_ens.genere_aes(code_etu)
-
+                t = self.module_ens.genere_aes(code_etu)
+                print(t)
+                res["AES"], res["AST"], res["traces"] =t
         return res
 
     def __init__(self, *args):

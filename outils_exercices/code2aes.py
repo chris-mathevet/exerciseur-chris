@@ -63,7 +63,7 @@ class Tracer():
         self.lines_trace = []
         sys.settrace(None)
 
-        return (trace,res,"")
+        return trace,res,""
 
 # Exemple d'appel a Tracer
 # t = Tracer()
