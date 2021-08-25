@@ -199,3 +199,7 @@ class Exerciseur(ABC):
     @classmethod
     def register(classe, nom, sous_classe):
         classe.types_exerciseurs[nom] = sous_classe
+
+def liberer_openfaas(id_exo: str):
+    import requests, json
+    r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
