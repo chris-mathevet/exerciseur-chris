@@ -8,6 +8,7 @@ if python_version.minor >= 7:
 else:
     import importlib_resources as resources
 import shutil
+import inspect
 
 from outils_exercices import jacadi
 from ..tests_python import ExerciseurTestsPython
@@ -37,9 +38,13 @@ class ExerciseurJacadi(ExerciseurTestsPython):
         super().prépare_source()
 
     def test_fonction(self, fonction, entrees):
+        n_arguments = len(inspect.signature(fonction).parameters)
         res = []
         for i in entrees:
-            res.append((i, fonction(*i)))
+            if n_arguments == 1:
+                res.append((i, fonction(i)))
+            else:
+                res.append((i, fonction(*i)))
         return res
     
     def remplir_test_py(self, out):
@@ -54,6 +59,7 @@ class ExerciseurJacadi(ExerciseurTestsPython):
                     if "solution" in dir(fun)]
         assert solution, self.fichier_ens_abs # mod_ens.__dict__
         self.nom_solution, self.solution = solution[0]
+        self.arguments = list(inspect.signature(self.solution).parameters)
         self.entrees_visibles = mod_ens.__dict__.get(
             "entrees_visibles", [])
         self.entrees_invisibles = mod_ens.__dict__.get(
@@ -71,7 +77,10 @@ class ExerciseurJacadi(ExerciseurTestsPython):
 
     def métadonnées(self):
         return {
-            'fichier_ens': self.fichier_ens
+            'fichier_ens': self.fichier_ens,
+            "entrees_visibles": self.entrees_visibles,
+            "entrees_invisibles": self.entrees_invisibles,
+            "arguments": self.arguments
         }
 
 Exerciseur.types_exerciseurs['Jacadi'] = ExerciseurJacadi
