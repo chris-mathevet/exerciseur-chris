@@ -38,7 +38,7 @@ class PaquetExercice:
     def to_dict(self) -> Dict:
         return {
             'contenu': self.contenu,
-            'métadonnées': self.métadonnées,
+            'metaInfos': self.métadonnées,
             'type_exo': self.type_exo
         }
 
@@ -52,7 +52,7 @@ class PaquetExercice:
 
     @classmethod
     def from_dict(Classe, dico):
-        return Classe(dico['contenu'], dico['type_exo'], dico['métadonnées'])
+        return Classe(dico['contenu'], dico['type_exo'], dico['metaInfos'])
 
 class Exerciseur(ABC):
     """
