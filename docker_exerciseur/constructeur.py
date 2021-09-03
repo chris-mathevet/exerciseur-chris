@@ -92,4 +92,6 @@ def prépare_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     ex.utiliser_rép_travail(td + '/src')
     ex.copie_source()
     ex.prépare_source()
+    if verbose:
+        print("métadonnées:", ex.métadonnées(), file=debug_out)
     return td
