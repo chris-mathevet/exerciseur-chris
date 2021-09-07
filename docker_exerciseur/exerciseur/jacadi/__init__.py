@@ -75,6 +75,11 @@ class ExerciseurJacadi(ExerciseurTestsPython):
     def type_exo(self):
         return 'Jacadi'
 
+    def métadonnées_src(self):
+        return {
+            'fichier_ens': self.fichier_ens
+        }
+
     def métadonnées(self):
         return {
             'fichier_ens': self.fichier_ens,
