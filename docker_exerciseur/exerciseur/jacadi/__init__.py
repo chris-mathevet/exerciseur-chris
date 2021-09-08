@@ -84,8 +84,11 @@ class ExerciseurJacadi(ExerciseurTestsPython):
         return {
             'fichier_ens': self.fichier_ens,
             "entrees_visibles": self.entrees_visibles,
+            "sorties_visibles": self.sorties_visibles,
             "entrees_invisibles": self.entrees_invisibles,
-            "arguments": self.arguments
+            "arguments": self.arguments,
+            "nom_solution": self.nom_solution,
+            
         }
 
 Exerciseur.types_exerciseurs['Jacadi'] = ExerciseurJacadi
