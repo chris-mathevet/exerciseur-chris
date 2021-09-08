@@ -85,6 +85,10 @@ class Exerciseur(ABC):
     def copie_source(self) -> None:
         pass
 
+
+    def métadonnées_src(self) -> Dict[str, str]:
+        return self.métadonnées()
+
     @abstractmethod
     def métadonnées(self) -> Dict[str, str]:
         pass
@@ -109,7 +113,7 @@ class Exerciseur(ABC):
         t = tarfile.open(fileobj=contenu_tar, mode='w:xz')
         t.add(self.sources, recursive=True, filter=renomme)
         t.close()
-        return PaquetExercice(contenu_tar.getvalue(), self.type_exo(), self.métadonnées())
+        return PaquetExercice(contenu_tar.getvalue(), self.type_exo(), self.métadonnées_src())
 
     @classmethod
     def avec_type(cls, répertoire: str, type_exo: str, *args, **kwargs) -> None:

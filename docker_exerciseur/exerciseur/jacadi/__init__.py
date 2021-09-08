@@ -75,12 +75,19 @@ class ExerciseurJacadi(ExerciseurTestsPython):
     def type_exo(self):
         return 'Jacadi'
 
+    def métadonnées_src(self):
+        return {
+            'fichier_ens': self.fichier_ens
+        }
+
     def métadonnées(self):
         return {
             'fichier_ens': self.fichier_ens,
             "entrees_visibles": self.entrees_visibles,
+            "sorties_visibles": self.sorties_visibles,
             "entrees_invisibles": self.entrees_invisibles,
-            "arguments": self.arguments
+            "arguments": self.arguments,
+            "nom_solution": self.nom_solution,
         }
 
 Exerciseur.types_exerciseurs['Jacadi'] = ExerciseurJacadi
