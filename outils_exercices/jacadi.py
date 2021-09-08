@@ -28,7 +28,16 @@ class ExceptionEntréeVisible(ErreurVoilée):
         super().__init__(e_type, e_value, e_traceback)
 
     def messages(self):
-        return ["Sur l'entrée {}, vous levez une l'exception imprévue {!r}".format(self.entree, self.e_interne)] + super().messages()
+        messages = ["Sur l'entrée {}, vous levez une l'exception imprévue {!r}".format(self.entree, self.e_interne)]
+        messages += [m for m in super().messages()]
+        return "\n\n".join(messages)
+
+    
+class ExceptionEntréeInvisible(ErreurVoilée):
+    def messages(self):
+        messages = ["Sur une entrée invisible, vous levez une l'exception imprévue {!r}".format(self.e_interne)]
+        messages += [m for m in super().messages()]
+        return "\n\n".join(messages)
 
 class FonctionÉtuManquante(Exception):
     def __init__(self, nom_fonction):
