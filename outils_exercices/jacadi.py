@@ -21,6 +21,13 @@ class ErreurEntréeInvisible(ErreurVoilée):
     def messages(self):
         return "Sur une entrée invisible, vous ne retournez pas la bonne valeur."
 
+def liste_messages(en_tête, messages):
+    res = [en_tête]
+    res += ["<ul>\n"]
+    res += ["<li>" + m + "</li>\n" for m in messages]
+    res += ["</ul>\n"]
+    return res
+
 class ExceptionEntréeVisible(ErreurVoilée):
     def __init__(self, entree, ens, e_type, e_value, e_traceback):
         self.entree = entree
@@ -28,16 +35,13 @@ class ExceptionEntréeVisible(ErreurVoilée):
         super().__init__(e_type, e_value, e_traceback)
 
     def messages(self):
-        messages = ["Sur l'entrée {}, vous levez une l'exception imprévue {!r}".format(self.entree, self.e_interne)]
-        messages += [m for m in super().messages()]
-        return "\n\n".join(messages)
-
+        en_tête = "Sur l'entrée {}, vous levez une l'exception imprévue {!r}".format(self.entree, self.e_interne)
+        return liste_messages(en_tête, super().messages())
     
 class ExceptionEntréeInvisible(ErreurVoilée):
     def messages(self):
-        messages = ["Sur une entrée invisible, vous levez une l'exception imprévue {!r}".format(self.e_interne)]
-        messages += [m for m in super().messages()]
-        return "\n\n".join(messages)
+        en_tête = ["Sur une entrée invisible, vous levez une l'exception imprévue {!r}".format(self.e_interne)]
+        return liste_messages(en_tête, super().messages())
 
 class FonctionÉtuManquante(Exception):
     def __init__(self, nom_fonction):
