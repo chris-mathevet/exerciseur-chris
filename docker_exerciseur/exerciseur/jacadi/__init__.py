@@ -17,7 +17,6 @@ from .. import Exerciseur
 class ExerciseurJacadi(ExerciseurTestsPython):
     def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None, **kwargs):
         self.fichier_ens = fichier_ens
-#        self.nom_module = nom_module
         super().__init__(dossier_code, nom_module=None, en_place=en_place, debug_out=debug_out, **kwargs)
 
     def prépare_source(self):
@@ -38,13 +37,13 @@ class ExerciseurJacadi(ExerciseurTestsPython):
         super().prépare_source()
 
     def test_fonction(self, fonction, entrees):
-        n_arguments = len(inspect.signature(fonction).parameters)
         res = []
         for i in entrees:
-            if n_arguments == 1:
-                res.append((i, fonction(i)))
-            else:
-                res.append((i, fonction(*i)))
+            # TODO : erase
+            # if n_arguments == 1:
+            #    res.append((i, fonction(i)))
+            # else:
+            res.append((i, fonction(*i)))
         return res
     
     def remplir_test_py(self, out):
@@ -64,6 +63,9 @@ class ExerciseurJacadi(ExerciseurTestsPython):
             "entrees_visibles", [])
         self.entrees_invisibles = mod_ens.__dict__.get(
             "entrees_invisibles", [])
+        if len(self.arguments) == 1:
+            self.entrees_visibles = [(e,) for e in self.entrees_visibles]
+            self.entrees_invisibles = [(e,) for e in self.entrees_invisibles]
         self.sorties_visibles = self.test_fonction(self.solution, self.entrees_visibles)
         self.sorties_invisibles = self.test_fonction(self.solution, self.entrees_invisibles)
         contenu_test_py = resources.read_text(__name__, 'test_jacadi.py.in')
@@ -81,11 +83,17 @@ class ExerciseurJacadi(ExerciseurTestsPython):
         }
 
     def métadonnées(self):
+        def repr_entree(e):
+            return tuple(repr(x) for x in e)
+        
+        repr_entrees_visibles = [repr_entree(e) for e in self.entrees_visibles]
+        repr_entrees_invisibles = [repr_entree(e) for e in self.entrees_invisibles]
+        repr_sorties_visibles = [(repr_entree(e), repr(s)) for (e,s) in self.sorties_visibles]
         return {
             'fichier_ens': self.fichier_ens,
-            "entrees_visibles": self.entrees_visibles,
-            "sorties_visibles": self.sorties_visibles,
-            "entrees_invisibles": self.entrees_invisibles,
+            "entrees_visibles": repr_entrees_visibles,
+            "sorties_visibles": repr_sorties_visibles,
+            "entrees_invisibles": repr_entrees_invisibles,
             "arguments": self.arguments,
             "nom_solution": self.nom_solution,
         }

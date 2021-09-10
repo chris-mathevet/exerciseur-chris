@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import json
 
 from .exerciseur import Exerciseur
 
@@ -66,6 +67,10 @@ def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None,  **kwa
     dossier_source = os.path.abspath(dossier_source)
     ex = Exerciseur.avec_type(dossier_source, type_ex, debug_out=debug_out, **kwargs)
     res =  ex.construire()
+    if debug_out:
+        # print("Métadonnées:", ex.métadonnées(), file=debug_out)
+        print("Exercice:", dossier_source, file=debug_out)
+        print(ex.métadonnées(), file=debug_out)
     if cbor_out:
         cbor_out.write(ex.empaquète().vers_cbor())
     return res
