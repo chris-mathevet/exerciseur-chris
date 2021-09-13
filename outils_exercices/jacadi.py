@@ -25,10 +25,10 @@ class ErreurEntréeInvisible(ErreurVoilée):
         return "Sur une entrée invisible, vous ne retournez pas la bonne valeur."
 
 def liste_messages(en_tête, messages):
-    res = [en_tête]
-    res += ["<ul>\n"]
-    res += ["<li>" + m + "</li>\n" for m in messages]
-    res += ["</ul>\n"]
+    res = en_tête
+    res += "<ul>\n"
+    res += "".join("<li>" + m + "</li>\n" for m in messages)
+    res += "</ul>\n"
     return res
 
 class ExceptionEntréeVisible(ErreurVoilée):
@@ -41,12 +41,12 @@ class ExceptionEntréeVisible(ErreurVoilée):
     def messages(self):
         arguments = ", ".join([repr(a) for a in self.entree])
         appel = "{}({})".format(self.nom_fonction, arguments)
-        en_tête = "L'appel {}, lève une l'exception imprévue {!r}".format(self.entree, self.e_interne)
+        en_tête = "L'appel {}, lève une l'exception imprévue {!r}".format(appel, self.e_interne)
         return liste_messages(en_tête, super().messages())
-    
+
 class ExceptionEntréeInvisible(ErreurVoilée):
     def messages(self):
-        en_tête = ["Sur une entrée invisible, vous levez une l'exception imprévue {!r}".format(self.e_interne)]
+        en_tête = "Sur une entrée invisible, vous levez une l'exception imprévue {!r}".format(self.e_interne)
         return liste_messages(en_tête, super().messages())
 
 class FonctionÉtuManquante(Exception):

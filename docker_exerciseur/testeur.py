@@ -113,17 +113,8 @@ def éprouve_dans_nouveau_container(
             délai_essais *= 2
 
     try:
-        if verbose:
-            print("connexion au conteneur ok", file=sys.stderr)
-
-        dict_code_etu = {"code_etu": code_etu.encode('utf8')}
-        socket_container.send(cbor.dumps(dict_code_etu))
-        délai_lecture = 1
-        réponse = b''
-        while délai_lecture < 1024 and len(réponse) == 0:
-            réponse = socket_container.recv(4096)
-            time.sleep(délai_lecture * 0.001)
-            délai_lecture *= 2
+        url_container = "http://" + adresse_container + ":8082/"
+        réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
         d_réponse = json.loads(réponse)

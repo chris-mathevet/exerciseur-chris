@@ -22,7 +22,7 @@ def gen_test_entree_visible(entrée, s_ens):
     with VoilePudique(décore_exc):
         sortie_etu = fonction_etu(*entrée)
     if sortie_etu != s_ens:
-        raise ErreurEntréeVisible({{solution}}, entrée, sortie_etu, s_ens)
+        raise ErreurEntréeVisible("{{solution}}", entrée, sortie_etu, s_ens)
   return fonction_test
 
 for (i,(entrée, s_ens)) in enumerate(entrees_sorties_visibles):

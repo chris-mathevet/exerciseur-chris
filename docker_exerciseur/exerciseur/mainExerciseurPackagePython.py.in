@@ -18,7 +18,7 @@ def ajoute_html(réponse):
     if réponse["_valide"]:
         feedback_html += "<p>Exercice réussi!</p>\n"
     else:
-        feedback_html += "<p>Il y a une erreur</p>\n"
+        feedback_html += "<p>Il y a des erreurs</p>\n"
     if "_messages" in réponse and réponse["_messages"]:
         feedback_html += "<ul>\n"
         for ligne in réponse["_messages"]:
