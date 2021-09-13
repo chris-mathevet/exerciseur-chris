@@ -23,6 +23,9 @@ parser.add_argument(
     "--module", help="le module de tests de l'exerciseur"
 )
 parser.add_argument(
+    "--sans-openfaas", help="ne pas utiliser openfaas", action="store_true"
+)
+parser.add_argument(
     "--prépare", help="ne construit pas l'image docker, mais crée seulement le répertoire avec un Dockerfile pour docker build",
     action="store_true"
 )
@@ -45,11 +48,13 @@ def main(args):
         chemin = prépare_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
         print(chemin)
     else:
-        id_image = construit_exerciseur(args.type, dossier_source, args.verbose, cbor_out=args.cbor_out_file, **métadonnées)
+        id_image = construit_exerciseur(args.type, dossier_source, args.verbose,
+                                        cbor_out=args.cbor_out_file, avec_openfaas=(not args.sans_openfaas),
+                                        **métadonnées)
         print(id_image)
 
 
-def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None,  **kwargs):
+def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None, avec_openfaas=True, **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
@@ -65,10 +70,9 @@ def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None,  **kwa
     """
     debug_out = verbose and sys.stderr
     dossier_source = os.path.abspath(dossier_source)
-    ex = Exerciseur.avec_type(dossier_source, type_ex, debug_out=debug_out, avec_openfaas=False, **kwargs)
+    ex = Exerciseur.avec_type(dossier_source, type_ex, debug_out=debug_out, avec_openfaas=avec_openfaas, **kwargs)
     res =  ex.construire()
     if debug_out:
-        # print("Métadonnées:", ex.métadonnées(), file=debug_out)
         print("Exercice:", dossier_source, file=debug_out)
         print(ex.métadonnées(), file=debug_out)
     if cbor_out:
