@@ -20,7 +20,7 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
     """
     def __init__(self, dossier_code, nom_classe='ToujoursContent',
                  nom_module='exerciseur', en_place=False, debug_out=None, **kwargs):
-        super().__init__(dossier_code, nom_démon=None, en_place=en_place, **kwargs)
+        super().__init__(dossier_code, nom_démon=None, en_place=en_place, debug_out=debug_out, **kwargs)
         self.nom_classe = nom_classe
         self.nom_module = nom_module
 

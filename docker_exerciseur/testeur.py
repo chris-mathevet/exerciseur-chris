@@ -8,7 +8,10 @@ import socket
 import sys
 import time
 import datetime
+import requests
 from typing import Union
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 parser = argparse.ArgumentParser(add_help=False)
 
@@ -68,7 +71,8 @@ def éprouve_dans_nouveau_container(
         code_etu: Union[str, bytes],
         verbose=False,
         docker_client=None,
-        docker_network='bridge'
+        docker_network='bridge',
+        **kwargs
     ):
     """
     Teste une tentative étudiante dans un nouveau container pour un exerciseur.
@@ -81,6 +85,16 @@ def éprouve_dans_nouveau_container(
 
     @return le dictionnaire d'évaluation de la tentative (à sérialiser en json)
     """
+    retry_strategy = Retry(
+        total=5,
+        backoff_factor=0.1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        method_whitelist=["HEAD", "GET", "OPTIONS"]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("http://", adapter)
+
     if isinstance(code_etu, bytes):
         code_etu = code_etu.decode()
     if verbose:
@@ -103,30 +117,32 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("conteneur en écoute sur", adresse_container, file=sys.stderr)
     t_début_réseau = time.perf_counter()
-    délai_essais = 1
-    socket_container = None
-    while délai_essais < 1024 and not socket_container:
-        try:
-            socket_container = socket.create_connection((adresse_container, 5678))
-        except ConnectionRefusedError:
-            time.sleep(délai_essais * 0.001)
-            délai_essais *= 2
-
+    dict_code_etu = {"code_etu": code_etu.encode('utf8')}
+    dict_code_etu.update(kwargs)
+    payload = cbor.dumps(dict_code_etu)
+    taille = "{:x}".format(len(payload))
+    msg = taille.encode() + b"\n" + payload + b"\n0\n"
+    if verbose:
+        print("envoi de: {}".format(msg), file=sys.stderr)
     try:
         url_container = "http://" + adresse_container + ":8082/"
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
-        d_réponse = json.loads(réponse)
+        d_réponse = json.loads(réponse.text)
         return d_réponse
+    except json.JSONDecodeError as e:
+        return { "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
+                 "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
     except Exception as e:
         return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
                  "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
     finally:
-        container.stop()
         if verbose:
             print(sectionize("logs du container"), file=sys.stderr)
             print(container.logs(since=datetime.datetime.min).decode(), file=sys.stderr)
+        container.stop()
+                
 
 
 def éprouve_dans_openfaas(
@@ -155,7 +171,6 @@ def éprouve_dans_openfaas(
         'max-size': '1g',
     })
     try:
-        import requests
         dict_code_etu = {"code_etu": code_etu.encode('utf8')}
         dict_code_etu.update(kwargs)
         réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(dict_code_etu))

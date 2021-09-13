@@ -13,8 +13,7 @@ import socketserver
 import sys
 import traceback
 
-class ServeurTentatives(BaseHTTPRequestHandler):
-
+class Evaluateur:
     def évalue(self, mod_etu, code_etu, avec_ast=False):
         sys.modules['code_etu'] = mod_etu
         if not self.module_ens:
@@ -54,7 +53,6 @@ class ServeurTentatives(BaseHTTPRequestHandler):
 
     def __init__(self, *args):
         self.module_ens = None
-        super().__init__(*args)
 
     def résultat_erreur_load(self, e, code_etu):
         return {
@@ -122,6 +120,11 @@ class ServeurTentatives(BaseHTTPRequestHandler):
         feedback_html += "</div>\n"
         réponse['feedbacks_html'] = feedback_html
 
+class ServeurTentatives(BaseHTTPRequestHandler):
+    def __init__(self, *args):
+        self.evaluateur = Evaluateur()
+        super().__init__(*args)
+
     def do_POST(self):
         mesg=b""
         while True:
@@ -134,16 +137,14 @@ class ServeurTentatives(BaseHTTPRequestHandler):
             else:
                 break
 
-
         self.send_response(200)
         self.end_headers()
         dict_code_etu = cbor.loads(mesg)
-        résultat = self.traite(**dict_code_etu)
-        self.ajoute_html(résultat)
+        résultat = self.evaluateur.traite(**dict_code_etu)
+        self.evaluateur.ajoute_html(résultat)
 
         self.wfile.write(json.dumps(résultat).encode() + b'\n')
         self.wfile.flush()
-
 
 
 def sigterm_handler(_signo, _stack_frame):
