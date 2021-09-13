@@ -6,13 +6,16 @@ def solution(fun):
 
 
 class ErreurEntréeVisible(ErreurVoilée):
-    def __init__(self, entree, etu, ens):
+    def __init__(self, nom_fonction, entree, etu, ens):
         self.entree = entree
+        self.nom_fonction = nom_fonction
         self.etu = etu
         self.ens = ens
 
     def messages(self):
-        return "Sur l'entrée {}, vous renvoyez {} alors que la valeur attendue était {}".format(self.entree, self.etu, self.ens)
+        arguments = ", ".join([repr(a) for a in self.entree])
+        appel = "{}({})".format(self.nom_fonction, arguments)
+        return "L'appel {}, renvoie {} alors que la valeur attendue était {}".format(appel, self.etu, self.ens)
 
 class ErreurEntréeInvisible(ErreurVoilée):
     def __init__(self):
@@ -29,13 +32,16 @@ def liste_messages(en_tête, messages):
     return res
 
 class ExceptionEntréeVisible(ErreurVoilée):
-    def __init__(self, entree, ens, e_type, e_value, e_traceback):
+    def __init__(self, nom_fonction, entree, ens, e_type, e_value, e_traceback):
         self.entree = entree
         self.ens = ens
+        self.nom_fonction = nom_fonction
         super().__init__(e_type, e_value, e_traceback)
 
     def messages(self):
-        en_tête = "Sur l'entrée {}, vous levez une l'exception imprévue {!r}".format(self.entree, self.e_interne)
+        arguments = ", ".join([repr(a) for a in self.entree])
+        appel = "{}({})".format(self.nom_fonction, arguments)
+        en_tête = "L'appel {}, lève une l'exception imprévue {!r}".format(self.entree, self.e_interne)
         return liste_messages(en_tête, super().messages())
     
 class ExceptionEntréeInvisible(ErreurVoilée):

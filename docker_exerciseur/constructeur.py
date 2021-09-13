@@ -65,7 +65,7 @@ def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None,  **kwa
     """
     debug_out = verbose and sys.stderr
     dossier_source = os.path.abspath(dossier_source)
-    ex = Exerciseur.avec_type(dossier_source, type_ex, debug_out=debug_out, **kwargs)
+    ex = Exerciseur.avec_type(dossier_source, type_ex, debug_out=debug_out, avec_openfaas=False, **kwargs)
     res =  ex.construire()
     if debug_out:
         # print("Métadonnées:", ex.métadonnées(), file=debug_out)
@@ -97,6 +97,7 @@ def prépare_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     ex.utiliser_rép_travail(td + '/src')
     ex.copie_source()
     ex.prépare_source()
+    ex.écrit_dockerfile()
     if verbose:
         print("métadonnées:", ex.métadonnées(), file=debug_out)
     return td
