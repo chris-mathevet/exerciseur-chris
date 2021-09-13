@@ -130,5 +130,5 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
 
 
 
-Exerciseur.types_exerciseurs["java"] = ExerciseurRetrocompatibleJava
-Exerciseur.types_exerciseurs["python"] = ExerciseurRetrocompatiblePython
+# Exerciseur.types_exerciseurs["java"] = ExerciseurRetrocompatibleJava
+# Exerciseur.types_exerciseurs["python"] = ExerciseurRetrocompatiblePython
