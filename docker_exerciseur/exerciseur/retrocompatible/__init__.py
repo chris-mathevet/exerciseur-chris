@@ -65,6 +65,7 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
         super().__init__(chemin, en_place=en_place, debug_out=debug_out, **kwargs)
         self.typeExo="python"
         self.meta = kwargs
+        self.avec_openfaas = kwargs.get("avec_openfaas", True)
 
     def utiliser_rép_travail(self, chemin):
         self.rép_travail = chemin
@@ -132,4 +133,4 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
 
 
 Exerciseur.types_exerciseurs["java"] = ExerciseurRetrocompatibleJava
-# Exerciseur.types_exerciseurs["python"] = ExerciseurRetrocompatiblePython
+Exerciseur.types_exerciseurs["python"] = ExerciseurRetrocompatiblePython
