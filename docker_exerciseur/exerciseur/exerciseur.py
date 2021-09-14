@@ -199,7 +199,7 @@ class Exerciseur(ABC):
             self.debug("-----------------------")
             for ligne in log:
                 self.debug(ligne)
-        return i.id.split(':')[1]
+        return i.id
 
     @classmethod
     def register(classe, nom, sous_classe):

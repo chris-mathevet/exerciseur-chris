@@ -51,7 +51,7 @@ def main(args):
         id_image = construit_exerciseur(args.type, dossier_source, args.verbose,
                                         cbor_out=args.cbor_out_file, avec_openfaas=(not args.sans_openfaas),
                                         **métadonnées)
-        print(id_image)
+        print(id_image.split(':')[1])
 
 
 def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None, avec_openfaas=True, **kwargs):
