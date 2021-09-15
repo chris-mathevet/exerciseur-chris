@@ -52,10 +52,6 @@ class ExerciseurJacadi(ExerciseurTestsPython):
     def test_fonction(self, fonction, entrees):
         res = []
         for i in entrees:
-            # TODO : erase
-            # if n_arguments == 1:
-            #    res.append((i, fonction(i)))
-            # else:
             res.append((i, fonction(*i)))
         return res
 
