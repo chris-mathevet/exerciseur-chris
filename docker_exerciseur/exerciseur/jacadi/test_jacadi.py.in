@@ -1,10 +1,15 @@
 import code_etu
 from outils_exercices.jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible, ExceptionEntréeInvisible
 from outils_exercices.jacadi import FonctionÉtuManquante
+import outils_exercices.jacadi
 from outils_exercices.voile import VoilePudique
 from outils_exercices import code2aes
 from importlib import util
 import sys
+
+{{import_hypothesis}}
+{{import_module_ens}}
+
 
 entrees_sorties_visibles = {{es_visibles}}
 entrees_sorties_invisibles = {{es_invisibles}}
@@ -36,6 +41,18 @@ def test_entrees_invisibles():
             sortie_etu = fonction_etu(*e)
         if sortie_etu != s_ens:
             raise ErreurEntréeInvisible()
+
+{{given}}
+def test_auto_hypothesis(entrée):
+    s_ens = outils_exercices.jacadi.fonction_ens(*entrée)
+
+    def décore_exc(e_ty, e_val, e_tb):
+        return ExceptionEntréeVisible("{{solution}}", entrée, s_ens, e_ty, e_val, e_tb)
+    with VoilePudique(décore_exc):
+        sortie_etu = fonction_etu(*entrée)
+    if sortie_etu != s_ens:
+        raise ErreurEntréeVisible("{{solution}}", entrée, sortie_etu, s_ens)
+{{end_given}}
 
 def genere_aes(source_code_etu):
     nom_module = 'exemple'

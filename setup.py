@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 import sys
 
-dépendances=['cbor >= 1.0.0', 'docker >= 4.1.0']
+dépendances=['cbor >= 1.0.0', 'docker >= 4.1.0', 'hypothesis']
 
 if sys.version_info.minor < 7:
     dépendances += [ 'importlib-resources >= 1.4.0' ]

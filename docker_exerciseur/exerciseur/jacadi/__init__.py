@@ -13,6 +13,7 @@ import inspect
 from outils_exercices import jacadi
 from ..tests_python import ExerciseurTestsPython
 from .. import Exerciseur
+from . import auto_hypothesis
 
 class ExerciseurJacadi(ExerciseurTestsPython):
     def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None, **kwargs):
@@ -84,6 +85,30 @@ class ExerciseurJacadi(ExerciseurTestsPython):
         contenu_test_py = contenu_test_py.replace("{{solution}}", self.nom_solution)
         contenu_test_py = contenu_test_py.replace("{{es_visibles}}", repr(self.sorties_visibles))
         contenu_test_py = contenu_test_py.replace("{{es_invisibles}}", repr(self.sorties_invisibles))
+        nom_générateur = None
+        for e in self.entrees_visibles:
+            try:
+                nom_générateur = auto_hypothesis.infère_stratégie(e)
+                break
+            except auto_hypothesis.PasAssezSpécifique:
+                pass
+            except auto_hypothesis.Ingérable:
+                nom_générateur = None
+                break
+        if nom_générateur:
+            self.extra_requirements.add("hypothesis")
+            imports_hypothesis = ("import hypothesis\n"
+                                  "from hypothesis import given\n")
+            contenu_test_py = contenu_test_py.replace("{{import_hypothesis}}", imports_hypothesis)
+            import_module_ens = "import " + self.nom_module_ens
+            contenu_test_py = contenu_test_py.replace("{{import_module_ens}}", import_module_ens)
+            contenu_test_py = contenu_test_py.replace("{{given}}", "@given({})".format(nom_générateur))
+            contenu_test_py = contenu_test_py.replace("{{end_given}}", "")
+        else:
+            contenu_test_py = contenu_test_py.replace("{{import_hypothesis}}", "")
+            contenu_test_py = contenu_test_py.replace("{{import_module_ens}}", "")
+            contenu_test_py = contenu_test_py.replace("{{given}}", '"""')
+            contenu_test_py = contenu_test_py.replace("{{end_given}}", '"""')
         out.write(contenu_test_py)
 
     def type_exo(self):

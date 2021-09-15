@@ -23,6 +23,7 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
         super().__init__(dossier_code, nom_démon=None, en_place=en_place, debug_out=debug_out, **kwargs)
         self.nom_classe = nom_classe
         self.nom_module = nom_module
+        self.extra_requirements = {"cbor"}
 
     def prépare_source(self):
         if not self.rép_travail:
@@ -42,7 +43,8 @@ class ExerciseurPackagePython(ExerciseurDémonPython):
             raise ValueError("ExerciseurPackagePython ne sait pas gérer setup.py")
 
     def étendre_requirements(self, rq):
-        rq.write("cbor\n")
+        for r in self.extra_requirements:
+            rq.write(r + "\n")
 
     def remplir_main_py(self, out):
         contenu_main = resources.read_text(__package__, 'mainExerciseurPackagePython.py.in')

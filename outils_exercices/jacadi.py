@@ -42,7 +42,7 @@ def solution(fun):
     fun.solution = True
     this.fonction_ens = fun
     this.nom_fonction_ens = fun.__name__
-    module_ens = inspect.getmodule(this.fonction_ens)
+    module_ens = inspect.getmodule(fun)
     fun.tuplifie = tuplifie_pour(fun)
     fun.entrees_visibles = [fun.tuplifie(e) for e in module_ens.entrees_visibles]
     fun.entrees_invisibles = [fun.tuplifie(e) for e in module_ens.entrees_invisibles]

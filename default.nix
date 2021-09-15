@@ -6,7 +6,7 @@ python3Packages.buildPythonPackage {
   pname = "docker-exerciseur";
   version = "0.0.1";
 
-  propagatedBuildInputs = with python3Packages; [docker cbor setuptools];
+  propagatedBuildInputs = with python3Packages; [docker cbor setuptools hypothesis];
 
   src = ./.;
 

@@ -6,4 +6,5 @@ with (import <nixpkgs> {});
   ps.setuptools
   ps.cbor
   ps.nose2
+  ps.hypothesis
 ])).env
