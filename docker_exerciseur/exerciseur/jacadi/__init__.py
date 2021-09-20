@@ -17,6 +17,7 @@ from .. import Exerciseur
 class ExerciseurJacadi(ExerciseurTestsPython):
     def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None, **kwargs):
         self.fichier_ens = fichier_ens
+        self.fichiers_aux = None
         super().__init__(dossier_code, nom_module=None, en_place=en_place, debug_out=debug_out, **kwargs)
 
     def prépare_source(self):
@@ -28,6 +29,18 @@ class ExerciseurJacadi(ExerciseurTestsPython):
             if len(fichiers) == 1:
                 self.fichier_ens = fichiers[0]
         self.fichier_ens_abs = os.path.abspath(rép_src + "/" + self.fichier_ens)
+        if self.fichiers_aux is None:
+            self.fichiers_aux = []
+            fichiers = [f for f in os.listdir(rép_src) if f.endswith('.py')]
+            for f in fichiers:
+                if f != self.fichier_ens:
+                    f_abs = os.path.abspath(rép_src + "/" + f)
+                    self.fichiers_aux.append(f_abs)
+        with open(self.fichier_ens_abs, 'r') as original:
+            contenu_fichier_ens = original.read()
+        with open(self.fichier_ens_abs, 'w') as fichier_ens:
+            fichier_ens.write("from outils_exercices.jacadi import solution\n" + contenu_fichier_ens)
+        self.nom_module_ens = Path(self.fichier_ens_abs).stem
         nom_mod_tests = 'tests'
         while os.path.isfile(rép_src + "/" + nom_mod_tests + ".py"):
             nom_test = x + nom_mod_tests
@@ -45,19 +58,22 @@ class ExerciseurJacadi(ExerciseurTestsPython):
             # else:
             res.append((i, fonction(*i)))
         return res
-    
+
     def remplir_test_py(self, out):
-        nom_module_ens = Path(self.fichier_ens_abs).stem
+        for nom_fichier_aux in self.fichiers_aux:
+            nom_mod_aux = Path(nom_fichier_aux).stem
+            mod_aux = ModuleType(nom_mod_aux)
+            sys.modules[nom_mod_aux] = mod_aux
+            with open(nom_fichier_aux) as fichier_aux:
+                exec(fichier_aux.read(), mod_aux.__dict__)
+        contenu_module_ens = "import jacadi\n"
         with open(self.fichier_ens_abs) as fichier_ens:
-            contenu_module_ens = (fichier_ens.read())
+            contenu_module_ens += fichier_ens.read()
         mod_ens = ModuleType('mod_ens')
         sys.modules['mod_ens'] = mod_ens
-        mod_ens.__dict__['solution'] = jacadi.solution
+        sys.modules['jacadi'] = jacadi
         exec(contenu_module_ens, mod_ens.__dict__)
-        solution = [(nom, fun) for nom, fun in mod_ens.__dict__.items()
-                    if "solution" in dir(fun)]
-        assert solution, self.fichier_ens_abs # mod_ens.__dict__
-        self.nom_solution, self.solution = solution[0]
+        self.nom_solution, self.solution = jacadi.nom_fonction_ens, jacadi.fonction_ens
         self.arguments = list(inspect.signature(self.solution).parameters)
         self.entrees_visibles = mod_ens.__dict__.get(
             "entrees_visibles", [])

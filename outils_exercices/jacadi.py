@@ -1,7 +1,14 @@
 from outils_exercices.voile import ErreurVoilée
+import sys
+
+this = sys.modules[__name__]
+this.fonctions_ens = None
+this.nom_fonction_ens = None
 
 def solution(fun):
     fun.solution = True
+    this.fonction_ens = fun
+    this.nom_fonction_ens = fun.__name__
     return fun
 
 
