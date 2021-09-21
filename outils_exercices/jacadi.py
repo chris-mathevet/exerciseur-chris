@@ -44,8 +44,8 @@ def solution(fun):
     this.nom_fonction_ens = fun.__name__
     module_ens = inspect.getmodule(this.fonction_ens)
     fun.tuplifie = tuplifie_pour(fun)
-    fun.entrees_visibles = fun.tuplifie(module_ens.entrees_visibles)
-    fun.entrees_invisibles = fun.tuplifie(module_ens.entrees_invisibles)
+    fun.entrees_visibles = [fun.tuplifie(e) for e in module_ens.entrees_visibles]
+    fun.entrees_invisibles = [fun.tuplifie(e) for e in module_ens.entrees_invisibles]
 
     fun.test_fonction_etu = teste_fonction_etu(fun)
     fun.auto_test = auto_test(fun)
