@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import json
+import tempfile
 
 from .exerciseur import Exerciseur
 
@@ -30,7 +31,7 @@ parser.add_argument(
     action="store_true"
 )
 
-parser.add_argument("--out", dest="cbor_out_file", help="sauvegarder le paquet cbor dans un fichier",
+parser.add_argument("--package", dest="cbor_out_file", help="créer un paquet cbor des sources dans un fichier",
     type=argparse.FileType('wb'),
 )
 
@@ -47,6 +48,17 @@ def main(args):
     if args.prépare:
         chemin = prépare_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
         print(chemin)
+    if args.cbor_out_file:
+        debug_out = args.verbose and sys.stderr
+        dossier_source = os.path.abspath(dossier_source)
+        with tempfile.TemporaryDirectory() as rép_travail:
+            ex = Exerciseur.avec_type(dossier_source, args.type, debug_out=debug_out)
+            ex.utiliser_rép_travail(rép_travail + '/src')
+            ex.copie_source()
+            ex.prépare_source()
+            ex.écrit_dockerfile()
+            paquet = ex.empaquète().vers_cbor()
+
     else:
         id_image = construit_exerciseur(args.type, dossier_source, args.verbose,
                                         cbor_out=args.cbor_out_file, avec_openfaas=(not args.sans_openfaas),
@@ -75,8 +87,6 @@ def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None, avec_o
     if debug_out:
         print("Exercice:", dossier_source, file=debug_out)
         print(ex.métadonnées(), file=debug_out)
-    if cbor_out:
-        cbor_out.write(ex.empaquète().vers_cbor())
     return res
 
 def prépare_exerciseur(type_ex, dossier_source, verbose, **kwargs):
