@@ -16,9 +16,10 @@ from .. import Exerciseur
 from . import auto_hypothesis
 
 class ExerciseurJacadi(ExerciseurTestsPython):
-    def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None, **kwargs):
+    def __init__(self, dossier_code, fichier_ens=None, en_place=False, debug_out=None, auto_hypothesis=False, **kwargs):
         self.fichier_ens = fichier_ens
         self.fichiers_aux = None
+        self.utiliser_auto_hypothesis = auto_hypothesis
         super().__init__(dossier_code, nom_module=None, en_place=en_place, debug_out=debug_out, **kwargs)
 
     def prépare_source(self):
@@ -86,21 +87,22 @@ class ExerciseurJacadi(ExerciseurTestsPython):
         contenu_test_py = contenu_test_py.replace("{{es_visibles}}", repr(self.sorties_visibles))
         contenu_test_py = contenu_test_py.replace("{{es_invisibles}}", repr(self.sorties_invisibles))
         nom_générateur = None
-        for e in self.entrees_visibles:
-            try:
-                nom_générateur = auto_hypothesis.infère_stratégie(e)
-                break
-            except auto_hypothesis.PasAssezSpécifique:
-                pass
-            except auto_hypothesis.Ingérable:
-                nom_générateur = None
-                break
+        if self.utiliser_auto_hypothesis:
+            for e in self.entrees_visibles:
+                try:
+                    nom_générateur = auto_hypothesis.infère_stratégie(e)
+                    break
+                except auto_hypothesis.PasAssezSpécifique:
+                    pass
+                except auto_hypothesis.Ingérable:
+                    nom_générateur = None
+                    break
         if nom_générateur:
             self.extra_requirements.add("hypothesis")
             imports_hypothesis = ("import hypothesis\n"
                                   "from hypothesis import given\n")
             contenu_test_py = contenu_test_py.replace("{{import_hypothesis}}", imports_hypothesis)
-            import_module_ens = "import " + self.nom_module_ens
+            import_module_ens = "import_module(\"{}\")".format(self.nom_module_ens)
             contenu_test_py = contenu_test_py.replace("{{import_module_ens}}", import_module_ens)
             contenu_test_py = contenu_test_py.replace("{{given}}", "@given({})".format(nom_générateur))
             contenu_test_py = contenu_test_py.replace("{{end_given}}", "")

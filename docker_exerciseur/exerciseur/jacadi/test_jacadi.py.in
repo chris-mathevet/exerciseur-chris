@@ -4,8 +4,9 @@ from outils_exercices.jacadi import FonctionÉtuManquante
 import outils_exercices.jacadi
 from outils_exercices.voile import VoilePudique
 from outils_exercices import code2aes
-from importlib import util
+from importlib import util, import_module
 import sys
+import string
 
 {{import_hypothesis}}
 {{import_module_ens}}
