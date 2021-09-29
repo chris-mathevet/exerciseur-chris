@@ -118,7 +118,8 @@ class ExerciseurJacadi(ExerciseurTestsPython):
 
     def métadonnées_src(self):
         return {
-            'fichier_ens': self.fichier_ens
+            'fichier_ens': self.fichier_ens,
+            'auto_hypothesis': self.utiliser_auto_hypothesis
         }
 
     def métadonnées(self):
