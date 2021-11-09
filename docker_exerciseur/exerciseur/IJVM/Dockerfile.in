@@ -1,0 +1,36 @@
+FROM ghcr.io/openfaas/classic-watchdog:0.1.4 as watchdog
+#FROM python:3.8-alpine
+FROM openjdk:alpine
+
+RUN apk add --no-cache \
+python3 \
+git \
+py3-psutil \
+R
+
+COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
+RUN chmod +x /usr/bin/fwatchdog
+RUN addgroup -S app && adduser app -S -G app
+WORKDIR /home/app/
+
+RUN apk add --no-cache gcc python3-dev musl-dev linux-headers make
+
+RUN chown -R app /home/app \
+&&  mkdir -p /home/app/python && chown -R app /home/app \
+&& mkdir -p /opt/tmp/ \
+&& chown -R app  /opt/tmp
+RUN pip3 install jinja2 cbor
+USER app
+ENV PATH=$PATH:/home/app/.local/bin:/home/app/python/bin/
+ENV PYTHONPATH=$PYTHONPATH:/home/app/python
+
+COPY exerciseur.jar .
+COPY run.py .
+COPY enonce_enseignant.yaml .
+
+ENV fprocess="python3 run.py"
+EXPOSE 8080
+
+HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
+
+CMD ["fwatchdog"]

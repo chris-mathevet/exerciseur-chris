@@ -176,7 +176,8 @@ class Exerciseur(ABC):
             pass
         import requests, json
         if self.avec_openfaas:
-            r = requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }))
+            requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }))
+            requests.post('http://gateway:8080/system/scale-function/'+image.id.split(':')[1][:62], data=json.dumps({ "service":image.id.split(':')[1][:62], "replicas":0 }))
         return (image,log)
 
 

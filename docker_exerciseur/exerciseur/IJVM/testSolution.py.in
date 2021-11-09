@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+
+# -o /Users/emmanuelmelin/eclipse-workspace/IJVM/src/IJVM/imput.yaml   /Users/emmanuelmelin/eclipse-workspace/IJVM/src/IJVM/cours_appel_rec_methode_mul.jas /Users/emmanuelmelin/eclipse-workspace/IJVM/src/IJVM/microprogram.mal
+
+import json
+import subprocess
+from jinja2 import Environment, FileSystemLoader
+import os, psutil, resource
+import cbor
+import sys
+
+def limite_resources():
+        pid = os.getpid()
+        ps = psutil.Process(pid)
+        resource.setrlimit(resource.RLIMIT_CPU, (4, 4))
+
+def run_from_template(nom_fichier):
+    env = Environment(
+        loader=(FileSystemLoader("./"))
+    )
+    template = env.get_template(nom_fichier)
+    with open("fichier_a_tester.yaml", "w", encoding="utf-8") as fichier_out:
+        fichier_out.write(template.render())
+    p = subprocess.Popen(['java', '-jar', 'exerciseur.jar', "fichier_a_tester.yaml"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,preexec_fn=limite_resources)
+    output,error = p.communicate()
+    if p.returncode<0:
+       return (b"","Votre code a du être arrêté car prenait trop de temps".encode("utf-8"))
+    return output,error
+
+
+def main(args, solution_etu, code_solution):
+    contenu_template_a_tester = "{% extends \"" + args.basetemplate +"\" %}\n{% block solution %}"
+    #contenu_template_a_tester += "  " + "  ".join(args.solution_etudiant) + "{% endblock %}"
+    contenu_template_a_tester += "  " + solution_etu + "{% endblock %}"
+    
+    with open("solution_etu_template.yaml", "w", encoding="utf-8") as fichier_out:
+        fichier_out.write(contenu_template_a_tester)
+
+    stdoutput_etu, stderrput_etu = run_from_template("solution_etu_template.yaml")
+    stdoutput_prof, stderrput_prof = run_from_template(args.basetemplate)
+   
+    res ={} 
+    if stderrput_etu :
+        res["_valide"] = False
+        res["_messages"] = {"Erreur d'exécution":[stderrput_etu.decode()]}
+        return res
+    if stdoutput_prof != stdoutput_etu :
+        res["_valide"] = False
+        res["_messages"] = {"Votre code ne fait pas ce qui est attendu":[ "Voici votre pile à la fin de l'exécution : \n"+stdoutput_etu.decode() ]}
+        return res
+    feedbacks = "<div><p>Exercice réussi!</p>"
+    if code_solution:
+        feedbacks += "<p>Votre code retour est : %s</p>"%code_solution
+    feedbacks += "</div>"
+    return {"_valide":True, "feedbacks_html":feedbacks}
+    #datas={"stdout":stdoutput_etu.decode(),"stderr":stderrput_etu.decode()}
+    #args.output.write(json.dumps(datas, indent=4))
+
+
+if __name__ == "__main__":
+    dict_code_etu = cbor.loads(sys.stdin.buffer.read())
+    codeEtu = dict_code_etu["code_etu"]
+    code_solution="{{code_solution}}"
+    if isinstance(codeEtu, bytes):
+        codeEtu = codeEtu.decode()
+    import argparse
+    parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    # parser.add_argument("solution_etudiant",help="Fichier contenant la solution",type=argparse.FileType('r', encoding="utf-8"))
+    parser.add_argument("-t","--basetemplate",help="enonce exercice (yaml enseignant)",default='enonce_enseignant.yaml')
+    parser.add_argument("--output",help="specifie le fichier de sortie",type=argparse.FileType('w'), default="./out.json")
+    parser.add_argument("--Debug",help="active le debuggage",action="store_true")
+    #parser.add_argument("--mal",help="fichier mal",type=argparse.FileType('r'),default='utils/templates/original.mal')
+    #parser.add_argument("-c","--opcodes",help="opcodes",type=argparse.FileType('r'),default='utils/templates/opcodes.yaml')
+    args = parser.parse_args()
+    print(json.dumps(main(args, codeEtu, code_solution)))
