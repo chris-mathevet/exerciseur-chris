@@ -43,10 +43,12 @@ def main(args, solution_etu, code_solution):
     if stderrput_etu :
         res["_valide"] = False
         res["_messages"] = {"Erreur d'exécution":[stderrput_etu.decode()]}
+        res["feedbacks_html"] = "<div> Erreur d'exécution : <pre>%s</pre> </div>"%stderrput_etu.decode()
         return res
     if stdoutput_prof != stdoutput_etu :
         res["_valide"] = False
         res["_messages"] = {"Votre code ne fait pas ce qui est attendu":[ "Voici votre pile à la fin de l'exécution : \n"+stdoutput_etu.decode() ]}
+        res["feedbacks_html"] = "<div> Votre code ne fait pas ce qui est attendu, voici l'état de votre pile à la fin de l'exécution : <pre>%s</pre> </div>"%stdoutput_etu.decode()
         return res
     feedbacks = "<div><p>Exercice réussi!</p>"
     if code_solution:
