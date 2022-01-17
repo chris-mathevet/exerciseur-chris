@@ -26,6 +26,7 @@ setup(
         "docker_exerciseur.exerciseur": ["*.in"],
         "docker_exerciseur.exerciseur.jacadi": ["*.in"],
         "docker_exerciseur.exerciseur.retrocompatible": ["*.in"],
+        "docker_exerciseur.exerciseur.IJVM":  ["*.jar", "*.in"],
         "outils_exercices": ["*.py"]
     }
 )      
