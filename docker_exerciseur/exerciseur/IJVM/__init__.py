@@ -30,20 +30,15 @@ class ExerciseurIJVM(Exerciseur):
         self.debug("copie des fichiers source dans ", dest)
         shutil.copytree(self.sources, dest)
 
-    def écrit_dockerfile(self):
-        from shutil import copyfile
+    def prépare_source(self):
         with resources.path(__name__,"exerciseur.jar") as exerciseur_jar:
-            copyfile(exerciseur_jar, self.rép_travail +"/exerciseur.jar")
+            shutil.copyfile(exerciseur_jar, self.rép_travail +"/exerciseur.jar")
         with open(self.rép_travail + "/run.py", 'w') as out:
                 contenu_run_py = resources.read_text(__name__, 'testSolution.py.in')
                 contenu_run_py = contenu_run_py.replace("{{code_solution}}", str(self.meta.get("codeSolution", "")))
                 out.write(contenu_run_py)
-        # with open(self.rép_travail + "/run.py", 'w') as out:
-        #         contenu_run_py = resources.read_text(__name__, 'run_java.py.in')
-        #         contenu_run_py = contenu_run_py.replace("{{typeExo}}", self.typeExo)
-        #         for elem in self.meta:
-        #             contenu_run_py = contenu_run_py.replace("{{%s}}"%elem, self.meta.get(elem))
-        #         out.write(contenu_run_py)
+
+    def écrit_dockerfile(self):
         with open(self.rép_travail + "/Dockerfile", 'w') as out:
             contenu_Dockerfile = resources.read_text(__name__, 'Dockerfile.in')
             out.write(contenu_Dockerfile)
@@ -53,9 +48,6 @@ class ExerciseurIJVM(Exerciseur):
 
     def type_exo(self):
         return self.typeExo
-
-    def prépare_source(self):
-        pass
 
 
 Exerciseur.types_exerciseurs["ijvm"] = ExerciseurIJVM
