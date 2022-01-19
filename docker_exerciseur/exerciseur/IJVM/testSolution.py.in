@@ -8,11 +8,14 @@ from jinja2 import Environment, FileSystemLoader
 import os, psutil, resource
 import cbor
 import sys
+import signal
+import socketserver
+from http.server import BaseHTTPRequestHandler
 
 def limite_resources():
-        pid = os.getpid()
-        ps = psutil.Process(pid)
-        resource.setrlimit(resource.RLIMIT_CPU, (4, 4))
+    pid = os.getpid()
+    ps = psutil.Process(pid)
+    resource.setrlimit(resource.RLIMIT_CPU, (4, 4))
 
 def run_from_template(nom_fichier):
     env = Environment(
@@ -59,19 +62,59 @@ def main(args, solution_etu, code_solution):
     #args.output.write(json.dumps(datas, indent=4))
 
 
+def sigterm_handler(_signo, _stack_frame):
+    exit(0)
+
+
+def serveur_http(cmdline_args, code_solution):
+
+    class Handler(BaseHTTPRequestHandler):
+        def __init__(self, *args):
+            self.code_solution = code_solution
+            super().__init__(*args)
+
+        def do_POST(self):
+            mesg=b""
+            while True:
+                line = self.rfile.readline().strip()
+                chunk_length = int(line, 16)
+                if chunk_length != 0:
+                    chunk = self.rfile.read(chunk_length)
+                    mesg+=chunk
+                    self.rfile.readline()
+                else:
+                    break
+            self.send_response(200)
+            self.end_headers()
+            dict_code_etu = cbor.loads(mesg)
+            code_etu = dict_code_etu["code_etu"]
+            if isinstance(code_etu, bytes):
+                code_etu = code_etu.decode()
+            réponse = main(cmdline_args, code_solution, code_etu)
+            self.wfile.write(json.dumps(réponse).encode() + b'\n')
+            self.wfile.flush()
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
+    with socketserver.TCPServer(("", 8082), Handler ) as httpd:
+        httpd.serve_forever()
+
 if __name__ == "__main__":
-    dict_code_etu = cbor.loads(sys.stdin.buffer.read())
-    codeEtu = dict_code_etu["code_etu"]
-    code_solution="{{code_solution}}"
-    if isinstance(codeEtu, bytes):
-        codeEtu = codeEtu.decode()
     import argparse
     parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # parser.add_argument("solution_etudiant",help="Fichier contenant la solution",type=argparse.FileType('r', encoding="utf-8"))
     parser.add_argument("-t","--basetemplate",help="enonce exercice (yaml enseignant)",default='enonce_enseignant.yaml')
     parser.add_argument("--output",help="specifie le fichier de sortie",type=argparse.FileType('w'), default="./out.json")
     parser.add_argument("--Debug",help="active le debuggage",action="store_true")
+    parser.add_argument("--serveur-http", help="serveur http autonome", action="store_true")
     #parser.add_argument("--mal",help="fichier mal",type=argparse.FileType('r'),default='utils/templates/original.mal')
     #parser.add_argument("-c","--opcodes",help="opcodes",type=argparse.FileType('r'),default='utils/templates/opcodes.yaml')
     args = parser.parse_args()
-    print(json.dumps(main(args, codeEtu, code_solution)))
+    code_solution="{{code_solution}}"
+    if args.serveur_http:
+        serveur_http(args, code_solution)
+    else:
+        dict_code_etu = cbor.loads(sys.stdin.buffer.read())
+        codeEtu = dict_code_etu["code_etu"]
+        if isinstance(codeEtu, bytes):
+                codeEtu = codeEtu.decode()
+        print(json.dumps(main(args, codeEtu, code_solution)))

@@ -34,13 +34,16 @@ class ExerciseurIJVM(Exerciseur):
         with resources.path(__name__,"exerciseur.jar") as exerciseur_jar:
             shutil.copyfile(exerciseur_jar, self.rép_travail +"/exerciseur.jar")
         with open(self.rép_travail + "/run.py", 'w') as out:
-                contenu_run_py = resources.read_text(__name__, 'testSolution.py.in')
-                contenu_run_py = contenu_run_py.replace("{{code_solution}}", str(self.meta.get("codeSolution", "")))
-                out.write(contenu_run_py)
+            contenu_run_py = resources.read_text(__name__, 'testSolution.py.in')
+            contenu_run_py = contenu_run_py.replace("{{code_solution}}", str(self.meta.get("codeSolution", "")))
+            out.write(contenu_run_py)
 
     def écrit_dockerfile(self):
         with open(self.rép_travail + "/Dockerfile", 'w') as out:
-            contenu_Dockerfile = resources.read_text(__name__, 'Dockerfile.in')
+            if self.avec_openfaas:
+                contenu_Dockerfile = resources.read_text(__name__, 'Dockerfile.in')
+            else:
+                contenu_Dockerfile = resources.read_text(__name__, 'Dockerfile.no_openfaas.in')
             out.write(contenu_Dockerfile)
 
     def métadonnées(self):
