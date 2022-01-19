@@ -48,7 +48,7 @@ def main(args):
     if args.prépare:
         chemin = prépare_exerciseur(args.type, dossier_source, args.verbose, **métadonnées)
         print(chemin)
-    if args.cbor_out_file:
+    elif args.cbor_out_file:
         debug_out = args.verbose and sys.stderr
         dossier_source = os.path.abspath(dossier_source)
         with tempfile.TemporaryDirectory() as rép_travail:
