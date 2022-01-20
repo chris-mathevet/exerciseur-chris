@@ -33,8 +33,8 @@ def run_from_template(nom_fichier):
 
 def main(args, solution_etu, code_solution):
     contenu_template_a_tester = "{% extends \"" + args.basetemplate +"\" %}\n{% block solution %}"
-    #contenu_template_a_tester += "  " + "  ".join(args.solution_etudiant) + "{% endblock %}"
-    contenu_template_a_tester += "  " + "\n  ".join(solution_etu.splitlines()) + "{% endblock %}"
+    lignes_code_etu = ["  " + l.lstrip() for l in solution_etu.splitlines()]
+    contenu_template_a_tester += "\n".join(lignes_code_etu) + "{% endblock %}"
 
     with open("solution_etu_template.yaml", "w", encoding="utf-8") as fichier_out:
         fichier_out.write(contenu_template_a_tester)
