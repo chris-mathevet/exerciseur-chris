@@ -34,8 +34,8 @@ def run_from_template(nom_fichier):
 def main(args, solution_etu, code_solution):
     contenu_template_a_tester = "{% extends \"" + args.basetemplate +"\" %}\n{% block solution %}"
     #contenu_template_a_tester += "  " + "  ".join(args.solution_etudiant) + "{% endblock %}"
-    contenu_template_a_tester += "  " + solution_etu + "{% endblock %}"
-    
+    contenu_template_a_tester += "  " + "\n  ".join(solution_etu.splitlines()) + "{% endblock %}"
+
     with open("solution_etu_template.yaml", "w", encoding="utf-8") as fichier_out:
         fichier_out.write(contenu_template_a_tester)
 
@@ -90,7 +90,7 @@ def serveur_http(cmdline_args, code_solution):
             code_etu = dict_code_etu["code_etu"]
             if isinstance(code_etu, bytes):
                 code_etu = code_etu.decode()
-            réponse = main(cmdline_args, code_solution, code_etu)
+            réponse = main(cmdline_args, code_etu, code_solution)
             self.wfile.write(json.dumps(réponse).encode() + b'\n')
             self.wfile.flush()
 
