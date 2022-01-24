@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 import sys
 
-dépendances=['cbor >= 1.0.0', 'docker >= 4.1.0', 'hypothesis >= 6']
+dépendances=['cbor >= 1.0.0', 'docker >= 4.1.0', 'hypothesis >= 6', 'jinja2']
 
 if sys.version_info.minor < 7:
     dépendances += [ 'importlib-resources >= 1.4.0' ]
