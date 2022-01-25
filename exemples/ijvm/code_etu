@@ -1,0 +1,4 @@
+.main
+BIPUSH 111
+BIPUSH 19
+.end-main
