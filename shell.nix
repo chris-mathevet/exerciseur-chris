@@ -7,4 +7,6 @@ with (import <nixpkgs> {});
   ps.cbor
   ps.nose2
   ps.hypothesis
+  ps.mypy
+  ps.jinja2
 ])).env
