@@ -1,0 +1,3 @@
+[console_scripts]
+docker-exerciseur = docker_exerciseur.main:main
+

@@ -8,6 +8,7 @@ class ExerciseurDockerfile(Exerciseur):
     
     def __init__(self, chemin, en_place=True, debug_out=None, **kwargs):
         super().__init__(chemin, en_place=True, debug_out=debug_out, **kwargs)
+        self.avec_openfaas = kwargs.get("avec_openfaas", True)
     
     # Méthodes de Exerciseur
 

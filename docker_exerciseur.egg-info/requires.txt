@@ -1,0 +1,4 @@
+cbor>=1.0.0
+docker>=4.1.0
+hypothesis>=6
+jinja2

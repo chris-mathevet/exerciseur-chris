@@ -29,6 +29,11 @@ parser.add_argument(
     "--code-etu", help="le code étudiant à soumettre"
 )
 
+parser.add_argument(
+    "--verbose", help="permet d'afficher des informations sur l'éxécution du programme",
+    action="store_true"
+)
+
 epoch = datetime.datetime.fromtimestamp(0)
 
 def sectionize(message):
@@ -56,7 +61,7 @@ def main(args):
             print(sectionize("démarrage"))
     else:
         image =  args.nom[0]
-    éval = éprouve_dans_nouveau_container(image, code_etu, args.verbose)
+    éval = éprouve_dans_nouveau_container(image, code_etu, args.verbose )
     print(json.dumps(éval))
 
 def trouve_image(docker_client, img):
@@ -69,7 +74,7 @@ def trouve_image(docker_client, img):
 def éprouve_dans_nouveau_container(
         exerciseur: Union[str, docker.models.images.Image],
         code_etu: Union[str, bytes],
-        verbose=False,
+        verbose=True,
         docker_client=None,
         docker_network='bridge',
         **kwargs
@@ -89,7 +94,8 @@ def éprouve_dans_nouveau_container(
         total=5,
         backoff_factor=0.1,
         status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=["HEAD", "GET", "OPTIONS"]
+        # method_whitelist=["HEAD", "GET", "OPTIONS"] # Plus supporté 
+        allowed_methods=["HEAD", "GET", "OPTIONS"]
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
     http = requests.Session()
@@ -125,23 +131,26 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("envoi de: {}".format(msg), file=sys.stderr)
     try:
+        print(sectionize("Envoie"),file=sys.stderr)
         url_container = "http://" + adresse_container + ":8082/"
+        print("URL :",  url_container, file=sys.stderr)
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
         d_réponse = json.loads(réponse.text)
         return d_réponse
     except json.JSONDecodeError as e:
-        return { "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
+        return {  "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
                  "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
     except Exception as e:
-        return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
+        return { "url": url_container, "_valide": False, "_messages": ["Plantage du container", repr(e)],
                  "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
     finally:
         if verbose:
             print(sectionize("logs du container"), file=sys.stderr)
             print(container.logs(since=datetime.datetime.min).decode(), file=sys.stderr)
-        container.stop()
+            print(sectionize("Fin logs du container"), file=sys.stderr)
+        # container.stop() 
                 
 
 
