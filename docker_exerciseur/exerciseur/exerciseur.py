@@ -176,9 +176,10 @@ class Exerciseur(ABC):
             pass
         import requests, json
         if self.avec_openfaas:
-            requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }))
-            requests.post('http://gateway:8080/system/scale-function/'+image.id.split(':')[1][:62], data=json.dumps({ "service":image.id.split(':')[1][:62], "replicas":0 }))
-        return (image,log)
+            nom_fonction = image.id.split(":")[1][:62]
+            requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":nom_fonction, "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }),  headers={"Content-Type": "application/json"})
+            requests.post('http://gateway:8080/system/scale-function/'+nom_fonction, data=json.dumps({ "service":nom_fonction, "replicas":0 }),  headers={"Content-Type": "application/json"})
+        return (image,log)  
 
 
     def construire(self) -> str:
@@ -208,4 +209,5 @@ class Exerciseur(ABC):
 
 def liberer_openfaas(id_exo: str):
     import requests, json
-    r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
+    # r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
+    r = requests.delete(f'http://gateway:8080/function/{id_exo}')

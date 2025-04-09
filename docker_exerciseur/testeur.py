@@ -74,7 +74,7 @@ def trouve_image(docker_client, img):
 def éprouve_dans_nouveau_container(
         exerciseur: Union[str, docker.models.images.Image],
         code_etu: Union[str, bytes],
-        verbose=True,
+        verbose=False,
         docker_client=None,
         docker_network='bridge',
         **kwargs
@@ -131,9 +131,7 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("envoi de: {}".format(msg), file=sys.stderr)
     try:
-        print(sectionize("Envoie"),file=sys.stderr)
         url_container = "http://" + adresse_container + ":8082/"
-        print("URL :",  url_container, file=sys.stderr)
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
@@ -150,7 +148,7 @@ def éprouve_dans_nouveau_container(
             print(sectionize("logs du container"), file=sys.stderr)
             print(container.logs(since=datetime.datetime.min).decode(), file=sys.stderr)
             print(sectionize("Fin logs du container"), file=sys.stderr)
-        # container.stop() 
+        container.stop() 
                 
 
 
