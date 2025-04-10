@@ -116,6 +116,7 @@ class Exerciseur(ABC):
         pass
 
     def empaquète(self) -> PaquetExercice:
+        print(sectionize("EMPAQUETAGE"))
         def renomme(tar_info):
             p = tar_info.name
             
