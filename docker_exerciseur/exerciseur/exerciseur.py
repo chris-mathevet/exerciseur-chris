@@ -115,7 +115,9 @@ class Exerciseur(ABC):
     def type_exo(self) -> str:
         pass
 
-    def empaquète(self) -> PaquetExercice:
+    def empaquète(self, logger=None) -> PaquetExercice:
+        if(logger!=None):
+            logger.info("EMPAQUETAGE")
         print(sectionize("EMPAQUETAGE"))
         def renomme(tar_info):
             p = tar_info.name
