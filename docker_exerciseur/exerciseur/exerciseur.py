@@ -27,7 +27,17 @@ class PaquetExercice:
         self.type_exo = type_exo
 
     def extrait(self, dest: str) -> 'Exerciseur':
+        # print(sectionize("EXTRACTION"))
         fichier_tar = tarfile.open(fileobj=io.BytesIO(self.contenu), mode='r:xz')
+        # print("Membres : ", fichier_tar.getmembers())
+        # print("\nContenu de l'archive :")
+        # for member in fichier_tar.getmembers():
+        #     print(f"Nom : {member.name}")
+        #     print(f"Type : {'Répertoire' if member.isdir() else 'Fichier'}")
+        #     print(f"Taille : {member.size} octets")
+        #     print(f"Permissions : {oct(member.mode)}")
+        #     print(f"Date de modification : {member.mtime}")
+        #     print('-' * 50)
         fichier_tar.extractall(path=dest)
         rép_source = os.path.join(dest, 'src')
         return Exerciseur.avec_type(rép_source, en_place=True, type_exo = self.type_exo, **self.métadonnées)
@@ -108,13 +118,16 @@ class Exerciseur(ABC):
     def empaquète(self) -> PaquetExercice:
         def renomme(tar_info):
             p = tar_info.name
-            if os.path.isabs(self.sources):
-                p = os.path.join('/', p)
-            p = os.path.relpath(p, start=self.sources)
-            if(p == "."): # Permet d'éviter le chemin "src/." qui sera détecter comme un fichier par tar.extract
-                p = "src/"
+            
+            # Vérification, est ce que self.sources est un répertoire
+            if os.path.isdir(self.sources):
+                if os.path.isabs(self.sources):
+                    p = os.path.join('/', p)
+                p = os.path.relpath(p, start=self.sources)
             else:
-                p = os.path.join('src', p)
+                # Si ce n'est pas un dossier, on garde juste le nom du fichier, pour éviter d'obtenir src/.
+                p = os.path.basename(p)
+            p = os.path.join('src', p)
             tar_info.name = p
             return tar_info
         contenu_tar = io.BytesIO()
@@ -209,6 +222,23 @@ class Exerciseur(ABC):
             self.debug("-----------------------")
             for ligne in log:
                 self.debug(ligne)
+        # paquet = self.empaquète().vers_cbor()
+        # files = {'moduleEns': self.empaquète().vers_cbor()}
+
+        print(sectionize("DATA PERSO"))
+        print(self.empaquète().vers_cbor())
+        print(sectionize("DATA SEND"))
+        print( b'\xa3gcontenuY\x01d\xfd7zXZ\x00\x00\x04\xe6\xd6\xb4F\x02\x00!\x01\x16\x00\x00\x00t/\xe5\xa3\xe0\'\xff\x01"]\x009\x9c\x88\x86\x12n\xa5\x86\xe4<\xa2\x9b<\x1e\x93\xaa\xa1\xdc\xd2\x17 {\xce]\t}\xfc:\x91G*\xcf\x9a\x84\x19\xd3\xe4\'h\xaa\x15\x15\x8e\x81\xf8\xbd\xdfF\x14\xaf\xfb\xb2\x1a\xfd\x00c[\x90\x06\xab\xa7 \xd9\x84\xacj\xbf\x80\xd8\xc3\xdc\xd7\x85\xadQ2\xf6\x87u\xdd\x923;8\x9b\x0cCMpt\xf7\xd6\xb5\x86O\x12y+C\x89LP\xcf\\\x90[\xfa@\xc0\xbe\xa7u\xfbH\xdb\x95\xbb\x07hL\xe8\xf6\xaf\xb3S1\xf7\x83w\x82\xc8\xd4\xe6%lD\x0bE\xca\x00{\xbd`b\xec\xd2\xe6\x9d8\x90\x8b\x9b>\xaa\x89y\x05\xfb5\x8e\x8e\xf3MqI\x83\x81v1{w\xa7l\x9c5\x92o\xf3#Ox\x89\x13\x80W\xc5\xfc32\xbd03q\x15e\x91\xaaY\xfb\x9d\xb7\\\x8e\xc5>\xfe\x87\x1f\x9ad\xd5\x05\x16\xe3a\xafd\xe5K E\xb4d\x19\x04\x8c\x84,\xf9sp\x86\xb5\'\x9d\xd8\x92\x15\x82\x9c`.\xb1\xced\x0b\xd3\x8e\x1e\x88]s\xcc^4\xe3\xedw\x86d\xe0\x85\xd0\xa4\x7f\xc9\x871\xf9W\xf9zL\xed~\xd5\xeb\xa5\x82:=}\x83\xa3\x14\xa7L\x0ev`\x00\x00\x00E\x1a\xbeXM\xbd\xf3\xa9\x00\x01\xbe\x02\x80P\x00\x003m\xb0\x18\xb1\xc4g\xfb\x02\x00\x00\x00\x00\x04YZmm\xc3\xa9tadonn\xc3\xa9es\xa2kfichier_ens\xf6oauto_hypothesis\xf4htype_exofJacadi')
+
+        exo = PaquetExercice.depuis_cbor(bytes( b'\xa3gcontenuY\x01d\xfd7zXZ\x00\x00\x04\xe6\xd6\xb4F\x02\x00!\x01\x16\x00\x00\x00t/\xe5\xa3\xe0\'\xff\x01"]\x009\x9c\x88\x86\x12n\xa5\x86\xe4<\xa2\x9b<\x1e\x93\xaa\xa1\xdc\xd2\x17 {\xce]\t}\xfc:\x91G*\xcf\x9a\x84\x19\xd3\xe4\'h\xaa\x15\x15\x8e\x81\xf8\xbd\xdfF\x14\xaf\xfb\xb2\x1a\xfd\x00c[\x90\x06\xab\xa7 \xd9\x84\xacj\xbf\x80\xd8\xc3\xdc\xd7\x85\xadQ2\xf6\x87u\xdd\x923;8\x9b\x0cCMpt\xf7\xd6\xb5\x86O\x12y+C\x89LP\xcf\\\x90[\xfa@\xc0\xbe\xa7u\xfbH\xdb\x95\xbb\x07hL\xe8\xf6\xaf\xb3S1\xf7\x83w\x82\xc8\xd4\xe6%lD\x0bE\xca\x00{\xbd`b\xec\xd2\xe6\x9d8\x90\x8b\x9b>\xaa\x89y\x05\xfb5\x8e\x8e\xf3MqI\x83\x81v1{w\xa7l\x9c5\x92o\xf3#Ox\x89\x13\x80W\xc5\xfc32\xbd03q\x15e\x91\xaaY\xfb\x9d\xb7\\\x8e\xc5>\xfe\x87\x1f\x9ad\xd5\x05\x16\xe3a\xafd\xe5K E\xb4d\x19\x04\x8c\x84,\xf9sp\x86\xb5\'\x9d\xd8\x92\x15\x82\x9c`.\xb1\xced\x0b\xd3\x8e\x1e\x88]s\xcc^4\xe3\xedw\x86d\xe0\x85\xd0\xa4\x7f\xc9\x871\xf9W\xf9zL\xed~\xd5\xeb\xa5\x82:=}\x83\xa3\x14\xa7L\x0ev`\x00\x00\x00E\x1a\xbeXM\xbd\xf3\xa9\x00\x01\xbe\x02\x80P\x00\x003m\xb0\x18\xb1\xc4g\xfb\x02\x00\x00\x00\x00\x04YZmm\xc3\xa9tadonn\xc3\xa9es\xa2kfichier_ens\xf6oauto_hypothesis\xf4htype_exofJacadi'))
+        # print(sectionize("DATA"))
+        # data = {"auteur" : "nobody", "titre":"default", "metaInfos": "{}", 'type': "Jacadi"}
+        # print(data)
+        # print(sectionize("FILES"))
+        # print(files)
+        # print(sectionize("FIN FILES"))
+        with exo as ex:   
+            print(ex.type_exo())
         return i.id
 
     @classmethod
