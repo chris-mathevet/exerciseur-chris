@@ -1,0 +1,72 @@
+import code_etu
+from outils_exercices.jacadi import ErreurEntréeVisible, ErreurEntréeInvisible, ExceptionEntréeVisible, ExceptionEntréeInvisible
+from outils_exercices.jacadi import FonctionÉtuManquante
+import outils_exercices.jacadi
+from outils_exercices.voile import VoilePudique
+from outils_exercices import code2aes
+from importlib import util, import_module
+import sys
+import string
+
+{{import_hypothesis}}
+{{import_module_ens}}
+
+
+entrees_sorties_visibles = {{es_visibles}}
+entrees_sorties_invisibles = {{es_invisibles}}
+
+try:
+    fonction_etu = code_etu.{{solution}}
+except Exception as e:
+    raise FonctionÉtuManquante("{{solution}}")
+
+
+def gen_test_entree_visible(entrée, s_ens):
+  def fonction_test():
+    def décore_exc(e_ty, e_val, e_tb):
+        return ExceptionEntréeVisible("{{solution}}", entrée, s_ens, e_ty, e_val, e_tb)
+    with VoilePudique(décore_exc):
+        sortie_etu = fonction_etu(*entrée)
+    if sortie_etu != s_ens:
+        raise ErreurEntréeVisible("{{solution}}", entrée, sortie_etu, s_ens)
+  return fonction_test
+
+for (i,(entrée, s_ens)) in enumerate(entrees_sorties_visibles):
+    globals()["test_entree_visible_%d"%i] = gen_test_entree_visible(entrée, s_ens)
+
+def test_entrees_invisibles():
+    def décore_exc(e_ty, e_val, e_tb):
+        return ExceptionEntréeInvisible(e_ty, e_val, e_tb)
+    for e, s_ens in entrees_sorties_invisibles:
+        with VoilePudique(décore_exc):
+            sortie_etu = fonction_etu(*e)
+        if sortie_etu != s_ens:
+            raise ErreurEntréeInvisible()
+
+{{given}}
+def test_auto_hypothesis(entrée):
+    s_ens = outils_exercices.jacadi.fonction_ens(*entrée)
+
+    def décore_exc(e_ty, e_val, e_tb):
+        return ExceptionEntréeVisible("{{solution}}", entrée, s_ens, e_ty, e_val, e_tb)
+    with VoilePudique(décore_exc):
+        sortie_etu = fonction_etu(*entrée)
+    if sortie_etu != s_ens:
+        raise ErreurEntréeVisible("{{solution}}", entrée, sortie_etu, s_ens)
+{{end_given}}
+
+def genere_aes(source_code_etu):
+    nom_module = 'exemple'
+    spec = util.spec_from_loader(nom_module, loader=None)
+    module_exemple = util.module_from_spec(spec)
+    exec(source_code_etu, module_exemple.__dict__)
+    sys.modules['module_exemple'] = module_exemple
+    aes = ""
+    ast = code2aes.code2astPython(source_code_etu)
+    traceur = code2aes.Tracer()
+    traces = []
+    for entrée, sortie_ens in ( entrees_sorties_visibles + entrees_sorties_invisibles):
+        trace,resultat,erreur = traceur.get_trace_and_result(module_exemple.{{solution}}, *entrée)
+        aes += code2aes.create_aes(ast, trace,erreur)
+        traces.append(trace)
+    return aes, code2aes.dump_ast(ast), traces

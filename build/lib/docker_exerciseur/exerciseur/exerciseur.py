@@ -106,21 +106,27 @@ class Exerciseur(ABC):
         pass
 
     def empaquète(self) -> PaquetExercice:
+        print(sectionize("EMPACTAGE"),file=sys.stderr)
         def renomme(tar_info):
             p = tar_info.name
+            print("Début : ", p, file=sys.stderr)
             if os.path.isabs(self.sources):
                 p = os.path.join('/', p)
             p = os.path.relpath(p, start=self.sources)
-            if(p == "."): # Permet d'éviter le chemin "src/." qui sera détecter comme un fichier par tar.extract
+            print("Réel Path : ", p, file=sys.stderr)
+            if(p == "."):
+                print("ATTENTION POINT")
                 p = "src/"
             else:
                 p = os.path.join('src', p)
             tar_info.name = p
+            print("Fin : ", p, file=sys.stderr)
             return tar_info
         contenu_tar = io.BytesIO()
         t = tarfile.open(fileobj=contenu_tar, mode='w:xz')
         t.add(self.sources, recursive=True, filter=renomme)
         t.close()
+        print(sectionize("FIN EMPACTAGE"),file=sys.stderr)
         return PaquetExercice(contenu_tar.getvalue(), self.type_exo(), self.métadonnées_src())
 
     @classmethod
@@ -209,6 +215,10 @@ class Exerciseur(ABC):
             self.debug("-----------------------")
             for ligne in log:
                 self.debug(ligne)
+        paquet = self.empaquète()
+        print(sectionize("DEPAQUETAGE"), file=sys.stderr)
+        exo2 = paquet.__enter__()
+        exo2.empaquète()
         return i.id
 
     @classmethod
