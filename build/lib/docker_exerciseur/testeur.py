@@ -94,8 +94,8 @@ def éprouve_dans_nouveau_container(
         total=5,
         backoff_factor=0.1,
         status_forcelist=[429, 500, 502, 503, 504],
-        # method_whitelist=["HEAD", "GET", "OPTIONS"] # Plus supporté 
-        allowed_methods=["HEAD", "GET", "OPTIONS"]
+        method_whitelist=["HEAD", "GET", "OPTIONS"] # Plus supporté 
+        # allowed_methods=["HEAD", "GET", "OPTIONS"]
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
     http = requests.Session()
@@ -131,10 +131,11 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("envoi de: {}".format(msg), file=sys.stderr)
     try:
-        url_container = "http://" + adresse_container + ":8082/"
+        url_container = "http://" + adresse_container + ":8080/"
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
+        print(réponse.text, file=sys.stderr)
         d_réponse = json.loads(réponse.text)
         return d_réponse
     except json.JSONDecodeError as e:

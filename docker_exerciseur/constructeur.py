@@ -45,7 +45,7 @@ def main(args):
     if args.classe:
         métadonnées['nom_classe'] = args.classe
     if args.module:
-        if args.type == 'Jacadi':
+        if args.type == 'Jacadi' or args.type == "python":
             métadonnées['fichier_ens'] = args.module
         else:
             métadonnées['nom_module'] = args.module

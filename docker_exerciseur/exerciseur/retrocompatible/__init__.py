@@ -77,8 +77,11 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
 
     def écrit_dockerfile(self):
         from shutil import copyfile
-        # TODO : remplace rep_travail par sources pour le premier ci dessous ??
-        copyfile(self.rép_travail +"/"+ self.meta.get("fichier_ens"), self.rép_travail +"/code_ens")
+        if os.path.isdir(self.sources): # Si source est un dossier
+            copyfile(self.sources +"/"+ self.meta.get("fichier_ens"), self.rép_travail +"/code_ens")
+        else : # Si source est un fichier, il correspond au fichier de réponses
+            copyfile(self.sources, self.rép_travail +"/code_ens")
+            
         with open(self.rép_travail + "/run.py", 'w') as out:
                 #if self.debug_out:
                 #    out = StreamTee(self.debug_out, out)
@@ -97,14 +100,14 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
     def test_fonction(self, fonction, entrees):
         res = []
         for i in entrees:
-            res.append((i, fonction(*i)))
+            res.append((i, fonction(*[i])))
         return res
 
     def métadonnées(self):
         return self.meta
 
     def prépare_métadonnées(self):
-        self.fichier_ens_abs = os.path.abspath(self.rép_travail + "/" + self.meta.get("fichier_ens"))
+        self.fichier_ens_abs = os.path.abspath(self.rép_travail + "/code_ens")
         nom_module_ens = Path(self.fichier_ens_abs).stem
         with open(self.fichier_ens_abs) as fichier_ens:
             contenu_module_ens = (fichier_ens.read())
