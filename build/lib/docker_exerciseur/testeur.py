@@ -131,11 +131,10 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("envoi de: {}".format(msg), file=sys.stderr)
     try:
-        url_container = "http://" + adresse_container + ":8080/"
+        url_container = "http://" + adresse_container + ":8082/"
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
-        print(réponse.text, file=sys.stderr)
         d_réponse = json.loads(réponse.text)
         return d_réponse
     except json.JSONDecodeError as e:

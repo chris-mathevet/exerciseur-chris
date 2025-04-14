@@ -81,6 +81,7 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
             copyfile(self.sources +"/"+ self.meta.get("fichier_ens"), self.rép_travail +"/code_ens")
         else : # Si source est un fichier, il correspond au fichier de réponses
             copyfile(self.sources, self.rép_travail +"/code_ens")
+            
         with open(self.rép_travail + "/run.py", 'w') as out:
                 #if self.debug_out:
                 #    out = StreamTee(self.debug_out, out)
@@ -88,8 +89,6 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
                 contenu_run_py = contenu_run_py.replace("{{typeExo}}", self.typeExo)
                 for elem in self.meta:
                     contenu_run_py = contenu_run_py.replace("{{%s}}"%elem, str(self.meta.get(elem)))
-
-                print(contenu_run_py)
 
                 out.write(contenu_run_py)
         with open(self.rép_travail + "/Dockerfile", 'w') as out:
