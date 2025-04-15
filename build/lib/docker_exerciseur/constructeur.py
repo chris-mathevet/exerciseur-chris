@@ -54,6 +54,10 @@ def main(args):
             métadonnées['fichier_ens'] = args.module
         elif args.type == 'java' :
             métadonnées['nom_classe_test'] = args.module
+            if not args.classe_etu:
+                nom_classe_etu = args.module.split("Test")
+                if len(nom_classe_etu) > 1:
+                    métadonnées['nom_classe_etu'] = nom_classe_etu[1]
         else:
             métadonnées['nom_module'] = args.module
     if args.prépare:
@@ -87,7 +91,7 @@ def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None, avec_o
     - pour PackagePython, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
     - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
     - pour Jacadi et python (rétrocompatibilité), `module="mod_ens"` indique quel module contient le code enseignant. S'il n'est pas renseigné, il prendra le fichier python se trouvant dans le répertoire donné en paramètre (s'il n'y en a qu'un).
-    - pour java (rétrocompatibilité), `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir et `nom_module="tralala"` indique quel module contient les tests
+    - pour java (rétrocompatibilité), `nom_module="tralala"` indique quel module contient les tests et `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir. Si `classe_etu` n'est pas fourni, le nom de la classe attendu sera le nom de la classe du module de test sans le mot Test.
 
     @return l'idententifiant de l'image construite pour cet exerciseur.
     """
@@ -108,9 +112,10 @@ def prépare_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     @param dossier_source: le chemin des sources de l'exerciseur
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
-    - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+    - pour PackagePython, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
     - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
-    - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+    - pour Jacadi et python (rétrocompatibilité), `module="mod_ens"` indique quel module contient le code enseignant. S'il n'est pas renseigné, il prendra le fichier python se trouvant dans le répertoire donné en paramètre (s'il n'y en a qu'un).
+    - pour java (rétrocompatibilité), `nom_module="tralala"` indique quel module contient les tests et `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir. Si `classe_etu` n'est pas fourni, le nom de la classe attendu sera le nom de la classe du module de test sans le mot Test.
 
     @return l'idententifiant de l'image construite pour cet exerciseur.
     """

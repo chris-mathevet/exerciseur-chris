@@ -139,7 +139,7 @@ class Exerciseur(ABC):
         - pour PackagePython, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
         - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
         - pour Jacadi et python (rétrocompatibilité), `module="mod_ens"` indique quel module contient le code enseignant. S'il n'est pas renseigné, il prendra le fichier python se trouvant dans le répertoire donné en paramètre (s'il n'y en a qu'un).
-        - pour java (rétrocompatibilité), `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir et `nom_module="tralala"` indique quel module contient les tests
+        - pour java (rétrocompatibilité), `nom_module="tralala"` indique quel module contient les tests et `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir. Si `classe_etu` n'est pas fourni, le nom de la classe attendu sera le nom de la classe du module de test sans le mot Test.
 
         @return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
         """
