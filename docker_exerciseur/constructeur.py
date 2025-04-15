@@ -108,7 +108,7 @@ def prépare_exerciseur(type_ex, dossier_source, verbose, **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
-    @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
+    @param type_ex: le type d'exerciseur, parmi "DémonPython", "PackagePython", "TestsPython", "Dockerfile" ou "Jacadi", et pour la rétrocompatibilté, les types "python" (même fonctionnement que Jacadi) et "java" 
     @param dossier_source: le chemin des sources de l'exerciseur
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
