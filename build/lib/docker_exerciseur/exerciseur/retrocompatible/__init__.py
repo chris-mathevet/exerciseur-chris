@@ -40,7 +40,6 @@ class ExerciseurRetrocompatibleJava(Exerciseur):
                 contenu_run_py = contenu_run_py.replace("{{typeExo}}", self.typeExo)
                 # contenu_run_py = contenu_run_py.replace("{{classeTest}}", contenu_classe_test)
                 for elem in self.meta:
-                    print(elem)
                     contenu_run_py = contenu_run_py.replace("{{%s}}"%elem, str(self.meta.get(elem)))
 
                 out.write(contenu_run_py)
