@@ -94,8 +94,7 @@ def éprouve_dans_nouveau_container(
         total=5,
         backoff_factor=0.1,
         status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=["HEAD", "GET", "OPTIONS"] # Plus supporté 
-        # allowed_methods=["HEAD", "GET", "OPTIONS"]
+        method_whitelist=["HEAD", "GET", "OPTIONS"]
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
     http = requests.Session()
@@ -141,7 +140,7 @@ def éprouve_dans_nouveau_container(
         return {  "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
                  "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
     except Exception as e:
-        return { "url": url_container, "_valide": False, "_messages": ["Plantage du container", repr(e)],
+        return {  "_valide": False, "_messages": ["Plantage du container", repr(e)],
                  "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
     finally:
         if verbose:
