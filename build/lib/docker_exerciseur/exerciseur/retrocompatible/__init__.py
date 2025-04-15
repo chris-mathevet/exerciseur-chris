@@ -105,7 +105,7 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
     def test_fonction(self, fonction, entrees):
         res = []
         for i in entrees:
-            res.append((i, fonction(*[i])))
+            res.append((i, fonction(*i)))
         return res
 
     def métadonnées(self):
@@ -128,6 +128,10 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
             "entrees_visibles", [])
         self.meta["entrees_invisibles"] = mod_ens.__dict__.get(
             "entrees_invisibles", [])
+        self.arguments = list(inspect.signature(self.solution).parameters)
+        if len(self.arguments) == 1:
+            self.meta["entrees_visibles"] = [(e,) for e in self.meta["entrees_visibles"]]
+            self.meta["entrees_invisibles"] = [(e,) for e in self.meta["entrees_invisibles"]]
         self.meta["sorties_visibles"] = self.test_fonction(self.solution, self.meta["entrees_visibles"])
         self.meta["sorties_invisibles"] = self.test_fonction(self.solution, self.meta["entrees_invisibles"])
         self.meta["arguments"] = inspect.getfullargspec(self.solution).args
