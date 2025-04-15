@@ -27,9 +27,14 @@ class ExerciseurJacadi(ExerciseurTestsPython):
             raise ValueError("impossible de préparer les sources sans dossier de travail")
         rép_src = self.rép_travail
         if not self.fichier_ens:
-            fichiers = [f for f in os.listdir(rép_src) if f.endswith('.py')]
-            if len(fichiers) == 1:
-                self.fichier_ens = fichiers[0]
+            if os.path.isdir(rép_src) : 
+                fichiers = [f for f in os.listdir(rép_src) if f.endswith('.py')]
+                if len(fichiers) == 1:
+                    self.meta["fichier_ens"] = fichiers[0]
+            else if rép_src.endswith('.py'):
+                self.meta["fichier_ens"] = os.path.basename(rép_src)
+            else:
+                raise ValueError("impossible de préparer les sources sans le module de question")
         self.fichier_ens_abs = os.path.abspath(rép_src + "/" + self.fichier_ens)
         if self.fichiers_aux is None:
             self.fichiers_aux = []

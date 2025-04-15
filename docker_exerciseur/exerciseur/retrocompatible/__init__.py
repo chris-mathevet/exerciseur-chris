@@ -67,9 +67,14 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
         self.meta = kwargs
         self.avec_openfaas = kwargs.get("avec_openfaas", True)
         if self.meta.get("fichier_ens") is None:
-            fichiers = [f for f in os.listdir(chemin) if f.endswith('.py')]
-            if len(fichiers) == 1:
-                self.meta["fichier_ens"] = fichiers[0]
+            if os.path.isdir(chemin) : 
+                fichiers = [f for f in os.listdir(chemin) if f.endswith('.py')]
+                if len(fichiers) == 1:
+                    self.meta["fichier_ens"] = fichiers[0]
+            else if chemin.endswith('.py'):
+                self.meta["fichier_ens"] = os.path.basename(chemin)
+            else:
+                raise ValueError("impossible de préparer les sources sans le module de question")
 
     def utiliser_rép_travail(self, chemin):
         self.rép_travail = chemin
