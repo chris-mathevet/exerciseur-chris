@@ -92,7 +92,9 @@ La commande `docker-exerciseur construit` permet de construire un exerciseur. So
 | `DémonPy` | Un script python qui écoute des tentatives sur le port 5678 | ToujoursContent |
 | `PackagePy` | Un package python contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
 | `TestsPy` | Un module python qui importe une tentative et lance des tests | testsPython |
-| `Jacadi` | Un module python avec fonction et des entrées de test | oldSchoolCool |
+| `Jacadi` | Un module python avec fonction et des entrées de test | jacadiMajoritePaire |
+| `python` | RETROCOMPATIBILITE, même format que Jacadi  | jacadiMajoritePaire |
+| `java` | RETROCOMPATIBILITE, un module java contenant une classe de test héritant de TestCase (JUnit) | java |
 
 
 Les exerciseurs `Dockerfile`
@@ -118,10 +120,16 @@ Les exerciseurs `TestsPy`
 
 Un exerciseur `TestsPy` est composé d'un package python avec un module (dont le nom est donné par l'argument `--module nom_module`) contenant des fonctions `test_*`. Chacune de ces fonctions est un test, qui s'exécute sans lever d'exception si la tentative est correcte. Le module accède à la tentative qui a été soumise en important le module `code_etu`.
 
-Les exerciseurs `Jacadi`
+Les exerciseurs `Jacadi` et `python` (Rétrocompatibilité)
 -----------------------
 
-Un exerciseur `Jacadi` est composé d'un package python. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une fonction marquée par le décorateur `@solution`, ainsi que deux listes `entrees_visibles` et `entrees_invisibles`.
+Un exerciseur `Jacadi` est composé d'un package python. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une fonction marquée par le décorateur `@solution`, ainsi que deux listes `entrees_visibles` et `entrees_invisibles`. Si le nom du module n'est pas donné, si le répertoire source de l'exerciseur contient un unique fichier python, il sera utilisé pour le module.
+
+Les exerciseurs `java` (Rétrocompatibilité)
+-----------------------
+
+Un exerciseur `java` est composé d'un package java. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une classe de test héritant de la classe TestCase du framework JUnit avec une ou plusieurs méthodes de tests se nommant `test*`.  
+Le nom de la classe attendu pour la réponse de l'étudiant doit être précisé par l'argument `--classe-etu classe_etu`. S'il n'est pas précisé, le nom de la classe attendu sera le nom de la classe du module de test sans le mot `Test` (Ex : module de test : `TestPersonnage` -> classe etu : `Personnage`)
 
 Tester un exerciseur
 ====================
