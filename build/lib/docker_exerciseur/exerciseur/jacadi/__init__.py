@@ -31,7 +31,7 @@ class ExerciseurJacadi(ExerciseurTestsPython):
                 fichiers = [f for f in os.listdir(rép_src) if f.endswith('.py')]
                 if len(fichiers) == 1:
                     self.meta["fichier_ens"] = fichiers[0]
-            else if rép_src.endswith('.py'):
+            elif rép_src.endswith('.py'):
                 self.meta["fichier_ens"] = os.path.basename(rép_src)
             else:
                 raise ValueError("impossible de préparer les sources sans le module de question")
