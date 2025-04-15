@@ -1,6 +1,5 @@
 FROM ghcr.io/openfaas/classic-watchdog:0.1.4 as watchdog
 FROM python:3.8-alpine
-# FROM openjdk:alpine
 
 RUN apk add --no-cache \
     openjdk11 \

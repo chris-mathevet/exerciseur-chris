@@ -32,7 +32,8 @@ docker_exerciseur/exerciseur/IJVM/testSolution.py.in
 docker_exerciseur/exerciseur/jacadi/__init__.py
 docker_exerciseur/exerciseur/jacadi/auto_hypothesis.py
 docker_exerciseur/exerciseur/jacadi/test_jacadi.py.in
-docker_exerciseur/exerciseur/retrocompatible/Dockerfile.in
+docker_exerciseur/exerciseur/retrocompatible/Dockerfile.java.in
+docker_exerciseur/exerciseur/retrocompatible/Dockerfile.python.in
 docker_exerciseur/exerciseur/retrocompatible/__init__.py
 docker_exerciseur/exerciseur/retrocompatible/run_java.py.in
 docker_exerciseur/exerciseur/retrocompatible/run_python.py.in

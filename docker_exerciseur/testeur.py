@@ -131,7 +131,7 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("envoi de: {}".format(msg), file=sys.stderr)
     try:
-        url_container = "http://" + adresse_container + ":8082/"
+        url_container = "http://" + adresse_container + ":8080/"
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
@@ -148,7 +148,7 @@ def éprouve_dans_nouveau_container(
             print(sectionize("logs du container"), file=sys.stderr)
             print(container.logs(since=datetime.datetime.min).decode(), file=sys.stderr)
             print(sectionize("Fin logs du container"), file=sys.stderr)
-        container.stop() 
+        container.stop()
                 
 
 

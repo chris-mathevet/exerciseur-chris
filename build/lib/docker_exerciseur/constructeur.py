@@ -21,7 +21,10 @@ parser.add_argument(
     "--classe", help="la classe exerciseur, pour les exerciseurs type PackagePython"
 )
 parser.add_argument(
-    "--module", help="le module de tests de l'exerciseur"
+    "--classe-etu", help="le nom de la classe attendu pour les exercices rétrocompatible java"
+)
+parser.add_argument(
+    "--module", help="le module de tests de l'exerciseur, pour TestsPython et rétrocompatibilité python et java"
 )
 parser.add_argument(
     "--sans-openfaas", help="ne pas utiliser openfaas", action="store_true"
@@ -44,9 +47,13 @@ def main(args):
     métadonnées={}
     if args.classe:
         métadonnées['nom_classe'] = args.classe
+    if args.classe_etu:
+        métadonnées['nom_classe_etu'] = args.classe_etu
     if args.module:
         if args.type == 'Jacadi' or args.type == "python":
             métadonnées['fichier_ens'] = args.module
+        elif args.type == 'java' :
+            métadonnées['nom_classe_test'] = args.module
         else:
             métadonnées['nom_module'] = args.module
     if args.prépare:
