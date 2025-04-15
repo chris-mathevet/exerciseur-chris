@@ -67,6 +67,10 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
         self.typeExo="python"
         self.meta = kwargs
         self.avec_openfaas = kwargs.get("avec_openfaas", True)
+        if self.meta.get("fichier_ens") is None:
+            fichiers = [f for f in os.listdir(chemin) if f.endswith('.py')]
+            if len(fichiers) == 1:
+                self.meta["fichier_ens"] = fichiers[0]
 
     def utiliser_rép_travail(self, chemin):
         self.rép_travail = chemin
