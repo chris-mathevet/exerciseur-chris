@@ -68,7 +68,6 @@ class ExerciseurRetrocompatiblePython(Exerciseur):
         self.avec_openfaas = kwargs.get("avec_openfaas", True)
         if self.meta.get("fichier_ens") is None:
             if os.path.isdir(chemin) : 
-                print(os.path.isdir(chemin))
                 fichiers = [f for f in os.listdir(chemin) if f.endswith('.py')]
                 if len(fichiers) == 1:
                     self.meta["fichier_ens"] = fichiers[0]
