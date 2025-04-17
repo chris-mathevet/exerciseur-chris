@@ -201,7 +201,7 @@ def éprouve_dans_openfaas(
     dict_code_etu.update(kwargs)
 
     for tentative in range(max_retries):
-        print("\nTENTATIVE DE REPONSE : ",tentative, "\n")
+        print("\nTENTATIVE DE VERIFICATION : ",tentative+1, "\n")
         try:
             réponse = requests.post(
                 'http://gateway:8080/function/%s' % id_exo[:62],

@@ -3,28 +3,13 @@ import sys
 import json
 import cbor
 
-def lire_message_depuis_stdin():
-    mesg=b""
-    while True:
-        line = sys.stdin.buffer.readline().strip()
-        chunk_length = int(line, 16)
-        if chunk_length != 0:
-                chunk = sys.stdin.buffer.read(chunk_length)
-                mesg+=chunk
-                sys.stdin.buffer.readline()
-        else:
-            break
-
-    return mesg
-
 with open("code_ens","r") as f:
   codeEns = f.read()
-
 
 if __name__ == "__main__":
     def erreur(*args):
          raise Exception("Langage inexistant : " + self.type)
-    # dict_code_etu = cbor.loads(lire_message_depuis_stdin())
+         
     dict_code_etu = cbor.loads(sys.stdin.buffer.read())
     codeEtu = dict_code_etu["code_etu"]
     if isinstance(codeEtu, bytes):
