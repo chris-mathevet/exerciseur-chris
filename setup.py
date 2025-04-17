@@ -16,7 +16,7 @@ entrées = {
 
 setup(
     name="docker-exerciseur",
-    version="0.3",
+    version="0.4",
     packages=find_packages(),
     author='Florent Becker <florent.becker@univ-orleans.fr>',
     install_requires=dépendances,
