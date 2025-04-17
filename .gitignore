@@ -1,6 +1,7 @@
 .coverage
 .envrc
 build
+docker_exerciseur.egg-info
 __pycache__
 **/*~
 htmlcov
