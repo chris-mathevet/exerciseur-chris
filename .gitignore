@@ -1,5 +1,6 @@
 .coverage
 .envrc
+build
 __pycache__
 **/*~
 htmlcov
