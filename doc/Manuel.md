@@ -89,10 +89,12 @@ La commande `docker-exerciseur construit` permet de construire un exerciseur. So
 | Type | Contenu du répertoire source | Exemple |
 | -----| ---------------------------- | ------- |
 | `Dockerfile` | Un dossier contenant un Dockerfile | dockerfile_true |
-| `DémonPy` | Un script python qui écoute des tentatives sur le port 5678 | ToujoursContent |
-| `PackagePy` | Un package python contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
-| `TestsPy` | Un module python qui importe une tentative et lance des tests | testsPython |
-| `Jacadi` | Un module python avec fonction et des entrées de test | oldSchoolCool |
+| `DémonPython` | Un script python qui écoute des tentatives sur le port 5678 | ToujoursContent |
+| `PackagePython` | Un package python contenant une classe avec une méthode `évalue` | ClasseToujoursContent |
+| `TestsPython` | Un module python qui importe une tentative et lance des tests | testsPython |
+| `Jacadi` | Un module python avec fonction et des entrées de test | jacadiMajoritePaire |
+| `python` | RETROCOMPATIBILITE, même format que Jacadi  | jacadiMajoritePaire |
+| `java` | RETROCOMPATIBILITE, un module java contenant une classe de test héritant de TestCase (JUnit) | java |
 
 
 Les exerciseurs `Dockerfile`
@@ -100,28 +102,34 @@ Les exerciseurs `Dockerfile`
 
 Un exerciseur `Dockerfile` se construit à partir d'un dossier contenant un Dockerfile. Ce Dockerfile doit produire un exerciseur au sens de la section ci-dessus. Essentiellement, la commande `exerciseur-docker --type Dockerfile dossier` est équivalente à `docker build dossier`.
 
-Les exerciseurs `DémonPy`
+Les exerciseurs `DémonPython`
 -------------------------
 
-Un exerciseur `DémonPy` est composé d'un dossier contenant un démon écrit en python. L'exerciseur construit par `DémonPy` exécute le démon `daemon.py` fourni dans le dossier source (sans arguments). Ce démon doit écouter sur le port 5678 et évaluer les tentatives qu'il y reçoit.
+Un exerciseur `DémonPython` est composé d'un dossier contenant un démon écrit en python. L'exerciseur construit par `DémonPython` exécute le démon `daemon.py` fourni dans le dossier source (sans arguments). Ce démon doit écouter sur le port 5678 et évaluer les tentatives qu'il y reçoit.
 
 Si un fichier `requirements.txt` existe dans le dossier source, les package python correspondants seront installés. Si un `Dockerfile` existe, il sera utilisé comme base avant d'exécuter l'installation du démon. Ce Dockerfile doit donc fournir `python3` et `pip`.
 
-Les exerciseurs `PackagePy`
+Les exerciseurs `PackagePython`
 -------------------------
 
-Un exerciseur `PackagePy` est composé d'un package python contenant un module (nommé par défaut `exerciseur`) contenant une classe `SessionÉtudiante` (donnée par l'argument `--classe NomClasse`). Cette classe doit contenir une méthode `évalue` qui prend en argument une chaine correspondant au contenu de la tentative (décodée depuis le message `cbor` sur la socket) et renvoie une évaluation en `json`.
+Un exerciseur `PackagePython` est composé d'un package python contenant un module (nommé par défaut `exerciseur`) contenant une classe `SessionÉtudiante` (donnée par l'argument `--classe NomClasse`). Cette classe doit contenir une méthode `évalue` qui prend en argument une chaine correspondant au contenu de la tentative (décodée depuis le message `cbor` sur la socket) et renvoie une évaluation en `json`.
 
 
-Les exerciseurs `TestsPy`
+Les exerciseurs `TestsPython`
 -------------------------
 
-Un exerciseur `TestsPy` est composé d'un package python avec un module (dont le nom est donné par l'argument `--module nom_module`) contenant des fonctions `test_*`. Chacune de ces fonctions est un test, qui s'exécute sans lever d'exception si la tentative est correcte. Le module accède à la tentative qui a été soumise en important le module `code_etu`.
+Un exerciseur `TestsPython` est composé d'un package python avec un module (dont le nom est donné par l'argument `--module nom_module`) contenant des fonctions `test_*`. Chacune de ces fonctions est un test, qui s'exécute sans lever d'exception si la tentative est correcte. Le module accède à la tentative qui a été soumise en important le module `code_etu`.
 
-Les exerciseurs `Jacadi`
+Les exerciseurs `Jacadi` et `python` (Rétrocompatibilité)
 -----------------------
 
-Un exerciseur `Jacadi` est composé d'un package python. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une fonction marquée par le décorateur `@solution`, ainsi que deux listes `entrees_visibles` et `entrees_invisibles`.
+Un exerciseur `Jacadi` est composé d'un package python. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une fonction marquée par le décorateur `@solution`, ainsi que deux listes `entrees_visibles` et `entrees_invisibles`. Si le nom du module n'est pas donné, si le répertoire source de l'exerciseur contient un unique fichier python, il sera utilisé pour le module.
+
+Les exerciseurs `java` (Rétrocompatibilité)
+-----------------------
+
+Un exerciseur `java` est composé d'un package java. Celui-ci contient un module (dont le nom est donné par l'argument `--module nom_module`). Ce module doit contenir une classe de test héritant de la classe TestCase du framework JUnit avec une ou plusieurs méthodes de tests se nommant `test*`.  
+Le nom de la classe attendu pour la réponse de l'étudiant doit être précisé par l'argument `--classe-etu classe_etu`. S'il n'est pas précisé, le nom de la classe attendu sera le nom de la classe du module de test sans le mot `Test` (Ex : module de test : `TestPersonnage` -> classe etu : `Personnage`)
 
 Tester un exerciseur
 ====================
@@ -151,17 +159,18 @@ Utilisation du constructeur
 Pour la construction d'un exerciseur, il faut savoir quel type d'exerciseur va être construit. Chaque type d'exerciseur correspond à une classe dérivant de `Exerciseur`. On peut créer une instance d'`Exerciseur` et construire immédiatement l'image associée avec la fonction `docker_exerciseur.constructeur.construit_exerciseur`:
 
 ```python
-def construit_exerciseur(type_ex, dossier_source, verbose, **kwargs):
+def construit_exerciseur(type_ex, dossier_source, verbose, cbor_out=None, avec_openfaas=True, **kwargs):
     """
     Construit un exerciseur. Les arguments correspondent à ceux de `docker-exerciseur construit`
 
-    @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
-    @param source: un objet contenant les sources de l'exerciseur: soit un `FluxTar`, soit un `DossierSource`
+    @param type_ex: le type d'exerciseur, parmi "DémonPython", "PackagePython", "TestsPython", "Dockerfile" ou "Jacadi", et pour la rétrocompatibilté, les types "python" (même fonctionnement que Jacadi) et "java" 
+    @param dossier_source: le chemin des sources de l'exerciseur
     @param verbose: un booléen, vrai pour afficher plus d'informations sur sys.stderr
     @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
-    - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+    - pour PackagePython, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
     - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
-    - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+    - pour Jacadi et python (rétrocompatibilité), `module="mod_ens"` indique quel module contient le code enseignant. S'il n'est pas renseigné, il prendra le fichier python se trouvant dans le répertoire donné en paramètre (s'il n'y en a qu'un).
+    - pour java (rétrocompatibilité), `nom_module="tralala"` indique quel module contient les tests et `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir. Si `classe_etu` n'est pas fourni, le nom de la classe attendu sera le nom de la classe du module de test sans le mot Test.
 
     @return l'idententifiant de l'image construite pour cet exerciseur.
     """
@@ -175,18 +184,19 @@ Pour construire un exerciseur, il est possible d'utiliser le constructeur intell
 ```
 @classmethod
 def avec_type(cls, répertoire: str, type_exo: str, *args, **kwargs) -> None:
-	"""
-	Construit un exerciseur (de la sous-classe idoine).
+        """
+        Construit un exerciseur (de la sous-classe idoine).
 
-	@param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
-	@param répertoire: le dossier contenant les sources de l'exerciseur
-	@param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
-	- pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
-	- pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
-	- pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+        @param type_exo: le type d'exerciseur, parmi "DémonPython", "PackagePython", "TestsPython", "Dockerfile" ou "Jacadi", et pour la rétrocompatibilté, les types "python" (même fonctionnement que Jacadi) et "java" 
+        @param répertoire: le dossier contenant les sources de l'exerciseur
+        @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_exo`.
+        - pour PackagePython, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+        - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
+        - pour Jacadi et python (rétrocompatibilité), `module="mod_ens"` indique quel module contient le code enseignant. S'il n'est pas renseigné, il prendra le fichier python se trouvant dans le répertoire donné en paramètre (s'il n'y en a qu'un).
+        - pour java (rétrocompatibilité), `nom_module="tralala"` indique quel module contient les tests et `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir. Si `classe_etu` n'est pas fourni, le nom de la classe attendu sera le nom de la classe du module de test sans le mot Test.
 
-	@return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
-	"""
+        @return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
+        """
 ```
 
 >>>>>>> Fin de l'empaquetage des exercices

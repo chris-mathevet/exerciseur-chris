@@ -29,6 +29,11 @@ parser.add_argument(
     "--code-etu", help="le code étudiant à soumettre"
 )
 
+parser.add_argument(
+    "--verbose", help="permet d'afficher des informations sur l'éxécution du programme",
+    action="store_true"
+)
+
 epoch = datetime.datetime.fromtimestamp(0)
 
 def sectionize(message):
@@ -56,7 +61,7 @@ def main(args):
             print(sectionize("démarrage"))
     else:
         image =  args.nom[0]
-    éval = éprouve_dans_nouveau_container(image, code_etu, args.verbose)
+    éval = éprouve_dans_nouveau_container(image, code_etu, args.verbose )
     print(json.dumps(éval))
 
 def trouve_image(docker_client, img):
@@ -125,22 +130,23 @@ def éprouve_dans_nouveau_container(
     if verbose:
         print("envoi de: {}".format(msg), file=sys.stderr)
     try:
-        url_container = "http://" + adresse_container + ":8082/"
+        url_container = "http://" + adresse_container + ":8080/"
         réponse = http.post(url_container, data=msg)
         if verbose:
             print("temps réponse: %.2f s" % (time.perf_counter() - t_début_réseau), file=sys.stderr)
         d_réponse = json.loads(réponse.text)
         return d_réponse
     except json.JSONDecodeError as e:
-        return { "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
+        return {  "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
                  "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
     except Exception as e:
-        return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
+        return {  "_valide": False, "_messages": ["Plantage du container", repr(e)],
                  "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
     finally:
         if verbose:
             print(sectionize("logs du container"), file=sys.stderr)
             print(container.logs(since=datetime.datetime.min).decode(), file=sys.stderr)
+            print(sectionize("Fin logs du container"), file=sys.stderr)
         container.stop()
                 
 
@@ -170,15 +176,56 @@ def éprouve_dans_openfaas(
     lc = LogConfig(type=LogConfig.types.JSON, config={
         'max-size': '1g',
     })
-    try:
-        dict_code_etu = {"code_etu": code_etu.encode('utf8')}
-        dict_code_etu.update(kwargs)
-        réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(dict_code_etu))
-        d_réponse = json.loads(réponse.text)
-        return d_réponse
-    except json.JSONDecodeError as e:
-        return { "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
-                 "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
-    except Exception as e:
-        return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
-                 "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
+
+    # code de base 
+
+    # try:
+    #     dict_code_etu = {"code_etu": code_etu.encode('utf8')}
+    #     dict_code_etu.update(kwargs)
+    #     réponse = requests.post('http://gateway:8080/function/%s'%id_exo[:62], data=cbor.dumps(dict_code_etu))
+    #     d_réponse = json.loads(réponse.text)
+    #     return d_réponse
+    # except json.JSONDecodeError as e:
+    #     return { "_valide": False, "_messages": ["Plantage du container, impossible de parser", e.doc],
+    #              "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"}
+    # except Exception as e:
+    #     return { "_valide": False, "_messages": ["Plantage du container", repr(e)],
+    #              "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"}
+    
+    
+    # Faire une boucle avec sleep, pour le cold start
+
+    max_retries = 5
+    delay = 1  # secondes
+    dict_code_etu = {"code_etu": code_etu.encode('utf8')}
+    dict_code_etu.update(kwargs)
+
+    for tentative in range(max_retries):
+        print("\nTENTATIVE DE VERIFICATION : ",tentative+1, "\n")
+        try:
+            réponse = requests.post(
+                'http://gateway:8080/function/%s' % id_exo[:62],
+                data=cbor.dumps(dict_code_etu)
+            )
+            d_réponse = json.loads(réponse.text)
+            return d_réponse
+
+        except json.JSONDecodeError as e:
+            if tentative < max_retries - 1:
+                time.sleep(delay)
+                continue
+            return {
+                "_valide": False,
+                "_messages": ["Plantage du container, impossible de parser", e.doc],
+                "feedbacks_html": "<div>Plantage du container: impossible de parser " + e.doc + "</div>"
+            }
+
+        except Exception as e:
+            if tentative < max_retries - 1:
+                time.sleep(delay)
+                continue
+            return {
+                "_valide": False,
+                "_messages": ["Plantage du container", repr(e)],
+                "feedbacks_html": "<div>Plantage du container: " + repr(e) + "</div>"
+            }

@@ -13,6 +13,11 @@ import cbor
 
 from ..stream_tee import StreamTee
 
+def sectionize(message):
+    n = len(message)
+    souligne = "\n" + n * "-" + "\n"
+    return (souligne + message + souligne)
+
 class PaquetExercice:
     def __init__(self, contenu: bytes, type_exo, métadonnées):
         self.contenu = contenu
@@ -103,9 +108,15 @@ class Exerciseur(ABC):
     def empaquète(self) -> PaquetExercice:
         def renomme(tar_info):
             p = tar_info.name
-            if os.path.isabs(self.sources):
-                p = os.path.join('/', p)
-            p = os.path.relpath(p, start=self.sources)
+            
+            # Vérification, est ce que self.sources est un répertoire
+            if os.path.isdir(self.sources):
+                if os.path.isabs(self.sources):
+                    p = os.path.join('/', p)
+                p = os.path.relpath(p, start=self.sources)
+            else:
+                # Si ce n'est pas un dossier, on garde juste le nom du fichier, pour éviter d'obtenir src/.
+                p = os.path.basename(p)
             p = os.path.join('src', p)
             tar_info.name = p
             return tar_info
@@ -120,12 +131,13 @@ class Exerciseur(ABC):
         """
         Construit un exerciseur (de la sous-classe idoine).
 
-        @param type_ex: le type d'exerciseur, parmi "DémonPy", "PackagePy", "TestsPy", "Dockerfile" ou "Jacadi"
+        @param type_exo: le type d'exerciseur, parmi "DémonPython", "PackagePython", "TestsPython", "Dockerfile" ou "Jacadi", et pour la rétrocompatibilté, les types "python" (même fonctionnement que Jacadi) et "java" 
         @param répertoire: le dossier contenant les sources de l'exerciseur
-        @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_ex`.
-        - pour PackagePy, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
+        @param kwarg: un dictionnaire qui sert à donner des arguments supplémentaires en fonction de `type_exo`.
+        - pour PackagePython, `nom_module="tralala"` indique quel module contient la classe exerciseur et `nom_classe="NomClasse"` le nom de cette classe
         - pour TestsPython, `nom_module="tralala"` indique quel module contient les tests
-        - pour Jacadi, `module="mod_ens"` indique quel module contient le code enseignant.
+        - pour Jacadi et python (rétrocompatibilité), `module="mod_ens"` indique quel module contient le code enseignant. S'il n'est pas renseigné, il prendra le fichier python se trouvant dans le répertoire donné en paramètre (s'il n'y en a qu'un).
+        - pour java (rétrocompatibilité), `nom_module="tralala"` indique quel module contient les tests et `classe_etu=Personnage` indique le nom de la classe que l'étudiant doit fournir. Si `classe_etu` n'est pas fourni, le nom de la classe attendu sera le nom de la classe du module de test sans le mot Test.
 
         @return l'objet exerciseur (de la sous-classe idoine d'Exerciseur).
         """
@@ -176,9 +188,29 @@ class Exerciseur(ABC):
             pass
         import requests, json
         if self.avec_openfaas:
-            requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":image.id.split(':')[1][:62], "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }))
-            requests.post('http://gateway:8080/system/scale-function/'+image.id.split(':')[1][:62], data=json.dumps({ "service":image.id.split(':')[1][:62], "replicas":0 }))
-        return (image,log)
+            nom_fonction = image.id.split(":")[1][:62]
+            requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":nom_fonction, "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }),  headers={"Content-Type": "application/json"})
+            
+            
+            # Version résolvant le problème de cold start, mais créer tous les containers des exos pendant leurs création = très long
+            # requests.post(
+            #     'http://gateway:8080/system/functions',
+            #     data=json.dumps({
+            #         "service": nom_fonction,
+            #         "image": "127.0.0.1:5000/exerciseur:%s" % nom_image,
+            #         "labels": {
+            #             "com.openfaas.scale.min": "1"
+            #         }
+            #     }),
+            #     headers={"Content-Type": "application/json"}
+            # )
+
+            requests.post('http://gateway:8080/system/scale-function/'+nom_fonction, data=json.dumps({ "service":nom_fonction, "replicas":0 }),  headers={"Content-Type": "application/json"})
+            
+            # En local 
+            # requests.post('http://localhost:8080/system/functions', data=json.dumps({ "service":nom_fonction, "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }),  headers={"Content-Type": "application/json"})
+            # requests.post('http://localhost:8080/system/scale-function/'+nom_fonction, data=json.dumps({ "service":nom_fonction, "replicas":0 }),  headers={"Content-Type": "application/json"})
+        return (image,log)  
 
 
     def construire(self) -> str:
@@ -208,4 +240,5 @@ class Exerciseur(ABC):
 
 def liberer_openfaas(id_exo: str):
     import requests, json
-    r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
+    # r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
+    r = requests.delete(f'http://gateway:8080/function/{id_exo}')

@@ -40,7 +40,8 @@ class ExerciseurDémonPython(Exerciseur):
         if self.debug_out:
             out = StreamTee(self.debug_out, out)
         if self.avec_openfaas:
-            print("FROM openfaas/of-watchdog:0.7.6 as watchdog", file=out)
+            # print("FROM openfaas/of-watchdog:0.7.6 as watchdog", file=out)
+            print("FROM ghcr.io/openfaas/of-watchdog:1c788c781b680ccad7e7dcc0e52b4205fb9fe1ff as watchdog", file=out)
         print("FROM python:alpine3.8", file=out)
         if self.avec_openfaas:
             print("COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog", file=out)

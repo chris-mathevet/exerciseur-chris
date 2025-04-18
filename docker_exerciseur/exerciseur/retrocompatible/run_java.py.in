@@ -3,14 +3,13 @@ import sys
 import json
 import cbor
 
-
 with open("code_ens","r") as f:
   codeEns = f.read()
-
 
 if __name__ == "__main__":
     def erreur(*args):
          raise Exception("Langage inexistant : " + self.type)
+         
     dict_code_etu = cbor.loads(sys.stdin.buffer.read())
     codeEtu = dict_code_etu["code_etu"]
     if isinstance(codeEtu, bytes):
