@@ -105,9 +105,7 @@ class Exerciseur(ABC):
     def type_exo(self) -> str:
         pass
 
-    def empaquète(self, logger=None) -> PaquetExercice:
-        if(logger!=None):
-            logger.info("EMPAQUETAGE")
+    def empaquète(self) -> PaquetExercice:
         def renomme(tar_info):
             p = tar_info.name
             
@@ -190,25 +188,28 @@ class Exerciseur(ABC):
             pass
         import requests, json
         if self.avec_openfaas:
-            nom_fonction = image.id.split(":")[1][:62]
-            requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":nom_fonction, "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }),  headers={"Content-Type": "application/json"})
-            
-            
-            # Version résolvant le problème de cold start, mais créer tous les containers des exos pendant leurs création = très long
-            # requests.post(
-            #     'http://gateway:8080/system/functions',
-            #     data=json.dumps({
-            #         "service": nom_fonction,
-            #         "image": "127.0.0.1:5000/exerciseur:%s" % nom_image,
-            #         "labels": {
-            #             "com.openfaas.scale.min": "1"
-            #         }
-            #     }),
-            #     headers={"Content-Type": "application/json"}
-            # )
+            nom_fonction = nom_image[:62]
 
-            requests.post('http://gateway:8080/system/scale-function/'+nom_fonction, data=json.dumps({ "service":nom_fonction, "replicas":0 }),  headers={"Content-Type": "application/json"})
-            
+            gateway_url = "http://gateway:8080"
+            # En local
+            # gateway_url = "http://localhost:8080"
+
+            headers = {"Content-Type": "application/json"}
+
+            payload = {
+                "service": nom_fonction,
+                "image": f"127.0.0.1:5000/exerciseur:{nom_image}",
+                "envProcess": "",
+                "labels": {
+                    "com.openfaas.scale.min": "0"
+                }
+            }
+
+            requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
+
+            # requests.post('http://gateway:8080/system/functions', data=json.dumps({ "service":nom_fonction, "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }),  headers={"Content-Type": "application/json"})
+            # requests.post('http://gateway:8080/system/scale-function/'+nom_fonction, data=json.dumps({ "service":nom_fonction, "replicas":0 }),  headers={"Content-Type": "application/json"})
+
             # En local 
             # requests.post('http://localhost:8080/system/functions', data=json.dumps({ "service":nom_fonction, "image":"127.0.0.1:5000/exerciseur:%s"%nom_image }),  headers={"Content-Type": "application/json"})
             # requests.post('http://localhost:8080/system/scale-function/'+nom_fonction, data=json.dumps({ "service":nom_fonction, "replicas":0 }),  headers={"Content-Type": "application/json"})

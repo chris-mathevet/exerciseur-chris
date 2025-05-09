@@ -33,11 +33,9 @@ parser.add_argument(
     "--prépare", help="ne construit pas l'image docker, mais crée seulement le répertoire avec un Dockerfile pour docker build",
     action="store_true"
 )
-
 parser.add_argument("--package", dest="cbor_out_file", help="créer un paquet cbor des sources dans un fichier",
     type=argparse.FileType('wb'),
 )
-
 parser.add_argument(
     "--verbose", help="permet d'afficher des informations sur l'éxécution du programme", action="store_true"
 )
@@ -45,12 +43,14 @@ parser.add_argument(
 def main(args):
     dossier_source = args.dossier or "."
     métadonnées={}
+    if args.type == "python":
+        args.type = "Jacadi"
     if args.classe:
         métadonnées['nom_classe'] = args.classe
     if args.classe_etu:
         métadonnées['nom_classe_etu'] = args.classe_etu
     if args.module:
-        if args.type == 'Jacadi' or args.type == "python":
+        if args.type == 'Jacadi':
             métadonnées['fichier_ens'] = args.module
         elif args.type == 'java' :
             métadonnées['nom_classe_test'] = args.module
