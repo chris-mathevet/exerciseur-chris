@@ -182,11 +182,18 @@ class Exerciseur(ABC):
         if not self.rép_travail:
             raise ValueError("rép_travail doit être défini lors de l'appel à crée_image")
         docker_client = docker_client or docker.from_env()
+
+        print("\n\nConstruction de l'image en cours...")
         (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
+        print(f"Image construite avec ID: {image.id}")  
+
         nom_image=image.id.split(':')[1]
+        print(f"Tagging de l'image avec {registry_host}/exerciseur:{nom_image}")
         image.tag(f'{registry_host}/exerciseur',nom_image)
         try:
-            docker_client.images.push(f'{registry_host}/exerciseur', tag=nom_image)
+            print(f"Pushing de l'image {registry_host}/exerciseur:{nom_image} vers le registre...")
+            push_response = docker_client.images.push(f'{registry_host}/exerciseur', tag=nom_image)
+            print(f"Réponse push : {push_response}")
         except Exception as e:
             print("Exception while pushing:", e)
             pass
