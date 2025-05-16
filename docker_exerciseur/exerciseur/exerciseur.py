@@ -175,14 +175,18 @@ class Exerciseur(ABC):
         caractères contenant le hash de l'image qui a été construite;
         log est un itérateur des lignes du log de construction.
         """
+
+        registry_host = "pcap-registry:5000"
+        # registry_host = "127.0.0.1:5000"
+
         if not self.rép_travail:
             raise ValueError("rép_travail doit être défini lors de l'appel à crée_image")
         docker_client = docker_client or docker.from_env()
         (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
         nom_image=image.id.split(':')[1]
-        image.tag('127.0.0.1:5000/exerciseur',nom_image)
+        image.tag(f'{registry_host}/exerciseur',nom_image)
         try:
-            docker_client.images.push('127.0.0.1:5000/exerciseur', tag=nom_image)
+            docker_client.images.push(f'{registry_host}/exerciseur', tag=nom_image)
         except Exception as e:
             print("Exception while pushing:", e)
             pass
@@ -191,6 +195,7 @@ class Exerciseur(ABC):
             nom_fonction = nom_image[:62]
 
             gateway_url = "http://gateway:8080"
+            
             # En local
             # gateway_url = "http://localhost:8080"
 
@@ -198,7 +203,7 @@ class Exerciseur(ABC):
 
             payload = {
                 "service": nom_fonction,
-                "image": f"127.0.0.1:5000/exerciseur:{nom_image}",
+                "image": f"{registry_host}/exerciseur:{nom_image}",
                 "envProcess": "",
                 "labels": {
                     "com.openfaas.scale.min": "0"
