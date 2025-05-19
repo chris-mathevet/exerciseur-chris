@@ -257,7 +257,7 @@ class Exerciseur(ABC):
         secret = client.V1Secret(
             metadata=client.V1ObjectMeta(name=secret_name),
             type="Opaque",
-            data={"context.tar.gz": base64.b64encode(open(tar_path, "rb").read()).decode()}
+            data={"context.tar.gz": encoded_context}
         )
         api.create_namespaced_secret(namespace="pcap-api", body=secret)
 
@@ -340,7 +340,7 @@ class Exerciseur(ABC):
             }
             requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
 
-        return (image,log)  
+        return (image_name,log)  
 
 
     def construire(self) -> str:
