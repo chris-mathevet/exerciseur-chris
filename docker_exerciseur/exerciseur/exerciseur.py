@@ -176,48 +176,169 @@ class Exerciseur(ABC):
         log est un itérateur des lignes du log de construction.
         """
 
-        registry_host = "pcap-registry:5000"
-        # registry_host = "127.0.0.1:5000"
+        # registry_host = "pcap-registry:5000"
+        # # registry_host = "127.0.0.1:5000"
 
-        if not self.rép_travail:
-            raise ValueError("rép_travail doit être défini lors de l'appel à crée_image")
-        docker_client = docker_client or docker.from_env()
+        # if not self.rép_travail:
+        #     raise ValueError("rép_travail doit être défini lors de l'appel à crée_image")
+        # docker_client = docker_client or docker.from_env()
 
-        print("\n\nConstruction de l'image en cours...")
-        (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
-        print(f"Image construite avec ID: {image.id}")  
+        # print("\n\nConstruction de l'image en cours...")
+        # (image, log) = docker_client.images.build(path=self.rép_travail, quiet=True)
+        # print(f"Image construite avec ID: {image.id}")  
 
-        nom_image=image.id.split(':')[1]
-        print(f"Tagging de l'image avec {registry_host}/exerciseur:{nom_image}")
-        image.tag(f'{registry_host}/exerciseur',nom_image)
-        try:
-            print(f"Pushing de l'image {registry_host}/exerciseur:{nom_image} vers le registre...")
-            push_response = docker_client.images.push(f'{registry_host}/exerciseur', tag=nom_image)
-            print(f"Réponse push : {push_response}")
-        except Exception as e:
-            print("Exception while pushing:", e)
-            pass
-        import requests, json
-        if self.avec_openfaas:
-            nom_fonction = nom_image[:62]
+        # nom_image=image.id.split(':')[1]
+        # print(f"Tagging de l'image avec {registry_host}/exerciseur:{nom_image}")
+        # image.tag(f'{registry_host}/exerciseur',nom_image)
+        # try:
+        #     print(f"Pushing de l'image {registry_host}/exerciseur:{nom_image} vers le registre...")
+        #     push_response = docker_client.images.push(f'{registry_host}/exerciseur', tag=nom_image)
+        #     print(f"Réponse push : {push_response}")
+        # except Exception as e:
+        #     print("Exception while pushing:", e)
+        #     pass
+        # import requests, json
+        # if self.avec_openfaas:
+        #     nom_fonction = nom_image[:62]
 
-            gateway_url = "http://gateway:8080"
+        #     gateway_url = "http://gateway:8080"
             
-            # En local
-            # gateway_url = "http://localhost:8080"
+        #     # En local
+        #     # gateway_url = "http://localhost:8080"
 
+        #     headers = {"Content-Type": "application/json"}
+
+        #     payload = {
+        #         "service": nom_fonction,
+        #         "image": f"{registry_host}/exerciseur:{nom_image}",
+        #         "envProcess": "",
+        #         "labels": {
+        #             "com.openfaas.scale.min": "0"
+        #         }
+        #     }
+
+        #     requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
+
+
+
+        # Version Kubernetes 
+
+        import uuid
+        import tarfile
+        import base64
+        import os
+        from kubernetes import client, config
+
+        # 1. Infos image
+        tag = str(uuid.uuid4())[:8]
+        image_name = f"pcap-registry:5000/exerciseur:{tag}"
+        pod_name = f"kaniko-build-{tag}"
+
+        # 2. Packager le contexte local (rép_travail) en tar.gz
+        tar_path = f"/tmp/context-{tag}.tar.gz"
+        with tarfile.open(tar_path, "w:gz") as tar:
+            tar.add(self.rép_travail, arcname=".")
+
+        # 3. Lire et encoder le contenu
+        with open(tar_path, "rb") as f:
+            encoded_context = base64.b64encode(f.read()).decode()
+
+        # 4. Charger config Kubernetes
+        try:
+            config.load_incluster_config()
+        except:
+            config.load_kube_config()
+
+        api = client.CoreV1Api()
+
+        # 5. Créer un Secret temporaire contenant le contexte encodé
+        secret_name = f"kaniko-context-{tag}"
+        secret = client.V1Secret(
+            metadata=client.V1ObjectMeta(name=secret_name),
+            type="Opaque",
+            data={"context.tar.gz": base64.b64encode(open(tar_path, "rb").read()).decode()}
+        )
+        api.create_namespaced_secret(namespace="default", body=secret)
+
+        # 6. Définir le Pod Kaniko avec initContainer qui extrait le contexte
+        pod_spec = client.V1Pod(
+            metadata=client.V1ObjectMeta(name=pod_name),
+            spec=client.V1PodSpec(
+                restart_policy="Never",
+                containers=[
+                    client.V1Container(
+                        name="kaniko",
+                        image="gcr.io/kaniko-project/executor:latest",
+                        args=[
+                            "--dockerfile=/context/Dockerfile",
+                            "--context=/context",
+                            f"--destination={image_name}",
+                            "--insecure",
+                            "--skip-tls-verify"
+                        ],
+                        volume_mounts=[
+                            client.V1VolumeMount(mount_path="/context", name="build-context")
+                        ]
+                    )
+                ],
+                init_containers=[
+                    client.V1Container(
+                        name="extract-context",
+                        image="alpine",
+                        command=["sh", "-c", "mkdir /context && tar -xzf /secret/context.tar.gz -C /context"],
+                        volume_mounts=[
+                            client.V1VolumeMount(mount_path="/secret", name="context-archive"),
+                            client.V1VolumeMount(mount_path="/context", name="build-context")
+                        ]
+                    )
+                ],
+                volumes=[
+                    client.V1Volume(
+                        name="context-archive",
+                        secret=client.V1SecretVolumeSource(secret_name=secret_name)
+                    ),
+                    client.V1Volume(
+                        name="build-context",
+                        empty_dir={}
+                    )
+                ]
+            )
+        )
+
+        # 7. Lancer le Pod
+        api.create_namespaced_pod(namespace="default", body=pod_spec)
+        print(f"Pod {pod_name} lancé, en attente de fin...")
+
+        # 8. Attendre fin du build
+        while True:
+            pod = api.read_namespaced_pod(name=pod_name, namespace="default")
+            if pod.status.phase in ["Succeeded", "Failed"]:
+                break
+            time.sleep(1)
+
+        logs = api.read_namespaced_pod_log(name=pod_name, namespace="default")
+        print("Logs Kaniko:\n", logs)
+
+        # 9. Supprimer le secret temporaire
+        api.delete_namespaced_secret(name=secret_name, namespace="default")
+
+        # 10. Supprimer le Pod
+        api.delete_namespaced_pod(name=pod_name, namespace="default", body=client.V1DeleteOptions())
+        print(f"Pod {pod_name} supprimé.")
+
+        # 11. Poster la fonction openfaas
+        if self.avec_openfaas:
+            nom_fonction = tag[:62]
+            gateway_url = "http://gateway:8080"
             headers = {"Content-Type": "application/json"}
-
             payload = {
                 "service": nom_fonction,
-                "image": f"{registry_host}/exerciseur:{nom_image}",
+                "image": image_name,
                 "envProcess": "",
-                "labels": {
-                    "com.openfaas.scale.min": "0"
-                }
+                "labels": {"com.openfaas.scale.min": "0"}
             }
-
             requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
+
         return (image,log)  
 
 
