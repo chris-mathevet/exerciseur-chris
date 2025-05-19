@@ -363,7 +363,8 @@ class Exerciseur(ABC):
             self.debug("-----------------------")
             for ligne in log:
                 self.debug(ligne)
-        return i.id
+        # return i.id
+        return i
 
     @classmethod
     def register(classe, nom, sous_classe):
