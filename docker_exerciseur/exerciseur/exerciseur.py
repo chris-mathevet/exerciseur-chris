@@ -232,7 +232,7 @@ class Exerciseur(ABC):
 
         # 1. Infos image
         tag = str(uuid.uuid4())
-        image_name = f"pcap-registry:5000/exerciseur:{tag}"
+        image_name = f"pcap-registry.pcap-api.svc.cluster.local:5000/exerciseur:{tag}"
         pod_name = f"kaniko-build-{tag}"
 
         # 2. Packager le contexte local (rép_travail) en tar.gz
@@ -341,7 +341,7 @@ class Exerciseur(ABC):
             }
             requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
 
-        return (image_name,logs)  
+        return (image_name,logs)
 
 
     def construire(self) -> str:
