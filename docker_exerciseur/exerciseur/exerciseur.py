@@ -231,7 +231,7 @@ class Exerciseur(ABC):
         from kubernetes import client, config
 
         # 1. Infos image
-        tag = str(uuid.uuid4())[:8]
+        tag = str(uuid.uuid4())
         image_name = f"pcap-registry:5000/exerciseur:{tag}"
         pod_name = f"kaniko-build-{tag}"
 
