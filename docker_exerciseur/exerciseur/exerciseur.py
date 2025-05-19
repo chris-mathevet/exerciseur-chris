@@ -330,6 +330,11 @@ class Exerciseur(ABC):
         # 11. Poster la fonction openfaas
         if self.avec_openfaas:
             import requests, json
+            from requests.auth import HTTPBasicAuth
+
+            username = "toto"
+            password = "toto"
+
             nom_fonction = tag[:62]
             gateway_url = "http://gateway:8080"
             headers = {"Content-Type": "application/json"}
@@ -339,7 +344,7 @@ class Exerciseur(ABC):
                 "envProcess": "",
                 "labels": {"com.openfaas.scale.min": "0"}
             }
-            requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
+            requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers, auth=HTTPBasicAuth(username, password))
 
         return (image_name,logs)
 
