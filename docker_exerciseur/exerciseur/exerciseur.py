@@ -341,7 +341,7 @@ class Exerciseur(ABC):
             }
             requests.post(f"{gateway_url}/system/functions", data=json.dumps(payload), headers=headers)
 
-        return (image_name,log)  
+        return (image_name,logs)  
 
 
     def construire(self) -> str:
