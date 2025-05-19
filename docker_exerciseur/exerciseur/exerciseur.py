@@ -258,7 +258,7 @@ class Exerciseur(ABC):
             type="Opaque",
             data={"context.tar.gz": base64.b64encode(open(tar_path, "rb").read()).decode()}
         )
-        api.create_namespaced_secret(namespace="default", body=secret)
+        api.create_namespaced_secret(namespace="pcap-api", body=secret)
 
         # 6. Définir le Pod Kaniko avec initContainer qui extrait le contexte
         pod_spec = client.V1Pod(
@@ -306,24 +306,24 @@ class Exerciseur(ABC):
         )
 
         # 7. Lancer le Pod
-        api.create_namespaced_pod(namespace="default", body=pod_spec)
+        api.create_namespaced_pod(namespace="pcap-api", body=pod_spec)
         print(f"Pod {pod_name} lancé, en attente de fin...")
 
         # 8. Attendre fin du build
         while True:
-            pod = api.read_namespaced_pod(name=pod_name, namespace="default")
+            pod = api.read_namespaced_pod(name=pod_name, namespace="pcap-api")
             if pod.status.phase in ["Succeeded", "Failed"]:
                 break
             time.sleep(1)
 
-        logs = api.read_namespaced_pod_log(name=pod_name, namespace="default")
+        logs = api.read_namespaced_pod_log(name=pod_name, namespace="pcap-api")
         print("Logs Kaniko:\n", logs)
 
         # 9. Supprimer le secret temporaire
-        api.delete_namespaced_secret(name=secret_name, namespace="default")
+        api.delete_namespaced_secret(name=secret_name, namespace="pcap-api")
 
         # 10. Supprimer le Pod
-        api.delete_namespaced_pod(name=pod_name, namespace="default", body=client.V1DeleteOptions())
+        api.delete_namespaced_pod(name=pod_name, namespace="pcap-api", body=client.V1DeleteOptions())
         print(f"Pod {pod_name} supprimé.")
 
         # 11. Poster la fonction openfaas
