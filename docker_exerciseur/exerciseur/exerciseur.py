@@ -332,8 +332,13 @@ class Exerciseur(ABC):
             import requests, json
             from requests.auth import HTTPBasicAuth
 
-            username = "toto"
-            password = "toto"
+            username = os.getenv("OPENFAAS_USERNAME")
+            if not username:
+                raise EnvironmentError("La variable OPENFAAS_USERNAME est manquante.")
+
+            password = os.getenv("OPENFAAS_PASSWORD")
+            if not password:
+                raise EnvironmentError("La variable OPENFAAS_PASSWORD est manquante.")
 
             nom_fonction = tag[:62]
             gateway_url = "http://gateway:8080"
