@@ -286,7 +286,7 @@ class Exerciseur(ABC):
                     client.V1Container(
                         name="extract-context",
                         image="alpine",
-                        command=["sh", "-c", "mkdir /context && tar -xzf /secret/context.tar.gz -C /context"],
+                        command=["sh", "-c", "mkdir -p /context && tar -xzf /secret/context.tar.gz -C /context"],
                         volume_mounts=[
                             client.V1VolumeMount(mount_path="/secret", name="context-archive"),
                             client.V1VolumeMount(mount_path="/context", name="build-context")
