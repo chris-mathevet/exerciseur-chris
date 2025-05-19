@@ -176,7 +176,7 @@ class Exerciseur(ABC):
         log est un itérateur des lignes du log de construction.
         """
 
-        registry_host = "registry.localhost"
+        registry_host = "pcap-registry:5000"
         # registry_host = "127.0.0.1:5000"
 
         if not self.rép_travail:
