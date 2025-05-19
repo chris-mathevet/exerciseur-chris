@@ -227,6 +227,7 @@ class Exerciseur(ABC):
         import tarfile
         import base64
         import os
+        import time
         from kubernetes import client, config
 
         # 1. Infos image
