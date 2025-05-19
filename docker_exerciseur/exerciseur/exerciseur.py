@@ -197,7 +197,7 @@ class Exerciseur(ABC):
         # except Exception as e:
         #     print("Exception while pushing:", e)
         #     pass
-        # import requests, json
+        
         # if self.avec_openfaas:
         #     nom_fonction = nom_image[:62]
 
@@ -231,7 +231,7 @@ class Exerciseur(ABC):
         from kubernetes import client, config
 
         # 1. Infos image
-        tag = str(uuid.uuid4())[:8]
+        tag = str(uuid.uuid4())
         image_name = f"pcap-registry:5000/exerciseur:{tag}"
         pod_name = f"kaniko-build-{tag}"
 
@@ -329,6 +329,7 @@ class Exerciseur(ABC):
 
         # 11. Poster la fonction openfaas
         if self.avec_openfaas:
+            import requests, json
             nom_fonction = tag[:62]
             gateway_url = "http://gateway:8080"
             headers = {"Content-Type": "application/json"}
