@@ -412,10 +412,12 @@ def creer_image_alpine(registre: str ="python"):
 
     if registre=="openjdk":
         pod_name = "kaniko-push-openjdk-alpine"
-        destination = "openjdk:alpine"
+        alpine_image = "openjdk:alpine"
+        destination = "openjdk_alpine"
     else: # Python
         pod_name = "kaniko-push-python-alpine"
-        destination = "python:alpine3.8"
+        alpine_image = "python:alpine3.8"
+        destination = "python_alpine3.8"
 
     full_image_name = f"{registry_host}/{repository}:{destination}"
 
@@ -469,7 +471,7 @@ def creer_image_alpine(registre: str ="python"):
 
     config_map = client.V1ConfigMap(
         metadata=client.V1ObjectMeta(name=configmap_name),
-        data={f"Dockerfile": "FROM {destination}\n"}
+        data={f"Dockerfile": "FROM {alpine_image}\n"}
     )
 
     try:

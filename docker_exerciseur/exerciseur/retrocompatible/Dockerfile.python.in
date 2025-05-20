@@ -1,5 +1,6 @@
 FROM ghcr.io/openfaas/classic-watchdog:0.1.4 as watchdog
-FROM python:3.8-alpine
+FROM pcap-registry.pcap-api.svc.cluster.local:5000/utils:python_alpine3.8
+# FROM python:3.8-alpine
 
 RUN apk add --no-cache \
 python3 \
