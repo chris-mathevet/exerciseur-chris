@@ -425,7 +425,7 @@ def creer_image_alpine(registre: str ="python"):
 
     namespace = "pcap-api"
 
-    configmap_name = f"kaniko-dockerfile-configmap-{registre}
+    configmap_name = f"kaniko-dockerfile-configmap-{registre}"
 
     print(sectionize(f"CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
 
