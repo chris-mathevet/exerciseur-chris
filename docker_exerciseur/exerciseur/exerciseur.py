@@ -458,7 +458,7 @@ def creer_image_alpine(registre: str ="python"):
                 {
                     "name": "workspace",
                     "configMap": {
-                        "name": "kaniko-dockerfile-configmap"
+                        "name": f"kaniko-dockerfile-configmap-{registre}"
                     }
                 }
             ]
