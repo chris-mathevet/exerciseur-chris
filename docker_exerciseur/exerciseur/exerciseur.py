@@ -493,3 +493,6 @@ def creer_image_alpine(registre="python" : str):
 
     print(sectionize(f"FIN CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
 
+if __name__ == "__main__":
+    creer_image_alpine()
+    creer_image_alpine("openjdk")
