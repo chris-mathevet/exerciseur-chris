@@ -317,9 +317,9 @@ class Exerciseur(ABC):
             pod = api.read_namespaced_pod(name=pod_name, namespace="pcap-api")
             if pod.status.phase in ["Succeeded", "Failed"]:
                 break
-            time.sleep(1)
+            time.sleep(5)
 
-        logs = api.read_namespaced_pod_log(name=pod_name, namespace="pcap-api")
+        # logs = api.read_namespaced_pod_log(name=pod_name, namespace="pcap-api")
         # print("Logs Kaniko:\n", logs)
 
         # 9. Supprimer le secret temporaire
