@@ -471,7 +471,7 @@ def creer_image_alpine(registre: str ="python"):
 
     config_map = client.V1ConfigMap(
         metadata=client.V1ObjectMeta(name=configmap_name),
-        data={f"Dockerfile": "FROM {alpine_image}\n"}
+        data={"Dockerfile": f"FROM {alpine_image}\n"}
     )
 
     try:
