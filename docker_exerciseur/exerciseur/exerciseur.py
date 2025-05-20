@@ -317,9 +317,9 @@ class Exerciseur(ABC):
             pod = api.read_namespaced_pod(name=pod_name, namespace="pcap-api")
             if pod.status.phase in ["Succeeded", "Failed"]:
                 break
-            time.sleep(1)
+            time.sleep(5)
 
-        logs = api.read_namespaced_pod_log(name=pod_name, namespace="pcap-api")
+        # logs = api.read_namespaced_pod_log(name=pod_name, namespace="pcap-api")
         # print("Logs Kaniko:\n", logs)
 
         # 9. Supprimer le secret temporaire
@@ -370,9 +370,7 @@ class Exerciseur(ABC):
             self.écrit_dockerfile()
             i, log = self.crée_image()
             self.prépare_métadonnées()
-            self.debug("-----------------------")
-            self.debug("Logs construction image")
-            self.debug("-----------------------")
+            self.debug(sectionize("Logs construction image"))
             # for ligne in log:
             #     self.debug(ligne)
         # return i.id
@@ -386,3 +384,115 @@ def liberer_openfaas(id_exo: str):
     import requests, json
     # r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
     r = requests.delete(f'http://gateway:8080/function/{id_exo}')
+
+def creer_image_alpine(registre="python" : str):
+    """
+    Créer et push dans le registry privé (pcap-registry) dans le repository "utils"
+    une image alpine en fonction du registre donné en paramètre.
+    Passe par un pod Kaniko qui fait la création de l'image et la push dans le registry privé.
+
+    @param registre: le registre utilisé pour pull l'image parmi python et openjdk, défaut à python
+
+    """
+    from kubernetes import client, config
+    import time
+
+    config.load_kube_config()
+    api = client.CoreV1Api()
+
+    if registre=="openjdk":
+        pod_name = "kaniko-push-openjdk-alpine"
+        destination = "openjdk:alpine"
+    else: # Python
+        pod_name = "kaniko-push-python-alpine"
+        destination = "python:alpine3.8"
+
+    namespace = "pcap-api"
+
+    print(sectionize(f"CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
+
+    pod_manifest = {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {
+            "name": pod_name,
+        },
+        "spec": {
+            "restartPolicy": "Never",
+            "containers": [
+                {
+                    "name": "kaniko",
+                    "image": "gcr.io/kaniko-project/executor:latest",
+                    "args": [
+                        "--dockerfile=/workspace/Dockerfile",
+                        "--context=dir:///workspace/",
+                        f"--destination=pcap-registry.pcap-api.svc.cluster.local:5000/utils:{destination}",
+                        "--insecure",
+                        "--skip-tls-verify",
+                    ],
+                    "volumeMounts": [
+                        {
+                            "name": "workspace",
+                            "mountPath": "/workspace"
+                        }
+                    ]
+                }
+            ],
+            "volumes": [
+                {
+                    "name": "workspace",
+                    "configMap": {
+                        "name": "kaniko-dockerfile-configmap"
+                    }
+                }
+            ]
+        }
+    }
+
+    config_map = client.V1ConfigMap(
+        metadata=client.V1ObjectMeta(name=f"kaniko-dockerfile-configmap-{destination}"),
+        data={f"Dockerfile": "FROM {destination}\n"}
+    )
+
+    try:
+        api.create_namespaced_config_map(namespace=namespace, body=config_map)
+    except client.exceptions.ApiException as e:
+        if e.status == 409:
+            print("ConfigMap déjà existant, on continue...")
+        else:
+            raise
+
+    try:
+        api.create_namespaced_pod(namespace=namespace, body=pod_manifest)
+        print("Pod Kaniko créé, attente de fin...")
+    except client.exceptions.ApiException as e:
+        if e.status == 409:
+            print("Pod déjà existant, suppression en cours...")
+            api.delete_namespaced_pod(name=pod_name, namespace=namespace)
+            time.sleep(5)
+            api.create_namespaced_pod(namespace=namespace, body=pod_manifest)
+        else:
+            raise
+
+    while True:
+        pod_status = api.read_namespaced_pod_status(name=pod_name, namespace=namespace)
+        phase = pod_status.status.phase
+        if phase in ["Succeeded", "Failed"]:
+            print(f"Pod terminé avec le statut : {phase}")
+            break
+        print(f"Pod en cours... statut : {phase}")
+        time.sleep(5)
+
+    logs = api.read_namespaced_pod_log(name=pod_name, namespace=namespace)
+    print("--- Logs Kaniko ---")
+    print(logs)
+
+    api.delete_namespaced_pod(name=pod_name, namespace=namespace)
+    api.delete_namespaced_config_map(name="kaniko-dockerfile-configmap", namespace=namespace)
+    print("Nettoyage effectué.")
+
+    print(sectionize(f"FIN CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
+
+if __name__ == "__main__":
+    creer_image_alpine()
+    creer_image_alpine("openjdk")
