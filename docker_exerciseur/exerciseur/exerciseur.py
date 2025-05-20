@@ -425,6 +425,8 @@ def creer_image_alpine(registre: str ="python"):
 
     namespace = "pcap-api"
 
+    configmap_name = f"kaniko-dockerfile-configmap-{registre}
+
     print(sectionize(f"CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
 
     pod_manifest = {
@@ -458,7 +460,7 @@ def creer_image_alpine(registre: str ="python"):
                 {
                     "name": "workspace",
                     "configMap": {
-                        "name": f"kaniko-dockerfile-configmap-{registre}"
+                        "name": configmap_name
                     }
                 }
             ]
@@ -466,7 +468,7 @@ def creer_image_alpine(registre: str ="python"):
     }
 
     config_map = client.V1ConfigMap(
-        metadata=client.V1ObjectMeta(name=f"kaniko-dockerfile-configmap-{registre}"),
+        metadata=client.V1ObjectMeta(name=configmap_name),
         data={f"Dockerfile": "FROM {destination}\n"}
     )
 
@@ -504,7 +506,7 @@ def creer_image_alpine(registre: str ="python"):
     print(logs)
 
     api.delete_namespaced_pod(name=pod_name, namespace=namespace)
-    api.delete_namespaced_config_map(name="kaniko-dockerfile-configmap", namespace=namespace)
+    api.delete_namespaced_config_map(name=configmap_name, namespace=namespace)
     print("Nettoyage effectué.")
 
     print(sectionize(f"FIN CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
