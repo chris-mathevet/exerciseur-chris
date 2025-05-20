@@ -466,7 +466,7 @@ def creer_image_alpine(registre: str ="python"):
     }
 
     config_map = client.V1ConfigMap(
-        metadata=client.V1ObjectMeta(name=f"kaniko-dockerfile-configmap-{destination}"),
+        metadata=client.V1ObjectMeta(name=f"kaniko-dockerfile-configmap-{registre}"),
         data={f"Dockerfile": "FROM {destination}\n"}
     )
 
