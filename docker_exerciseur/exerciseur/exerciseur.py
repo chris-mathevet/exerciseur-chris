@@ -324,6 +324,7 @@ class Exerciseur(ABC):
             time.sleep(5)
 
         # logs = api.read_namespaced_pod_log(name=pod_name, namespace="pcap-api")
+        logs = []
         # print("Logs Kaniko:\n", logs)
 
         # 9. Supprimer le secret temporaire
