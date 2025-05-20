@@ -11,7 +11,7 @@ from pathlib import Path
 from types import ModuleType
 import cbor
 
-from ..stream_tee import StreamTee
+# from ..stream_tee import StreamTee
 
 def sectionize(message):
     n = len(message)
