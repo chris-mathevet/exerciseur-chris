@@ -1,4 +1,5 @@
-FROM openjdk:alpine
+FROM pcap-registry.pcap-api.svc.cluster.local:5000/utils:openjdk:alpine
+# FROM openjdk:alpine
 
 RUN apk add --no-cache python3 py3-pip py3-psutil
 RUN pip3 install cbor
