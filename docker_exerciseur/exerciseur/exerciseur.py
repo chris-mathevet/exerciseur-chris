@@ -270,6 +270,7 @@ class Exerciseur(ABC):
                     client.V1Container(
                         name="kaniko",
                         image="gcr.io/kaniko-project/executor:latest",
+                        image_pull_policy="IfNotPresent",
                         args=[
                             "--dockerfile=/context/Dockerfile",
                             "--context=/context",
@@ -286,6 +287,7 @@ class Exerciseur(ABC):
                     client.V1Container(
                         name="extract-context",
                         image="alpine",
+                        image_pull_policy="IfNotPresent",
                         command=["sh", "-c", "mkdir -p /context && tar -xzf /secret/context.tar.gz -C /context"],
                         volume_mounts=[
                             client.V1VolumeMount(mount_path="/secret", name="context-archive"),
