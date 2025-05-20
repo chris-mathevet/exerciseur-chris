@@ -404,7 +404,10 @@ def creer_image_alpine(registre: str ="python"):
     registry_host = "pcap-registry.pcap-api.svc.cluster.local:5000"
     repository = "utils"
 
-    config.load_kube_config()
+    try:
+        config.load_incluster_config()
+    except:
+        config.load_kube_config()
     api = client.CoreV1Api()
 
     if registre=="openjdk":
