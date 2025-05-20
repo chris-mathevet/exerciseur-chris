@@ -10,6 +10,7 @@ import tarfile
 from pathlib import Path
 from types import ModuleType
 import cbor
+import requests, json
 
 # from ..stream_tee import StreamTee
 
@@ -230,6 +231,9 @@ class Exerciseur(ABC):
         import time
         from kubernetes import client, config
 
+        creer_image_alpine()
+        creer_image_alpine("openjdk")
+
         # 1. Infos image
         tag = str(uuid.uuid4())
         image_name = f"pcap-registry.pcap-api.svc.cluster.local:5000/exerciseur:{tag}"
@@ -331,7 +335,6 @@ class Exerciseur(ABC):
 
         # 11. Poster la fonction openfaas
         if self.avec_openfaas:
-            import requests, json
             from requests.auth import HTTPBasicAuth
 
             username = os.getenv("OPENFAAS_USERNAME")
@@ -397,6 +400,9 @@ def creer_image_alpine(registre: str ="python"):
     from kubernetes import client, config
     import time
 
+    registry_host = "pcap-registry.pcap-api.svc.cluster.local:5000"
+    repository = "utils"
+
     config.load_kube_config()
     api = client.CoreV1Api()
 
@@ -406,6 +412,12 @@ def creer_image_alpine(registre: str ="python"):
     else: # Python
         pod_name = "kaniko-push-python-alpine"
         destination = "python:alpine3.8"
+
+    full_image_name = f"{registry_host}/{repository}:{destination}"
+
+    if image_exists(registry_host, repository, destination):
+        print(f"Image {full_image_name} déjà présente dans le registry, pas de build nécessaire.")
+        return
 
     namespace = "pcap-api"
 
@@ -426,7 +438,7 @@ def creer_image_alpine(registre: str ="python"):
                     "args": [
                         "--dockerfile=/workspace/Dockerfile",
                         "--context=dir:///workspace/",
-                        f"--destination=pcap-registry.pcap-api.svc.cluster.local:5000/utils:{destination}",
+                        f"--destination={full_image_name}",
                         "--insecure",
                         "--skip-tls-verify",
                     ],
@@ -492,6 +504,15 @@ def creer_image_alpine(registre: str ="python"):
     print("Nettoyage effectué.")
 
     print(sectionize(f"FIN CREATION ET PUBLICATION DANS LE REGISTRY (pcap-registry) : {destination}"))
+
+def image_exists(registry_url, repository, tag):
+    url = f"http://{registry_url}/v2/{repository}/manifests/{tag}"
+    headers = {"Accept": "application/vnd.docker.distribution.manifest.v2+json"}
+    try:
+        response = requests.head(url, headers=headers, timeout=5, verify=False)  # verify=False si TLS auto-signé
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
 
 if __name__ == "__main__":
     creer_image_alpine()
