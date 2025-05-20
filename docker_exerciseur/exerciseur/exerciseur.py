@@ -385,7 +385,7 @@ def liberer_openfaas(id_exo: str):
     # r = requests.delete('http://gateway:8080/system/functions', data=json.dumps({ "functionName":id_exo}))
     r = requests.delete(f'http://gateway:8080/function/{id_exo}')
 
-def creer_image_alpine(registre="python" : str):
+def creer_image_alpine(registre: str ="python"):
     """
     Créer et push dans le registry privé (pcap-registry) dans le repository "utils"
     une image alpine en fonction du registre donné en paramètre.
