@@ -201,7 +201,9 @@ class Exerciseur(ABC):
                 "image": f"127.0.0.1:5000/exerciseur:{nom_image}",
                 "envProcess": "",
                 "labels": {
-                    "com.openfaas.scale.min": "0"
+                    "com.openfaas.scale.min": "0",
+                    "com.openfaas.scale.zero": "true",
+                    "com.openfaas.scale.zero-duration": "1m"
                 }
             }
 
