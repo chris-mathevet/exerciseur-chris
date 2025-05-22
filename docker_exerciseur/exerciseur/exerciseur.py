@@ -203,7 +203,7 @@ class Exerciseur(ABC):
                 "labels": {
                     "com.openfaas.scale.min": "0",
                     "com.openfaas.scale.zero": "true",
-                    "com.openfaas.scale.zero-duration": "1m"
+                    # "com.openfaas.scale.zero-duration": "1m"
                 }
             }
 
